@@ -1,0 +1,28 @@
+{
+  "navigation": {
+    "search_placeholder": "Rechercher...",
+    "profile": "Profil",
+    "mute_notifications": "Couper les notifications",
+    "themes": "Thèmes",
+    "settings": "Paramètres",
+    "help": "Aide",
+    "sign_out": "Se déconnecter",
+    "signing_out": "Déconnexion...",
+    "switch_to_light_mode": "Passer en mode clair",
+    "switch_to_dark_mode": "Passer en mode sombre",
+    "change_language": "Changer de langue",
+    "select_language": "Sélectionner la langue"
+  },
+  "languages": {
+    "en": "Anglais",
+    "fr": "Français",
+    "es": "Espagnol",
+    "de": "Allemand",
+    "it": "Italien",
+    "pt": "Portugais",
+    "ru": "Russe",
+    "zh": "Chinois",
+    "ja": "Japonais",
+    "ar": "Arabe"
+  }
+}
