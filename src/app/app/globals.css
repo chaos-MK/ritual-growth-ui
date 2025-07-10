@@ -388,3 +388,42 @@ body {
 .dark li {
   border-color: #374151 !important;
 }
+:root select {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+
+:root select option {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* Select field dark mode */
+.dark select {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark select option {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Focus states for select */
+:root .focus\:ring-indigo-500:focus {
+  --tw-ring-color: #6366f1 !important;
+}
+
+:root .focus\:border-indigo-500:focus {
+  border-color: #6366f1 !important;
+}
+
+.dark .focus\:ring-indigo-500:focus {
+  --tw-ring-color: #6366f1 !important;
+}
+
+.dark .focus\:border-indigo-500:focus {
+  border-color: #6366f1 !important;
+}
