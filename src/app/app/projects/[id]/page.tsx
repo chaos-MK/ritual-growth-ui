@@ -6,7 +6,9 @@ import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { useNavigationStore, NavigationTreeNode } from '@/app/stores/navigationStore'
+import { useNavigation } from '@/hooks/useNavigation'
+
+
 
 // Types
 interface User {
@@ -86,7 +88,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const router = useRouter()
   const resolvedParams = use(params)
   const projectId = resolvedParams.id
-  
+  const [expectedCohortCount, setExpectedCohortCount] = useState<number | null>(null)
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [cohorts, setCohorts] = useState<Cohort[]>([])
@@ -95,8 +97,10 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const [apiError, setApiError] = useState<string | null>(null)
   const [project, setProject] = useState<Project | null>(null)
   const [projectLoading, setProjectLoading] = useState(false)
+  const { loadNavigationData } = useNavigation()
 
-  const { setNavigationTree, setNavigationContext, setBreadcrumbs } = useNavigationStore()
+
+
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -147,7 +151,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/project/${encodeURIComponent(projectId)}`, {
+      const response = await fetch(`http://localhost:8080/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
@@ -290,56 +294,52 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
       },
     ]
   }
+  
 
-  // Build navigation tree for project level
-  const buildProjectNavigation = useCallback((cohorts: Cohort[]) => {
-    try {
-      // Set the navigation context to project level
-      setNavigationContext({
-        projectId: projectId,
-        cohortId: null,
-        userId: null,
-        sessionId: null
-      })
-
-      // Set breadcrumbs for project summary
-      setBreadcrumbs([
-        { name: 'Company Summary', href: '/app/index', isActive: false },
-        { name: project?.name || 'Project', href: `/app/projects/${projectId}`, isActive: true }
-      ])
-
-      console.log('Navigation context updated for project:', projectId)
-    } catch (error) {
-      console.error('Failed to build project navigation:', error)
+  useEffect(() => {
+  if (typeof window !== 'undefined') {
+    const stored = sessionStorage.getItem('currentProject')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (parsed?.cohortCount !== undefined) {
+          setExpectedCohortCount(parsed.cohortCount)
+        }
+      } catch (e) {
+        console.warn('Failed to parse sessionStorage project data')
+      }
     }
-  }, [setNavigationContext, setBreadcrumbs, projectId, project?.name])
+  }
+}, [])
+
+
 
   // Load project and cohorts data on component mount
   useEffect(() => {
-    const loadProjectData = async () => {
-      if (!userInfo || !projectId) return
+  const loadProjectData = async () => {
+    if (!userInfo || !projectId) return
 
-      try {
-        // Fetch project details
-        const projectData = await fetchProject(projectId)
-        setProject(projectData)
+    try {
+      const projectData = await fetchProject(projectId)
+      setProject(projectData)
 
-        // Fetch cohorts data
-        const cohortData = await fetchCohortsByProject(projectId)
-        setCohorts(cohortData)
-        
-        const calculatedStats = calculateStats(cohortData)
-        setStats(calculatedStats)
-        
-        // Build navigation for project level
-        buildProjectNavigation(cohortData)
-      } catch (error) {
-        console.error('Failed to load project data:', error)
-      }
+      const cohortData = await fetchCohortsByProject(projectId)
+      setCohorts(cohortData)
+
+      const calculatedStats = calculateStats(cohortData)
+      setStats(calculatedStats)
+
+      // ✅ Sync the navigation tree
+      await loadNavigationData(userInfo.email)
+
+    } catch (error) {
+      console.error('Failed to load project data:', error)
     }
+  }
 
-    loadProjectData()
-  }, [userInfo, projectId, buildProjectNavigation])
+  loadProjectData()
+}, [userInfo, projectId, loadNavigationData])
+
 
   // Auth check
   useEffect(() => {
@@ -421,30 +421,32 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
             key={item.name}
             className="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6"
           >
-            <dt>
-              <div className="absolute rounded-md bg-indigo-500 p-3">
-                <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
-              </div>
-              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
-            </dt>
-            <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
-              <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
-              <p
-                className={`ml-2 flex items-baseline text-sm font-semibold ${
-                  item.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                }`}
-              >
-                {item.changeType === 'increase' ? (
-                  <ArrowUpIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                ) : (
-                  <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                )}
-                <span className="sr-only">
-                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
-                </span>
-                {item.change}
-              </p>
-            </dd>
+            <>
+              <dt>
+                <div className="absolute rounded-md bg-indigo-500 p-3">
+                  <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                </div>
+                <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
+              </dt>
+              <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
+                <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
+                <p
+                  className={`ml-2 flex items-baseline text-sm font-semibold ${
+                    item.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {item.changeType === 'increase' ? (
+                    <ArrowUpIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                  ) : (
+                    <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                  )}
+                  <span className="sr-only">
+                    {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                  </span>
+                  {item.change}
+                </p>
+              </dd>
+            </>
           </div>
         ))}
       </div>
@@ -463,7 +465,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
           {(apiLoading || projectLoading) ? (
             <div className="px-4 py-8 text-center">
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map((i) => (
+                {Array.from({ length: expectedCohortCount ?? 5 }).map((_, i) => (
                   <div key={i} className="flex items-center space-x-4">
                     <div className="w-4 h-4 bg-gray-200 rounded"></div>
                     <div className="flex-1 h-4 bg-gray-200 rounded"></div>

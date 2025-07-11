@@ -1,4 +1,4 @@
-//company summary
+//company summary - cleaned for navigation tree compatibility
 
 'use client'
 
@@ -9,7 +9,7 @@ import { auth } from '@/lib/firebase'
 import Navigation from '@/components/Navigation'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, ArrowRightOnRectangleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { useNavigationStore, NavigationTreeNode } from '@/app/stores/navigationStore'
+import { useNavigation } from '@/hooks/useNavigation'
 
 // API Types based on the Swagger schema
 interface User {
@@ -102,13 +102,12 @@ export default function CompanySummary() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  //const [projects, setProjects] = useState<Project[]>([])
   const [projects, setProjects] = useState<ProjectDTO[]>([])
   const [stats, setStats] = useState<Stats[]>([])
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+  const { loadNavigationData } = useNavigation()
 
-  const { setNavigationTree, setNavigationContext, setBreadcrumbs } = useNavigationStore()
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -199,68 +198,6 @@ export default function CompanySummary() {
   ]
 }
 
-  // Build navigation tree from project data
-  const buildNavigationFromProjects = useCallback((projects: ProjectDTO[]) => {
-  try {
-    // Create project nodes with DTO data
-    const projectNodes: NavigationTreeNode[] = projects.map(project => ({
-      id: `project-${project.projectId}`,
-      name: project.projectName,
-      type: 'project' as const,
-      href: `/app/projects/${project.projectId}`,
-      level: 1,
-      parent: 'company',
-      isExpanded: false,
-      isActive: false,
-      isLoading: false,
-      metadata: {
-        count: project.userCount || 0,
-        status: project.overallStatus as 'active' | 'inactive' | 'pending',
-        projectData: project
-      },
-      children: [] // Empty since we don't have cohort data in DTO
-    }))
-
-    // Create company root node
-    const companyNode: NavigationTreeNode = {
-      id: 'company',
-      name: 'Company Overview',
-      type: 'company' as const,
-      href: '/app/index',
-      level: 0,
-      isExpanded: true,
-      isActive: true,
-      isLoading: false,
-      metadata: {
-        count: projects.length,
-        projectsData: projects
-      },
-      children: projectNodes
-    }
-
-    setNavigationTree([companyNode])
-    
-    setNavigationContext({
-      projectId: null,
-      cohortId: null,
-      userId: null,
-      sessionId: null
-    })
-
-    setBreadcrumbs([
-      { name: 'Company Summary', href: '/app/index', isActive: true }
-    ])
-
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('navigationTreeData', JSON.stringify(projects))
-    }
-
-    console.log('Navigation tree updated with DTO data:', [companyNode])
-  } catch (error) {
-    console.error('Failed to build navigation tree:', error)
-  }
-}, [setNavigationTree, setNavigationContext, setBreadcrumbs])
-
   // Enhanced project click handler with project data
   const handleProjectClick = (project: ProjectDTO) => {
   const projectData = {
@@ -269,7 +206,8 @@ export default function CompanySummary() {
     website: project.projectWebsite,
     userCount: project.userCount,
     sessionCount: project.sessionCount,
-    status: project.overallStatus
+    status: project.overallStatus,
+    cohortCount: project.cohortCount
   }
   
   if (typeof window !== 'undefined') {
@@ -332,9 +270,10 @@ export default function CompanySummary() {
     const updatedStats = calculateStats(updatedProjects)
     setStats(updatedStats)
     
-    buildNavigationFromProjects(updatedProjects)
-    
     console.log(`Project "${project.projectName}" deleted successfully`)
+    
+    // Trigger a page refresh to update the navigation tree
+    router.refresh()
     
   } catch (error) {
     console.error('Error deleting project:', error)
@@ -348,36 +287,26 @@ export default function CompanySummary() {
 
   // Load data on component mount
   useEffect(() => {
-    const loadData = async () => {
-      if (!userInfo) return
+  const loadData = async () => {
+    if (!userInfo) return
 
-      try {
-        const projectData = await fetchProjects()
-        setProjects(projectData)
-        
-        const calculatedStats = calculateStats(projectData)
-        setStats(calculatedStats)
-        
-        // Build and set the navigation tree with real data
-        buildNavigationFromProjects(projectData)
-      } catch (error) {
-        console.error('Failed to load data:', error)
-      }
+    try {
+      const projectData = await fetchProjects()
+      setProjects(projectData)
+
+      const calculatedStats = calculateStats(projectData)
+      setStats(calculatedStats)
+
+      // Sync navigation tree
+      await loadNavigationData(userInfo.email)
+    } catch (error) {
+      console.error('Failed to load data:', error)
     }
+  }
 
-    loadData()
-  }, [userInfo, buildNavigationFromProjects])
+  loadData()
+}, [userInfo, loadNavigationData])
 
-  // Set up navigation context when component mounts
-  useEffect(() => {
-    // Clear any existing navigation context when on company summary
-    setNavigationContext({
-      projectId: null,
-      cohortId: null,
-      userId: null,
-      sessionId: null
-    })
-  }, [setNavigationContext])
 
   useEffect(() => {
     const checkAuth = async () => {
