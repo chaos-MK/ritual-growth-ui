@@ -8,8 +8,6 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/ou
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
 
-
-
 // Types
 interface User {
   id: number
@@ -98,9 +96,6 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const [project, setProject] = useState<Project | null>(null)
   const [projectLoading, setProjectLoading] = useState(false)
   const { loadNavigationData } = useNavigation()
-
-
-
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -295,51 +290,46 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
     ]
   }
   
-
   useEffect(() => {
-  if (typeof window !== 'undefined') {
-    const stored = sessionStorage.getItem('currentProject')
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        if (parsed?.cohortCount !== undefined) {
-          setExpectedCohortCount(parsed.cohortCount)
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('currentProject')
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          if (parsed?.cohortCount !== undefined) {
+            setExpectedCohortCount(parsed.cohortCount)
+          }
+        } catch (e) {
+          console.warn('Failed to parse sessionStorage project data')
         }
-      } catch (e) {
-        console.warn('Failed to parse sessionStorage project data')
       }
     }
-  }
-}, [])
-
-
+  }, [])
 
   // Load project and cohorts data on component mount
   useEffect(() => {
-  const loadProjectData = async () => {
-    if (!userInfo || !projectId) return
+    const loadProjectData = async () => {
+      if (!userInfo || !projectId) return
 
-    try {
-      const projectData = await fetchProject(projectId)
-      setProject(projectData)
+      try {
+        const projectData = await fetchProject(projectId)
+        setProject(projectData)
 
-      const cohortData = await fetchCohortsByProject(projectId)
-      setCohorts(cohortData)
+        const cohortData = await fetchCohortsByProject(projectId)
+        setCohorts(cohortData)
 
-      const calculatedStats = calculateStats(cohortData)
-      setStats(calculatedStats)
+        const calculatedStats = calculateStats(cohortData)
+        setStats(calculatedStats)
+        
+        await loadNavigationData(userInfo.email)
 
-      // ✅ Sync the navigation tree
-      await loadNavigationData(userInfo.email)
-
-    } catch (error) {
-      console.error('Failed to load project data:', error)
+      } catch (error) {
+        console.error('Failed to load project data:', error)
+      }
     }
-  }
 
-  loadProjectData()
-}, [userInfo, projectId, loadNavigationData])
-
+    loadProjectData()
+  }, [userInfo, projectId, loadNavigationData])
 
   // Auth check
   useEffect(() => {
@@ -414,127 +404,125 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
         )}
       </div>
       
-      {/* Stats Grid */}
+      {/* Stats Grid - FIXED: Added key prop */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
           <div
             key={item.name}
             className="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6"
           >
-            <>
-              <dt>
-                <div className="absolute rounded-md bg-indigo-500 p-3">
-                  <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
-                </div>
-                <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
-              </dt>
-              <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
-                <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
-                <p
-                  className={`ml-2 flex items-baseline text-sm font-semibold ${
-                    item.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {item.changeType === 'increase' ? (
-                    <ArrowUpIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  ) : (
-                    <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  )}
-                  <span className="sr-only">
-                    {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
-                  </span>
-                  {item.change}
-                </p>
-              </dd>
-            </>
+            <dt>
+              <div className="absolute rounded-md bg-indigo-500 p-3">
+                <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
+              </div>
+              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
+            </dt>
+            <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
+              <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
+              <p
+                className={`ml-2 flex items-baseline text-sm font-semibold ${
+                  item.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {item.changeType === 'increase' ? (
+                  <ArrowUpIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                ) : (
+                  <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                )}
+                <span className="sr-only">
+                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                </span>
+                {item.change}
+              </p>
+            </dd>
           </div>
         ))}
       </div>
-
-      {/* Cohorts List */}
       <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Cohorts</h3>
-            {(apiLoading || projectLoading) && (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
-            )}
-          </div>
-        </div>
-        <div className="border-t border-gray-200">
-          {(apiLoading || projectLoading) ? (
-            <div className="px-4 py-8 text-center">
-              <div className="animate-pulse space-y-4">
-                {Array.from({ length: expectedCohortCount ?? 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center space-x-4">
-                    <div className="w-4 h-4 bg-gray-200 rounded"></div>
-                    <div className="flex-1 h-4 bg-gray-200 rounded"></div>
-                    <div className="w-16 h-4 bg-gray-200 rounded"></div>
-                  </div>
-                ))}
+  <div className="px-4 py-5 sm:px-6">
+    <div className="flex justify-between items-center">
+      <h3 className="text-lg font-medium leading-6 text-gray-900">Cohorts</h3>
+      {(apiLoading || projectLoading) && (
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+      )}
+    </div>
+  </div>
+  <div className="border-t border-gray-200">
+    {(apiLoading || projectLoading) ? (
+      <ul role="list" className="divide-y divide-gray-200">
+        {Array.from({ length: expectedCohortCount ?? 5 }).map((_, i) => (
+          <li key={`skeleton-cohort-${i}`} className="px-4 py-4">
+            <div className="animate-pulse space-y-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                <div className="flex-1 h-4 bg-gray-200 rounded"></div>
+                <div className="w-16 h-4 bg-gray-200 rounded"></div>
               </div>
             </div>
-          ) : cohorts.length === 0 ? (
-            <div className="px-4 py-8 text-center text-gray-500">
-              {apiError ? 'Failed to load cohorts' : 'No cohorts found for this project'}
-            </div>
-          ) : (
-            <ul role="list" className="divide-y divide-gray-200">
-              {cohorts.map((cohort) => {
-                const totalSessions = cohort.stages.reduce((sum, stage) => 
-                  sum + (stage.stageStats?.overall || 0), 0
-                )
-                const activeUsers = cohort.users.filter(user => 
-                  !user.disabled && user.statuses.length > 0
-                ).length
-
-                return (
-                  <li key={cohort.id}>
-                    <Link
-                      href={`/app/projects/${projectId}/cohorts/${cohort.id}`}
-                      className="block hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="px-4 py-4 sm:px-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-col">
-                            <p className="truncate text-sm font-medium text-indigo-600">
-                              {cohort.cohortName}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Version: {cohort.version}
-                            </p>
-                          </div>
-                          <div className="ml-2 flex flex-shrink-0">
-                            <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                              Started {new Date(cohort.startDate).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-2 sm:flex sm:justify-between">
-                          <div className="sm:flex">
-                            <p className="flex items-center text-sm text-gray-500">
-                              {cohort.users.length} total users
-                            </p>
-                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                              {activeUsers} active users
-                            </p>
-                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                              {totalSessions} sessions
-                            </p>
-                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                              {cohort.stages.length} stages
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
+          </li>
+        ))}
+      </ul>
+    ) : cohorts.length === 0 ? (
+      <div className="px-4 py-8 text-center text-gray-500">
+        {apiError ? 'Failed to load cohorts' : 'No cohorts found for this project'}
       </div>
+    ) : (
+      <ul role="list" className="divide-y divide-gray-200">
+        {cohorts.map((cohort) => {
+          const totalSessions = cohort.stages.reduce((sum, stage) => 
+            sum + (stage.stageStats?.overall || 0), 0
+          )
+          const activeUsers = cohort.users.filter(user => 
+            !user.disabled && user.statuses.length > 0
+          ).length
+
+          return (
+            <li key={`cohort-${cohort.id}`}>
+              <Link
+                href={`/app/projects/${projectId}/cohorts/${cohort.id}`}
+                className="block hover:bg-gray-50 transition-colors"
+              >
+                <div className="px-4 py-4 sm:px-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <p className="truncate text-sm font-medium text-indigo-600">
+                        {cohort.cohortName}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Version: {cohort.version}
+                      </p>
+                    </div>
+                    <div className="ml-2 flex flex-shrink-0">
+                      <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                        Started {new Date(cohort.startDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-2 sm:flex sm:justify-between">
+                    <div className="sm:flex">
+                      <p className="flex items-center text-sm text-gray-500">
+                        {cohort.users.length} total users
+                      </p>
+                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                        {activeUsers} active users
+                      </p>
+                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                        {totalSessions} sessions
+                      </p>
+                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                        {cohort.stages.length} stages
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    )}
+  </div>
+</div>
     </div>
   )
 }
