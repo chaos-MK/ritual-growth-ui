@@ -235,60 +235,102 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   }
 
   // Calculate stats from cohort data
-  const calculateStats = (cohorts: Cohort[], previousCohorts?: Cohort[]): Stats[] => {
-    const totalCohorts = cohorts.length
-    const totalUsers = cohorts.reduce((sum, cohort) => sum + cohort.users.length, 0)
-    const totalSessions = cohorts.reduce((sum, cohort) => 
-      sum + cohort.stages.reduce((stageSum, stage) => 
-        stageSum + (stage.stageStats?.overall || 0), 0
-      ), 0
-    )
-
-    // Calculate active users (users with recent activity)
-    const activeUsers = cohorts.reduce((sum, cohort) => {
-      const activeCohortUsers = cohort.users.filter(user => 
-        !user.disabled && user.statuses.length > 0
-      ).length
-      return sum + activeCohortUsers
-    }, 0)
-
-    // Calculate average session duration based on actual data
-    const avgSessionDuration = totalUsers > 0 ? Math.floor(totalSessions / totalUsers * 45) : 0
-    const avgDurationMinutes = Math.floor(avgSessionDuration / 60)
-    const avgDurationSeconds = avgSessionDuration % 60
-
-    // Calculate changes (you can implement logic to compare with previous data)
-    const cohortChange = previousCohorts ? totalCohorts - previousCohorts.length : 0
-    const userChange = previousCohorts ? totalUsers - previousCohorts.reduce((sum, c) => sum + c.users.length, 0) : 0
-    const sessionChange = previousCohorts ? totalSessions - previousCohorts.reduce((sum, c) => sum + c.stages.reduce((s, stage) => s + (stage.stageStats?.overall || 0), 0), 0) : 0
-
+ const calculateStats = (cohorts: Cohort[], previousCohorts?: Cohort[]): Stats[] => {
+  // Add null check for cohorts
+  if (!cohorts || !Array.isArray(cohorts)) {
     return [
-      { 
-        name: 'Total Cohorts', 
-        stat: totalCohorts.toString(), 
-        change: cohortChange >= 0 ? `+${cohortChange}` : cohortChange.toString(), 
-        changeType: cohortChange >= 0 ? 'increase' : 'decrease' 
-      },
-      { 
-        name: 'Active Users', 
-        stat: activeUsers.toLocaleString(), 
-        change: userChange >= 0 ? `+${userChange}` : userChange.toString(), 
-        changeType: userChange >= 0 ? 'increase' : 'decrease' 
-      },
-      { 
-        name: 'Total Sessions', 
-        stat: totalSessions.toLocaleString(), 
-        change: sessionChange >= 0 ? `+${sessionChange}` : sessionChange.toString(), 
-        changeType: sessionChange >= 0 ? 'increase' : 'decrease' 
-      },
-      { 
-        name: 'Avg. Session Duration', 
-        stat: avgSessionDuration > 0 ? `${avgDurationMinutes}m ${avgDurationSeconds}s` : '0m 0s', 
-        change: '+30s', 
-        changeType: 'increase' 
-      },
-    ]
+      { name: 'Total Cohorts', stat: '0', change: '+0', changeType: 'increase' },
+      { name: 'Active Users', stat: '0', change: '+0', changeType: 'increase' },
+      { name: 'Total Sessions', stat: '0', change: '+0', changeType: 'increase' },
+      { name: 'Avg. Session Duration', stat: '0m 0s', change: '+0s', changeType: 'increase' },
+    ];
   }
+
+  const totalCohorts = cohorts.length;
+  const totalUsers = cohorts.reduce((sum, cohort) => {
+    // Add null check for cohort.users
+    if (!cohort.users || !Array.isArray(cohort.users)) {
+      return sum;
+    }
+    return sum + cohort.users.length;
+  }, 0);
+
+  const totalSessions = cohorts.reduce((sum, cohort) => {
+    // Add null check for cohort.stages
+    if (!cohort.stages || !Array.isArray(cohort.stages)) {
+      return sum;
+    }
+    return sum + cohort.stages.reduce((stageSum, stage) => {
+      // Add null check for stage.stageStats
+      if (!stage.stageStats) {
+        return stageSum;
+      }
+      return stageSum + (stage.stageStats.overall || 0);
+    }, 0);
+  }, 0);
+
+  // Calculate active users (users with recent activity)
+  const activeUsers = cohorts.reduce((sum, cohort) => {
+    // Add null check for cohort.users
+    if (!cohort.users || !Array.isArray(cohort.users)) {
+      return sum;
+    }
+    const activeCohortUsers = cohort.users.filter(user => {
+      // Add null check for user.statuses
+      if (!user.statuses || !Array.isArray(user.statuses)) {
+        return false;
+      }
+      return !user.disabled && user.statuses.length > 0;
+    }).length;
+    return sum + activeCohortUsers;
+  }, 0);
+
+  // Calculate average session duration based on actual data
+  const avgSessionDuration = totalUsers > 0 ? Math.floor(totalSessions / totalUsers * 45) : 0;
+  const avgDurationMinutes = Math.floor(avgSessionDuration / 60);
+  const avgDurationSeconds = avgSessionDuration % 60;
+
+  // Calculate changes (you can implement logic to compare with previous data)
+  const cohortChange = previousCohorts ? totalCohorts - previousCohorts.length : 0;
+  const userChange = previousCohorts ? totalUsers - previousCohorts.reduce((sum, c) => {
+    if (!c.users || !Array.isArray(c.users)) return sum;
+    return sum + c.users.length;
+  }, 0) : 0;
+  const sessionChange = previousCohorts ? totalSessions - previousCohorts.reduce((sum, c) => {
+    if (!c.stages || !Array.isArray(c.stages)) return sum;
+    return sum + c.stages.reduce((s, stage) => {
+      if (!stage.stageStats) return s;
+      return s + (stage.stageStats.overall || 0);
+    }, 0);
+  }, 0) : 0;
+
+  return [
+    { 
+      name: 'Total Cohorts', 
+      stat: totalCohorts.toString(), 
+      change: cohortChange >= 0 ? `+${cohortChange}` : cohortChange.toString(), 
+      changeType: cohortChange >= 0 ? 'increase' : 'decrease' 
+    },
+    { 
+      name: 'Active Users', 
+      stat: activeUsers.toLocaleString(), 
+      change: userChange >= 0 ? `+${userChange}` : userChange.toString(), 
+      changeType: userChange >= 0 ? 'increase' : 'decrease' 
+    },
+    { 
+      name: 'Total Sessions', 
+      stat: totalSessions.toLocaleString(), 
+      change: sessionChange >= 0 ? `+${sessionChange}` : sessionChange.toString(), 
+      changeType: sessionChange >= 0 ? 'increase' : 'decrease' 
+    },
+    { 
+      name: 'Avg. Session Duration', 
+      stat: avgSessionDuration > 0 ? `${avgDurationMinutes}m ${avgDurationSeconds}s` : '0m 0s', 
+      change: '+30s', 
+      changeType: 'increase' 
+    },
+  ];
+};
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -469,56 +511,63 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
     ) : (
       <ul role="list" className="divide-y divide-gray-200">
         {cohorts.map((cohort) => {
-          const totalSessions = cohort.stages.reduce((sum, stage) => 
-            sum + (stage.stageStats?.overall || 0), 0
-          )
-          const activeUsers = cohort.users.filter(user => 
-            !user.disabled && user.statuses.length > 0
-          ).length
+  // Add null checks for cohort.stages and cohort.users
+  const stages = cohort.stages || [];
+  const users = cohort.users || [];
+  
+  const totalSessions = stages.reduce((sum, stage) => {
+    if (!stage.stageStats) return sum;
+    return sum + (stage.stageStats.overall || 0);
+  }, 0);
+  
+  const activeUsers = users.filter(user => {
+    if (!user.statuses || !Array.isArray(user.statuses)) return false;
+    return !user.disabled && user.statuses.length > 0;
+  }).length;
 
-          return (
-            <li key={`cohort-${cohort.id}`}>
-              <Link
-                href={`/app/projects/${projectId}/cohorts/${cohort.id}`}
-                className="block hover:bg-gray-50 transition-colors"
-              >
-                <div className="px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <p className="truncate text-sm font-medium text-indigo-600">
-                        {cohort.cohortName}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Version: {cohort.version}
-                      </p>
-                    </div>
-                    <div className="ml-2 flex flex-shrink-0">
-                      <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                        Started {new Date(cohort.startDate).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-2 sm:flex sm:justify-between">
-                    <div className="sm:flex">
-                      <p className="flex items-center text-sm text-gray-500">
-                        {cohort.users.length} total users
-                      </p>
-                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                        {activeUsers} active users
-                      </p>
-                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                        {totalSessions} sessions
-                      </p>
-                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                        {cohort.stages.length} stages
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </li>
-          )
-        })}
+  return (
+    <li key={`cohort-${cohort.id}`}>
+      <Link
+        href={`/app/projects/${projectId}/cohorts/${cohort.id}`}
+        className="block hover:bg-gray-50 transition-colors"
+      >
+        <div className="px-4 py-4 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <p className="truncate text-sm font-medium text-indigo-600">
+                {cohort.cohortName}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Version: {cohort.version}
+              </p>
+            </div>
+            <div className="ml-2 flex flex-shrink-0">
+              <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                Started {new Date(cohort.startDate).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+          <div className="mt-2 sm:flex sm:justify-between">
+            <div className="sm:flex">
+              <p className="flex items-center text-sm text-gray-500">
+                {users.length} total users
+              </p>
+              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                {activeUsers} active users
+              </p>
+              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                {totalSessions} sessions
+              </p>
+              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                {stages.length} stages
+              </p>
+            </div>
+          </div>
+        </div>
+      </Link>
+    </li>
+  );
+})}
       </ul>
     )}
   </div>
