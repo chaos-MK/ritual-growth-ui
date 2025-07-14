@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { useRouter, usePathname } from 'next/navigation'
 import { useCallback, useMemo, useEffect } from 'react'
+import { useRef } from 'react'
 
 // Navigation node type
 export interface NavigationNode {
@@ -187,6 +188,7 @@ interface NavigationContext {
 export function useNavigation() {
   const router = useRouter()
   const pathname = usePathname()
+  const didExpandRef = useRef(false)
   
   const {
     tree,
@@ -316,9 +318,11 @@ export function useNavigation() {
   }, [currentContext.projectId, projectsListExpanded, setProjectsListExpanded])
 
   // Auto-expand path based on current context
-  useEffect(() => {
+    useEffect(() => {
+    if (didExpandRef.current) return
+
     const pathToExpand = []
-    
+
     if (currentContext.projectId) {
       pathToExpand.push(`${currentContext.projectId}`)
     }
@@ -328,13 +332,20 @@ export function useNavigation() {
     if (currentContext.userId) {
       pathToExpand.push(`${currentContext.projectId}-${currentContext.cohortId}-${currentContext.userId}`)
     }
-    
+
+    let didToggle = false
     pathToExpand.forEach(nodeId => {
       if (!expandedNodes.has(nodeId)) {
         toggleExpansion(nodeId)
+        didToggle = true
       }
     })
+
+    if (didToggle) {
+      didExpandRef.current = true
+    }
   }, [currentContext, expandedNodes, toggleExpansion])
+
 
   // Set active node based on current path
   useEffect(() => {

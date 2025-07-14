@@ -10,6 +10,7 @@ import Navigation from '@/components/Navigation'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, ArrowRightOnRectangleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
+import { useNavigationActions } from '@/app/stores/navigationStore'
 
 // API Types based on the Swagger schema
 interface User {
@@ -107,6 +108,27 @@ export default function CompanySummary() {
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const { loadNavigationData } = useNavigation()
+  const { setNavigationContext } = useNavigationActions()
+
+  const handleProjectClick = (project: ProjectDTO) => {
+    const projectData = {
+      id: project.projectId,
+      name: project.projectName,
+      website: project.projectWebsite,
+      userCount: project.userCount,
+      sessionCount: project.sessionCount,
+      status: project.overallStatus,
+      cohortCount: project.cohortCount
+    }
+    
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('currentProject', JSON.stringify(projectData))
+    }
+
+    setNavigationContext({ projectId: project.projectId }) // Sync navigation state
+
+    router.push(`/app/projects/${project.projectId}`)
+  }
 
 
   // Helper function to get individual cookie value
@@ -198,24 +220,7 @@ export default function CompanySummary() {
   ]
 }
 
-  // Enhanced project click handler with project data
-  const handleProjectClick = (project: ProjectDTO) => {
-  const projectData = {
-    id: project.projectId,
-    name: project.projectName,
-    website: project.projectWebsite,
-    userCount: project.userCount,
-    sessionCount: project.sessionCount,
-    status: project.overallStatus,
-    cohortCount: project.cohortCount
-  }
-  
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('currentProject', JSON.stringify(projectData))
-  }
-  
-  router.push(`/app/projects/${project.projectId}`)
-}
+
 
   // Empty edit function - implement later
   const handleEditProject = (project: ProjectDTO, event: React.MouseEvent) => {
@@ -429,8 +434,8 @@ export default function CompanySummary() {
           {apiLoading ? (
             <div className="px-4 py-8 text-center">
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center space-x-4">
+                {['skeleton-1', 'skeleton-2', 'skeleton-3'].map((id) => (
+                  <div key={id} className="flex items-center space-x-4">
                     <div className="w-4 h-4 bg-gray-200 rounded"></div>
                     <div className="flex-1 h-4 bg-gray-200 rounded"></div>
                     <div className="w-16 h-4 bg-gray-200 rounded"></div>
