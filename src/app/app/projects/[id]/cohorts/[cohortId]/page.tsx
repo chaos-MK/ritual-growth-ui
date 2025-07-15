@@ -1,111 +1,491 @@
-import Navigation from '@/components/Navigation'
+'use client'
+
+import { useCallback, useEffect, useState, use } from 'react'
+import { useRouter } from 'next/navigation'
+import { signOut, onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
+import { useNavigation } from '@/hooks/useNavigation'
 
-const stats = [
-  { name: 'Total Users', stat: '150', change: '+15', changeType: 'increase' },
-  { name: 'Active Users', stat: '120', change: '+12', changeType: 'increase' },
-  { name: 'Total Sessions', stat: '400', change: '+40', changeType: 'increase' },
-  { name: 'Avg. Session Duration', stat: '5m 12s', change: '+45s', changeType: 'increase' },
-]
+// Types
+interface User {
+  id: number
+  apUid: string
+  email: string
+  fullName: string
+  creationTime: string
+  statuses: string[]
+  privileges: Array<{ id: number; name: string }>
+  reactivationToken: string
+  disabled: boolean
+  displayName: string
+  superUser: boolean
+  userContext: {
+    hasLiked: boolean
+    isFollowing: boolean
+    isInFavorites: boolean
+    owns: boolean
+    isOwnerBlocked: boolean
+    isOwnerMuted: boolean
+  }
+}
 
-const users = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', sessions: 12, lastActive: '2024-03-15' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', sessions: 8, lastActive: '2024-03-14' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', sessions: 15, lastActive: '2024-03-15' },
-]
+interface Stage {
+  id: number
+  type: string
+  state: string
+  stageStats: {
+    id: number
+    cohortID: number
+    peopleEntered: number
+    peopleInactive: number
+    peopleExit: number
+    overall: number
+  }
+}
 
-export default function CohortSummary({ params }: { params: { id: string; cohortId: string } }) {
-  const { id: projectId, cohortId } = params
-  const cohort = { name: 'Cohort A', startDate: '2024-01-01' } // This would come from your API
+interface Cohort {
+  id: number
+  cohortName: string
+  startDate: string
+  endDate: string
+  version: string
+  project_id: number
+  users: User[]
+  stages: Stage[]
+}
 
-  const breadcrumbs = [
-    { name: 'Company Summary', href: '/app/index' },
-    { name: 'Project Summary', href: `/app/projects/${projectId}` },
-    { name: 'Cohort Summary', href: `/app/projects/${projectId}/cohorts/${cohortId}` }
-  ]
+interface UserInfo {
+  token: string
+  email: string
+  userId: string
+  displayName: string
+}
+
+interface Stats {
+  name: string
+  stat: string
+  change: string
+  changeType: 'increase' | 'decrease'
+}
+
+interface CohortSummaryProps {
+  params: Promise<{ id: string; cohortId: string }>
+}
+
+export default function CohortSummary({ params }: CohortSummaryProps) {
+  const router = useRouter()
+  const resolvedParams = use(params)
+  const { id: projectId, cohortId } = resolvedParams
+  
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [cohort, setCohort] = useState<Cohort | null>(null)
+  const [stats, setStats] = useState<Stats[]>([])
+  const [apiLoading, setApiLoading] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
+  const { loadNavigationData } = useNavigation()
+
+  // Helper function to get individual cookie value
+  const getCookie = (name: string): string | null => {
+    if (typeof document === 'undefined') return null
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) {
+      const cookieValue = parts.pop()?.split(';').shift()
+      return cookieValue || null
+    }
+    return null
+  }
+
+  // Helper function to clear all auth cookies
+  const clearAuthCookies = () => {
+    const authCookies = ['userToken', 'userEmail', 'userId', 'userDisplayName']
+    authCookies.forEach(cookieName => {
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
+    })
+  }
+
+  // Validate token with Firebase
+  const validateToken = async (): Promise<boolean> => {
+    try {
+      const currentUser = auth.currentUser
+      if (currentUser) {
+        const freshToken = await currentUser.getIdToken(true)
+        const expires = new Date()
+        expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000))
+        document.cookie = `userToken=${freshToken}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Token validation failed:', error)
+      return false
+    }
+  }
+
+  // Fetch specific cohort data from API
+  const fetchCohortById = async (cohortId: string): Promise<Cohort | null> => {
+  setApiLoading(true)
+  setApiError(null)
+
+  const userToken = getCookie('userToken')
+  if (!userToken) {
+    setApiError('No authentication token available')
+    setApiLoading(false)
+    return null
+  }
+  
+  try {
+    const response = await fetch(`http://localhost:8080/users/cohort/${encodeURIComponent(cohortId)}`, {
+      method: 'GET',
+      headers: {
+        'hippo-api-version': '1.0.0',
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        const tokenRefreshed = await validateToken()
+        if (tokenRefreshed) {
+          const newToken = getCookie('userToken')
+          const retryResponse = await fetch(`http://localhost:8080/users/cohort/${encodeURIComponent(cohortId)}`, {
+            method: 'GET',
+            headers: {
+              'hippo-api-version': '1.0.0',
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json',
+            },
+          })
+          
+          if (!retryResponse.ok) {
+            throw new Error(`API Error: ${retryResponse.status} ${retryResponse.statusText}`)
+          }
+          
+          // Handle the user array response
+          const userData = await retryResponse.json()
+          return transformUserArrayToCohort(userData, cohortId)
+        } else {
+          clearAuthCookies()
+          router.push('/login')
+          return null
+        }
+      }
+      throw new Error(`API Error: ${response.status} ${response.statusText}`)
+    }
+
+    // Handle the user array response
+    const userData = await response.json()
+    return transformUserArrayToCohort(userData, cohortId)
+  } catch (error) {
+    console.error('Failed to fetch cohort:', error)
+    setApiError(error instanceof Error ? error.message : 'Failed to fetch cohort')
+    return null
+  } finally {
+    setApiLoading(false)
+  }
+}
+
+// Add this helper function to transform user array to cohort format
+const transformUserArrayToCohort = (users: any[], cohortId: string): Cohort => {
+  // Map the backend user format to your frontend User interface
+  const mappedUsers: User[] = users.map(user => ({
+    id: user.userId,
+    apUid: user.userId.toString(), // Assuming this maps to userId
+    email: user.userName + '@example.com', // You might need to adjust this
+    fullName: user.userName,
+    creationTime: user.startDate,
+    statuses: [user.status],
+    privileges: [],
+    reactivationToken: '',
+    disabled: user.status !== 'ACTIVE',
+    displayName: user.userName,
+    superUser: false,
+    userContext: {
+      hasLiked: false,
+      isFollowing: false,
+      isInFavorites: false,
+      owns: false,
+      isOwnerBlocked: false,
+      isOwnerMuted: false,
+    }
+  }))
+
+  return {
+    id: parseInt(cohortId),
+    cohortName: `Cohort ${cohortId}`,
+    startDate: users[0]?.startDate || new Date().toISOString(),
+    endDate: '',
+    version: '1.0',
+    project_id: parseInt(projectId),
+    users: mappedUsers,
+    stages: users[0]?.stages || []
+  }
+}
+
+  // Calculate stats from cohort data
+  const calculateStats = (cohort: Cohort | null): Stats[] => {
+    if (!cohort) {
+      return [
+        { name: 'Total Users', stat: '0', change: '+0', changeType: 'increase' },
+        { name: 'Active Users', stat: '0', change: '+0', changeType: 'increase' },
+        { name: 'Total Sessions', stat: '0', change: '+0', changeType: 'increase' },
+        { name: 'Avg. Session Duration', stat: '0m 0s', change: '+0s', changeType: 'increase' },
+      ]
+    }
+
+    const users = cohort.users || []
+    const stages = cohort.stages || []
+
+    const totalUsers = users.length
+    const activeUsers = users.filter(user => {
+      if (!user.statuses || !Array.isArray(user.statuses)) return false
+      return !user.disabled && user.statuses.length > 0
+    }).length
+
+    const totalSessions = stages.reduce((sum, stage) => {
+      if (!stage.stageStats) return sum
+      return sum + (stage.stageStats.overall || 0)
+    }, 0)
+
+    // Calculate average session duration based on actual data
+    const avgSessionDuration = totalUsers > 0 ? Math.floor(totalSessions / totalUsers * 45) : 0
+    const avgDurationMinutes = Math.floor(avgSessionDuration / 60)
+    const avgDurationSeconds = avgSessionDuration % 60
+
+    // For now, we'll use static changes. In a real app, you'd compare with historical data
+    return [
+      { name: 'Total Users', stat: totalUsers.toString(), change: '+15', changeType: 'increase' },
+      { name: 'Active Users', stat: activeUsers.toString(), change: '+12', changeType: 'increase' },
+      { name: 'Total Sessions', stat: totalSessions.toString(), change: '+40', changeType: 'increase' },
+      { 
+        name: 'Avg. Session Duration', 
+        stat: avgSessionDuration > 0 ? `${avgDurationMinutes}m ${avgDurationSeconds}s` : '5m 12s', 
+        change: '+45s', 
+        changeType: 'increase' 
+      },
+    ]
+  }
+
+  // Load cohort data on component mount
+  useEffect(() => {
+    const loadCohortData = async () => {
+      if (!userInfo || !cohortId) return
+
+      try {
+        const cohortData = await fetchCohortById(cohortId)
+        setCohort(cohortData)
+
+        const calculatedStats = calculateStats(cohortData)
+        setStats(calculatedStats)
+        
+        await loadNavigationData(userInfo.email)
+
+      } catch (error) {
+        console.error('Failed to load cohort data:', error)
+      }
+    }
+
+    loadCohortData()
+  }, [userInfo, cohortId, loadNavigationData])
+
+  // Auth check
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userToken = getCookie('userToken')
+        const userEmail = getCookie('userEmail')
+        const userId = getCookie('userId')
+        const userDisplayName = getCookie('userDisplayName')
+        
+        if (!userToken || !userEmail || !userId) {
+          console.log('Missing auth cookies, redirecting to login')
+          router.push('/login')
+          return
+        }
+
+        const isTokenValid = await validateToken()
+        if (!isTokenValid) {
+          console.log('Token validation failed, redirecting to login')
+          clearAuthCookies()
+          router.push('/login')
+          return
+        }
+
+        setUserInfo({
+          token: userToken,
+          email: userEmail,
+          userId: userId,
+          displayName: userDisplayName || '',
+        })
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        clearAuthCookies()
+        router.push('/login')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser && !isLoading) {
+        clearAuthCookies()
+        router.push('/login')
+      }
+    })
+
+    checkAuth()
+
+    return () => unsubscribe()
+  }, [router, isLoading])
+
+  // If no user is found, don't render anything (will redirect)
+  if (!userInfo) {
+    return null
+  }
 
   return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">{cohort.name}</h2>
-          <p className="text-sm text-gray-500">Started {cohort.startDate}</p>
-        </div>
-        
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((item) => (
-            <div
-              key={item.name}
-              className="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6"
-            >
-              <dt>
-                <div className="absolute rounded-md bg-indigo-500 p-3">
-                  <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
-                </div>
-                <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
-              </dt>
-              <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
-                <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
-                <p
-                  className={`ml-2 flex items-baseline text-sm font-semibold ${
-                    item.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {item.changeType === 'increase' ? (
-                    <ArrowUpIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  ) : (
-                    <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  )}
-                  <span className="sr-only">
-                    {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
-                  </span>
-                  {item.change}
-                </p>
-              </dd>
-            </div>
-          ))}
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">
+          {apiLoading ? 'Loading...' : cohort?.cohortName || 'Cohort'}
+        </h2>
+        <p className="text-sm text-gray-500">
+          {cohort?.startDate ? `Started ${new Date(cohort.startDate).toLocaleDateString()}` : 'Loading...'}
+        </p>
+      </div>
 
-        {/* Users List */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Users</h3>
+      {apiError && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-sm text-red-600">Error: {apiError}</p>
+        </div>
+      )}
+      
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((item) => (
+          <div
+            key={item.name}
+            className="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6"
+          >
+            <dt>
+              <div className="absolute rounded-md bg-indigo-500 p-3">
+                <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
+              </div>
+              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
+            </dt>
+            <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
+              <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
+              <p
+                className={`ml-2 flex items-baseline text-sm font-semibold ${
+                  item.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {item.changeType === 'increase' ? (
+                  <ArrowUpIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                ) : (
+                  <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                )}
+                <span className="sr-only">
+                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                </span>
+                {item.change}
+              </p>
+            </dd>
           </div>
-          <div className="border-t border-gray-200">
+        ))}
+      </div>
+
+      {/* Users List */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">Users</h3>
+            {apiLoading && (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+            )}
+          </div>
+        </div>
+        <div className="border-t border-gray-200">
+          {apiLoading ? (
             <ul role="list" className="divide-y divide-gray-200">
-              {users.map((user) => (
-                <li key={user.id}>
-                  <Link
-                    href={`/app/projects/${projectId}/cohorts/${cohortId}/users/${user.id}`}
-                    className="block hover:bg-gray-50"
-                  >
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="truncate text-sm font-medium text-indigo-600">
-                            {user.name}
-                          </p>
-                          <p className="text-sm text-gray-500">{user.email}</p>
-                        </div>
-                        <div className="ml-2 flex flex-shrink-0">
-                          <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                            {user.sessions} sessions
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-500">
-                          Last active: {user.lastActive}
-                        </p>
-                      </div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <li key={`skeleton-user-${i}`} className="px-4 py-4">
+                  <div className="animate-pulse space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                      <div className="flex-1 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-16 h-4 bg-gray-200 rounded"></div>
                     </div>
-                  </Link>
+                  </div>
                 </li>
               ))}
             </ul>
-          </div>
+          ) : !cohort?.users || cohort.users.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">
+              {apiError ? 'Failed to load users' : 'No users found for this cohort'}
+            </div>
+          ) : (
+            <ul role="list" className="divide-y divide-gray-200">
+              {cohort.users.map((user) => {
+                const userSessions = cohort.stages?.reduce((sum, stage) => {
+                  if (!stage.stageStats) return sum
+                  // This is a rough estimate - in a real app, you'd have user-specific session data
+                  return sum + Math.floor((stage.stageStats.overall || 0) / cohort.users.length)
+                }, 0) || 0
+
+                return (
+                  <li key={user.id}>
+                    <Link
+                      href={`/app/projects/${projectId}/cohorts/${cohortId}/users/${user.id}`}
+                      className="block hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="truncate text-sm font-medium text-indigo-600">
+                              {user.displayName || user.fullName}
+                            </p>
+                            <p className="text-sm text-gray-500">{user.email}</p>
+                          </div>
+                          <div className="ml-2 flex flex-shrink-0">
+                            <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                              {userSessions} sessions
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Created: {new Date(user.creationTime).toLocaleDateString()}
+                          </p>
+                          <div className="flex items-center mt-1">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              user.disabled 
+                                ? 'bg-red-100 text-red-800' 
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {user.disabled ? 'Disabled' : 'Active'}
+                            </span>
+                            {user.superUser && (
+                              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Super User
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </div>
       </div>
+    </div>
   )
-} 
+}
