@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "Etsi...",
+    "profile": "Profiili",
+    "mute_notifications": "Mykistä ilmoitukset",
+    "themes": "Teemat",
+    "settings": "Asetukset",
+    "help": "Apua",
+    "sign_out": "Kirjaudu ulos",
+    "signing_out": "Kirjaudutaan ulos...",
+    "switch_to_light_mode": "Vaihda vaaleaan tilaan",
+    "switch_to_dark_mode": "Vaihda tummaan tilaan",
+    "change_language": "Vaihda kieli",
+    "select_language": "Valitse kieli"
+  },
+  "languages": {
+    "en": "Englanti",
+    "fr": "Ranska",
+    "es": "Espanja",
+    "nl": "Hollanti",
+    "fi": "Suomi",
+    "de": "Saksa",
+    "it": "Italia",
+    "ja": "Japani",
+    "ko": "Korea",
+    "no": "Norja",
+    "pl": "Puola",
+    "pt": "Portugali",
+    "sr": "Serbia",
+    "sv": "Ruotsi",
+    "tr": "Turkki"
+  }
+}

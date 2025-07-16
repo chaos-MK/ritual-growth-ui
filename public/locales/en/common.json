@@ -17,12 +17,17 @@
     "en": "English",
     "fr": "French",
     "es": "Spanish",
+    "nl": "Dutch",
+    "fi": "Finnish",
     "de": "German",
     "it": "Italian",
-    "pt": "Portuguese",
-    "ru": "Russian",
-    "zh": "Chinese",
     "ja": "Japanese",
-    "ar": "Arabic"
+    "ko": "Korean",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "sr": "Serbian",
+    "sv": "Swedish",
+    "tr": "Turkish"
   }
 }

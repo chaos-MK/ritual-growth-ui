@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "Zoeken...",
+    "profile": "Profiel",
+    "mute_notifications": "Meldingen dempen",
+    "themes": "Thema's",
+    "settings": "Instellingen",
+    "help": "Help",
+    "sign_out": "Uitloggen",
+    "signing_out": "Uitloggen...",
+    "switch_to_light_mode": "Schakel naar lichte modus",
+    "switch_to_dark_mode": "Schakel naar donkere modus",
+    "change_language": "Taal wijzigen",
+    "select_language": "Selecteer Taal"
+  },
+  "languages": {
+    "en": "Engels",
+    "fr": "Frans",
+    "es": "Spaans",
+    "nl": "Nederlands",
+    "fi": "Fins",
+    "de": "Duits",
+    "it": "Italiaans",
+    "ja": "Japans",
+    "ko": "Koreaans",
+    "no": "Noors",
+    "pl": "Pools",
+    "pt": "Portugees",
+    "sr": "Servisch",
+    "sv": "Zweeds",
+    "tr": "Turks"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "検索...",
+    "profile": "プロフィール",
+    "mute_notifications": "通知をミュート",
+    "themes": "テーマ",
+    "settings": "設定",
+    "help": "ヘルプ",
+    "sign_out": "サインアウト",
+    "signing_out": "サインアウト中...",
+    "switch_to_light_mode": "ライトモードに切り替え",
+    "switch_to_dark_mode": "ダークモードに切り替え",
+    "change_language": "言語を変更",
+    "select_language": "言語を選択"
+  },
+  "languages": {
+    "en": "英語",
+    "fr": "フランス語",
+    "es": "スペイン語",
+    "nl": "オランダ語",
+    "fi": "フィンランド語",
+    "de": "ドイツ語",
+    "it": "イタリア語",
+    "ja": "日本語",
+    "ko": "韓国語",
+    "no": "ノルウェー語",
+    "pl": "ポーランド語",
+    "pt": "ポルトガル語",
+    "sr": "セルビア語",
+    "sv": "スウェーデン語",
+    "tr": "トルコ語"
+  }
+}

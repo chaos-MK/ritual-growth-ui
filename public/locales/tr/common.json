@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "Ara...",
+    "profile": "Profil",
+    "mute_notifications": "Bildirimleri kapat",
+    "themes": "Temalar",
+    "settings": "Ayarlar",
+    "help": "Yardım",
+    "sign_out": "Çıkış yap",
+    "signing_out": "Çıkış yapılıyor...",
+    "switch_to_light_mode": "Açık moda geç",
+    "switch_to_dark_mode": "Koyu moda geç",
+    "change_language": "Dili değiştir",
+    "select_language": "Dil seç"
+  },
+  "languages": {
+    "en": "İngilizce",
+    "fr": "Fransızca",
+    "es": "İspanyolca",
+    "nl": "Hollandaca",
+    "fi": "Fince",
+    "de": "Almanca",
+    "it": "İtalyanca",
+    "ja": "Japonca",
+    "ko": "Korece",
+    "no": "Norveççe",
+    "pl": "Lehçe",
+    "pt": "Portekizce",
+    "sr": "Sırpça",
+    "sv": "İsveççe",
+    "tr": "Türkçe"
+  }
+}
