@@ -2,15 +2,15 @@
 
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { signOut, onAuthStateChanged } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
-import Navigation from '@/components/Navigation'
-import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, ArrowRightOnRectangleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link'
-import { useNavigation } from '@/hooks/useNavigation'
-import { useNavigationActions } from '@/app/stores/navigationStore'
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useNavigation } from '@/hooks/useNavigation';
+import { useNavigationActions } from '@/app/stores/navigationStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // API Types based on the Swagger schema
 interface User {
@@ -99,16 +99,17 @@ interface Stats {
 }
 
 export default function CompanySummary() {
-  const router = useRouter()
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [projects, setProjects] = useState<ProjectDTO[]>([])
-  const [stats, setStats] = useState<Stats[]>([])
-  const [apiLoading, setApiLoading] = useState(false)
-  const [apiError, setApiError] = useState<string | null>(null)
-  const { loadNavigationData } = useNavigation()
-  const { setNavigationContext } = useNavigationActions()
+  const router = useRouter();
+  const { t } = useTranslation(); // Use translation hook
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [projects, setProjects] = useState<ProjectDTO[]>([]);
+  const [stats, setStats] = useState<Stats[]>([]);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { loadNavigationData } = useNavigation();
+  const { setNavigationContext } = useNavigationActions();
 
   const handleProjectClick = (project: ProjectDTO) => {
     const projectData = {
@@ -213,10 +214,10 @@ export default function CompanySummary() {
   const totalCohorts = projects.reduce((sum, project) => sum + (project.cohortCount || 0), 0)
 
   return [
-    { name: 'Total Projects', stat: totalProjects.toString(), change: '+2', changeType: 'increase' },
-    { name: 'Total Cohorts', stat: totalCohorts.toString(), change: '+4', changeType: 'increase' },
-    { name: 'Total Users', stat: totalUsers.toLocaleString(), change: '+123', changeType: 'increase' },
-    { name: 'Total Sessions', stat: totalSessions.toLocaleString(), change: '+567', changeType: 'increase' },
+    { name: t('company.stats.total_projects').toString(), stat: totalProjects.toString(), change: '+2', changeType: 'increase' },
+    { name: t('company.stats.total_cohorts').toString(), stat: totalCohorts.toString(), change: '+4', changeType: 'increase' },
+    { name: t('company.stats.total_users').toString(), stat: totalUsers.toLocaleString(), change: '+123', changeType: 'increase' },
+    { name: t('company.stats.total_sessions').toString(), stat: totalSessions.toLocaleString(), change: '+567', changeType: 'increase' },
   ]
 }
 
@@ -292,80 +293,77 @@ export default function CompanySummary() {
 
   // Load data on component mount
   useEffect(() => {
-  const loadData = async () => {
-    if (!userInfo) return
+    const loadData = async () => {
+      if (!userInfo) return;
 
-    try {
-      const projectData = await fetchProjects()
-      setProjects(projectData)
+      try {
+        const projectData = await fetchProjects();
+        setProjects(projectData);
 
-      const calculatedStats = calculateStats(projectData)
-      setStats(calculatedStats)
+        const calculatedStats = calculateStats(projectData);
+        setStats(calculatedStats);
 
-      // Sync navigation tree
-      await loadNavigationData(userInfo.email)
-    } catch (error) {
-      console.error('Failed to load data:', error)
-    }
-  }
+        await loadNavigationData(userInfo.email);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      }
+    };
 
-  loadData()
-}, [userInfo, loadNavigationData])
-
+    loadData();
+  }, [userInfo, loadNavigationData]);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const userToken = getCookie('userToken')
-        const userEmail = getCookie('userEmail')
-        const userId = getCookie('userId')
-        const userDisplayName = getCookie('userDisplayName')
-        const emailVerified = getCookie('emailVerified')
+        const userToken = getCookie('userToken');
+        const userEmail = getCookie('userEmail');
+        const userId = getCookie('userId');
+        const userDisplayName = getCookie('userDisplayName');
         
         if (!userToken || !userEmail || !userId) {
-          console.log('Missing auth cookies, redirecting to login')
-          router.push('/login')
-          return
+          console.log('Missing auth cookies, redirecting to login');
+          router.push('/login');
+          return;
         }
 
-        // Validate the token is still valid
-        const isTokenValid = await validateToken()
+        const isTokenValid = await validateToken();
         if (!isTokenValid) {
-          console.log('Token validation failed, redirecting to login')
-          clearAuthCookies()
-          router.push('/login')
-          return
+          console.log('Token validation failed, redirecting to login');
+          clearAuthCookies();
+          router.push('/login');
+          return;
         }
 
-        // Set user info from individual cookies
         setUserInfo({
           token: userToken,
           email: userEmail,
           userId: userId,
           displayName: userDisplayName || '',
-        })
+        });
       } catch (error) {
-        console.error('Auth check failed:', error)
-        clearAuthCookies()
-        router.push('/login')
+        console.error('Auth check failed:', error);
+        clearAuthCookies();
+        router.push('/login');
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    // Listen for Firebase auth state changes
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser && !isLoading) {
-        // User is signed out
-        clearAuthCookies()
-        router.push('/login')
+        clearAuthCookies();
+        router.push('/login');
       }
-    })
+    });
 
-    checkAuth()
+    checkAuth();
 
-    return () => unsubscribe()
-  }, [router, isLoading])
+    return () => unsubscribe();
+  }, [router, isLoading]);
+
+  if (!userInfo) {
+    return null;
+  }
 
   // If no user is found, don't render anything (will redirect)
   if (!userInfo) {
@@ -374,18 +372,16 @@ export default function CompanySummary() {
 
   return (
     <div className="space-y-6">
-      {/* Header with user info and logout */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Company Overview</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('company.title')}</h1> {/* Changed to translated title */}
         {apiLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Loading project data...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('company.loading')}</p>
         )}
         {apiError && (
-          <p className="text-sm text-red-600 dark:text-red-400 mt-1">Error: {apiError}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{t('company.error')}: {apiError}</p>
         )}
       </div>
       
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
           <div
@@ -396,7 +392,7 @@ export default function CompanySummary() {
               <div className="absolute rounded-md bg-indigo-500 p-3">
                 <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
-              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
+              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p> {/* Translated stats names */}
             </dt>
             <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
               <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
@@ -411,7 +407,7 @@ export default function CompanySummary() {
                   <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 )}
                 <span className="sr-only">
-                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                  {item.changeType === 'increase' ? t('company.increased') : t('company.decreased')} {t('company.by')}
                 </span>
                 {item.change}
               </p>
@@ -420,11 +416,10 @@ export default function CompanySummary() {
         ))}
       </div>
 
-      {/* Projects List */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Projects</h3>
+            <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.projects.title')}</h3> {/* Changed to translated title */}
             {apiLoading && (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
             )}
@@ -445,7 +440,7 @@ export default function CompanySummary() {
             </div>
           ) : projects.length === 0 ? (
             <div className="px-4 py-8 text-center text-gray-500">
-              {apiError ? 'Failed to load projects' : 'No projects found'}
+              {apiError ? t('company.projects.load_failed') : t('company.projects.no_projects')}
             </div>
           ) : (
             <ul role="list" className="divide-y divide-gray-200">
@@ -474,46 +469,44 @@ export default function CompanySummary() {
                             <div className="sm:flex">
                               <div className="ml-2 flex flex-shrink-0">
                                 <p className="inline-flex rounded-full bg-green-100 px-2 text-sm font-semibold leading-5 text-green-800">
-                                  {(project.cohortCount || 0).toLocaleString()} cohorts
+                                  {(project.cohortCount || 0).toLocaleString()} {t('company.projects.cohorts')}
                                 </p>
                               </div>
                               <p className="flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                {(project.userCount || 0).toLocaleString()} users
+                                {(project.userCount || 0).toLocaleString()} {t('company.projects.users')}
                               </p>
                               <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                {(project.sessionCount || 0).toLocaleString()} sessions
+                                {(project.sessionCount || 0).toLocaleString()} {t('company.projects.sessions')}
                               </p>
                             </div>
                           </div>
                         </div>
                       </button>
 
-                        {/* Action buttons - always visible on hover */}
-                        <div className="flex items-center space-x-2 ml-4">
-                          <button
-                            onClick={(e) => handleEditProject(project, e)}
-                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            title="Edit project"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={(e) => handleDeleteProject(project, e)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                            title="Delete project"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
+                      <div className="flex items-center space-x-2 ml-4">
+                        <button
+                          onClick={(e) => handleEditProject(project, e)}
+                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          title={t('company.projects.edit')}
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteProject(project, e)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                          title={t('company.projects.delete')}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
-                  </li>
-                )
-              )}
+                  </div>
+                </li>
+              ))}
             </ul>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

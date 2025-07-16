@@ -29,5 +29,59 @@
     "sr": "Serbian",
     "sv": "Swedish",
     "tr": "Turkish"
+  },
+  "company": {
+    "title": "Company Dashboard",
+    "loading": "Loading data...",
+    "error": "Error",
+    "stats": {
+      "total_projects": "Total Projects",
+      "total_cohorts": "Total Cohorts",
+      "total_users": "Total Users",
+      "total_sessions": "Total Sessions",
+      "active_users": "Active Users",
+      "avg_session_duration": "Avg. Session Duration"
+    },
+    "projects": {
+      "title": "Projects",
+      "no_projects": "No projects found",
+      "load_failed": "Failed to load projects",
+      "cohorts": "Cohorts",
+      "users": "Users",
+      "sessions": "Sessions",
+      "edit": "Edit Project",
+      "delete": "Delete Project"
+    },
+    "cohorts": {
+      "title": "Cohorts",
+      "no_cohorts": "No cohorts found for this project",
+      "load_failed": "Failed to load cohorts",
+      "version": "Version",
+      "started": "Started",
+      "total_users": "total users",
+      "active_users": "active users",
+      "sessions": "sessions",
+      "stages": "stages"
+    },
+    "errors": {
+      "fetch_projects": "Unable to fetch projects",
+      "auth_required": "Authentication required",
+      "delete_failed": "Failed to delete project (Status: {status}, Error: {error})",
+      "delete_failed_generic": "Failed to delete project",
+      "delete_error": "Error deleting project: {error}",
+      "no_auth_token": "No authentication token available",
+      "token_validation_failed": "Token validation failed",
+      "missing_auth_cookies": "Missing auth cookies, redirecting to login",
+      "auth_check_failed": "Auth check failed"
+    },
+    "success": {
+      "project_deleted": "Project {projectName} deleted successfully"
+    },
+    "increased": "Increased",
+    "decreased": "Decreased",
+    "by": "by",
+    "delete_confirmation": "Are you sure you want to delete {projectName}?",
+    "loading_project_data": "Loading project data...",
+    "project": "Project"
   }
 }

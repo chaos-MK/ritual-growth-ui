@@ -2,12 +2,12 @@
   "navigation": {
     "search_placeholder": "Rechercher...",
     "profile": "Profil",
-    "mute_notifications": "Couper les notifications",
+    "mute_notifications": "Désactiver les notifications",
     "themes": "Thèmes",
     "settings": "Paramètres",
     "help": "Aide",
     "sign_out": "Se déconnecter",
-    "signing_out": "Déconnexion...",
+    "signing_out": "Déconnexion en cours...",
     "switch_to_light_mode": "Passer en mode clair",
     "switch_to_dark_mode": "Passer en mode sombre",
     "change_language": "Changer de langue",
@@ -29,5 +29,59 @@
     "sr": "Serbe",
     "sv": "Suédois",
     "tr": "Turc"
+  },
+  "company": {
+    "title": "Tableau de bord de l'entreprise",
+    "loading": "Chargement des données...",
+    "error": "Erreur",
+    "stats": {
+      "total_projects": "Projets totaux",
+      "total_cohorts": "Cohortes totales",
+      "total_users": "Utilisateurs totaux",
+      "total_sessions": "Sessions totales",
+      "active_users": "Utilisateurs actifs",
+      "avg_session_duration": "Durée moyenne des sessions"
+    },
+    "projects": {
+      "title": "Projets",
+      "no_projects": "Aucun projet trouvé",
+      "load_failed": "Échec du chargement des projets",
+      "cohorts": "Cohortes",
+      "users": "Utilisateurs",
+      "sessions": "Sessions",
+      "edit": "Modifier le projet",
+      "delete": "Supprimer le projet"
+    },
+    "cohorts": {
+      "title": "Cohortes",
+      "no_cohorts": "Aucune cohorte trouvée pour ce projet",
+      "load_failed": "Échec du chargement des cohortes",
+      "version": "Version",
+      "started": "Démarré",
+      "total_users": "utilisateurs totaux",
+      "active_users": "utilisateurs actifs",
+      "sessions": "sessions",
+      "stages": "étapes"
+    },
+    "errors": {
+      "fetch_projects": "Impossible de récupérer les projets",
+      "auth_required": "Authentification requise",
+      "delete_failed": "Échec de la suppression du projet (Statut : {status}, Erreur : {error})",
+      "delete_failed_generic": "Échec de la suppression du projet",
+      "delete_error": "Erreur lors de la suppression du projet : {error}",
+      "no_auth_token": "Aucun jeton d'authentification disponible",
+      "token_validation_failed": "Échec de la validation du jeton",
+      "missing_auth_cookies": "Cookies d'authentification manquants, redirection vers la connexion",
+      "auth_check_failed": "Échec de la vérification d'authentification"
+    },
+    "success": {
+      "project_deleted": "Projet {projectName} supprimé avec succès"
+    },
+    "increased": "Augmenté",
+    "decreased": "Diminué",
+    "by": "de",
+    "delete_confirmation": "Êtes-vous sûr de vouloir supprimer le projet {projectName} ?",
+    "loading_project_data": "Chargement des données du projet...",
+    "project": "Projet"
   }
 }

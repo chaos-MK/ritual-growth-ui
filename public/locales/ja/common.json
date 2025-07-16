@@ -29,5 +29,59 @@
     "sr": "セルビア語",
     "sv": "スウェーデン語",
     "tr": "トルコ語"
+  },
+  "company": {
+    "title": "企業ダッシュボード",
+    "loading": "データを読み込んでいます...",
+    "error": "エラー",
+    "stats": {
+      "total_projects": "プロジェクト合計",
+      "total_cohorts": "コホート合計",
+      "total_users": "ユーザー合計",
+      "total_sessions": "セッション合計",
+      "active_users": "アクティブユーザー",
+      "avg_session_duration": "平均セッション時間"
+    },
+    "projects": {
+      "title": "プロジェクト",
+      "no_projects": "プロジェクトが見つかりません",
+      "load_failed": "プロジェクトの読み込みに失敗しました",
+      "cohorts": "コホート",
+      "users": "ユーザー",
+      "sessions": "セッション",
+      "edit": "プロジェクトを編集",
+      "delete": "プロジェクトを削除"
+    },
+    "cohorts": {
+      "title": "コホート",
+      "no_cohorts": "このプロジェクトにコホートが見つかりません",
+      "load_failed": "コホートの読み込みに失敗しました",
+      "version": "バージョン",
+      "started": "開始",
+      "total_users": "総ユーザー",
+      "active_users": "アクティブユーザー",
+      "sessions": "セッション",
+      "stages": "ステージ"
+    },
+    "errors": {
+      "fetch_projects": "プロジェクトを取得できません",
+      "auth_required": "認証が必要です",
+      "delete_failed": "プロジェクトの削除に失敗しました（ステータス: {status}、エラー: {error}）",
+      "delete_failed_generic": "プロジェクトの削除に失敗しました",
+      "delete_error": "プロジェクトの削除エラー: {error}",
+      "no_auth_token": "認証トークンがありません",
+      "token_validation_failed": "トークンの検証に失敗しました",
+      "missing_auth_cookies": "認証クッキーがありません、ログインにリダイレクトします",
+      "auth_check_failed": "認証チェックに失敗しました"
+    },
+    "success": {
+      "project_deleted": "プロジェクト {projectName} が正常に削除されました"
+    },
+    "increased": "増加",
+    "decreased": "減少",
+    "by": "で",
+    "delete_confirmation": "プロジェクト {projectName} を削除してもよろしいですか？",
+    "loading_project_data": "プロジェクトデータを読み込んでいます...",
+    "project": "プロジェクト"
   }
 }

@@ -29,5 +29,59 @@
     "sr": "Serbisk",
     "sv": "Svensk",
     "tr": "Tyrkisk"
+  },
+  "company": {
+    "title": "Bedriftsdashbord",
+    "loading": "Laster inn data...",
+    "error": "Feil",
+    "stats": {
+      "total_projects": "Totalt antall prosjekter",
+      "total_cohorts": "Totalt antall kohorter",
+      "total_users": "Totalt antall brukere",
+      "total_sessions": "Totalt antall økter",
+      "active_users": "Aktive brukere",
+      "avg_session_duration": "Gjennomsnittlig øktvarighet"
+    },
+    "projects": {
+      "title": "Prosjekter",
+      "no_projects": "Ingen prosjekter funnet",
+      "load_failed": "Kunne ikke laste prosjekter",
+      "cohorts": "Kohorter",
+      "users": "Brukere",
+      "sessions": "Økter",
+      "edit": "Rediger prosjekt",
+      "delete": "Slett prosjekt"
+    },
+    "cohorts": {
+      "title": "Kohorter",
+      "no_cohorts": "Ingen kohorter funnet for dette prosjektet",
+      "load_failed": "Kunne ikke laste kohorter",
+      "version": "Versjon",
+      "started": "Startet",
+      "total_users": "totalt antall brukere",
+      "active_users": "aktive brukere",
+      "sessions": "økter",
+      "stages": "stadier"
+    },
+    "errors": {
+      "fetch_projects": "Kunne ikke hente prosjekter",
+      "auth_required": "Autentisering kreves",
+      "delete_failed": "Kunne ikke slette prosjekt (Status: {status}, Feil: {error})",
+      "delete_failed_generic": "Kunne ikke slette prosjekt",
+      "delete_error": "Feil ved sletting av prosjekt: {error}",
+      "no_auth_token": "Ingen autentiseringstoken tilgjengelig",
+      "token_validation_failed": "Tokenvalidering feilet",
+      "missing_auth_cookies": "Manglende autentiseringscookies, videresender til innlogging",
+      "auth_check_failed": "Autentiseringskontroll feilet"
+    },
+    "success": {
+      "project_deleted": "Prosjekt {projectName} slettet vellykket"
+    },
+    "increased": "Økt",
+    "decreased": "Redusert",
+    "by": "med",
+    "delete_confirmation": "Er du sikker på at du vil slette {projectName}?",
+    "loading_project_data": "Laster inn prosjektdata...",
+    "project": "Prosjekt"
   }
 }

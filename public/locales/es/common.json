@@ -17,7 +17,7 @@
     "en": "Inglés",
     "fr": "Francés",
     "es": "Español",
-    "nl": "Holandés",
+    "nl": "Neerlandés",
     "fi": "Finlandés",
     "de": "Alemán",
     "it": "Italiano",
@@ -29,5 +29,59 @@
     "sr": "Serbio",
     "sv": "Sueco",
     "tr": "Turco"
+  },
+  "company": {
+    "title": "Panel de la empresa",
+    "loading": "Cargando datos...",
+    "error": "Error",
+    "stats": {
+      "total_projects": "Proyectos totales",
+      "total_cohorts": "Cohortes totales",
+      "total_users": "Usuarios totales",
+      "total_sessions": "Sesiones totales",
+      "active_users": "Usuarios activos",
+      "avg_session_duration": "Duración media de la sesión"
+    },
+    "projects": {
+      "title": "Proyectos",
+      "no_projects": "No se encontraron proyectos",
+      "load_failed": "Error al cargar proyectos",
+      "cohorts": "Cohortes",
+      "users": "Usuarios",
+      "sessions": "Sesiones",
+      "edit": "Editar proyecto",
+      "delete": "Eliminar proyecto"
+    },
+    "cohorts": {
+      "title": "Cohortes",
+      "no_cohorts": "No se encontraron cohortes para este proyecto",
+      "load_failed": "Error al cargar cohortes",
+      "version": "Versión",
+      "started": "Iniciado",
+      "total_users": "usuarios totales",
+      "active_users": "usuarios activos",
+      "sessions": "sesiones",
+      "stages": "etapas"
+    },
+    "errors": {
+      "fetch_projects": "No se pudieron recuperar los proyectos",
+      "auth_required": "Se requiere autenticación",
+      "delete_failed": "Error al eliminar el proyecto (Estado: {status}, Error: {error})",
+      "delete_failed_generic": "Error al eliminar el proyecto",
+      "delete_error": "Error al eliminar el proyecto: {error}",
+      "no_auth_token": "No hay token de autenticación disponible",
+      "token_validation_failed": "Fallo en la validación del token",
+      "missing_auth_cookies": "Faltan cookies de autenticación, redirigiendo al inicio de sesión",
+      "auth_check_failed": "Fallo en la verificación de autenticación"
+    },
+    "success": {
+      "project_deleted": "Proyecto {projectName} eliminado con éxito"
+    },
+    "increased": "Aumentado",
+    "decreased": "Disminuido",
+    "by": "por",
+    "delete_confirmation": "¿Estás seguro de que quieres eliminar el proyecto {projectName}?",
+    "loading_project_data": "Cargando datos del proyecto...",
+    "project": "Proyecto"
   }
 }
