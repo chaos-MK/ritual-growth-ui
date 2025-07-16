@@ -44,7 +44,16 @@ interface Stage {
     overall: number
   }
 }
-
+interface CohortStatistics {
+  totalUsers: number
+  activeUsers: number
+  totalSessions: number
+  totalStages: number
+  inactiveUsers: number
+  activeUserPercentage: number
+  sessionSummaries: any[]
+  stageSummaries: any[]
+}
 interface Cohort {
   id: number
   cohortName: string
@@ -54,6 +63,7 @@ interface Cohort {
   project_id: number
   users: User[]
   stages: Stage[]
+  statistics?: CohortStatistics
 }
 
 interface Project {
@@ -256,18 +266,20 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   }, 0);
 
   const totalSessions = cohorts.reduce((sum, cohort) => {
-    // Add null check for cohort.stages
-    if (!cohort.stages || !Array.isArray(cohort.stages)) {
-      return sum;
-    }
-    return sum + cohort.stages.reduce((stageSum, stage) => {
-      // Add null check for stage.stageStats
-      if (!stage.stageStats) {
-        return stageSum;
-      }
-      return stageSum + (stage.stageStats.overall || 0);
-    }, 0);
+  if (cohort.statistics?.totalSessions !== undefined) {
+    return sum + cohort.statistics.totalSessions;
+  }
+
+  // Fallback to legacy calculation if no statistics present
+  if (!cohort.stages || !Array.isArray(cohort.stages)) {
+    return sum;
+  }
+  return sum + cohort.stages.reduce((stageSum, stage) => {
+    if (!stage.stageStats) return stageSum;
+    return stageSum + (stage.stageStats.overall || 0);
   }, 0);
+}, 0);
+
 
   // Calculate active users (users with recent activity)
   const activeUsers = cohorts.reduce((sum, cohort) => {
@@ -515,10 +527,13 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const stages = cohort.stages || [];
   const users = cohort.users || [];
   
-  const totalSessions = stages.reduce((sum, stage) => {
+  const totalSessions =
+  cohort.statistics?.totalSessions ??
+  stages.reduce((sum, stage) => {
     if (!stage.stageStats) return sum;
     return sum + (stage.stageStats.overall || 0);
   }, 0);
+
   
   const activeUsers = users.filter(user => {
     if (!user.statuses || !Array.isArray(user.statuses)) return false;

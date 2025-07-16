@@ -8,6 +8,16 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/ou
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
 
+interface Session {
+  sessionId: number
+  sessionName: string
+  startDate: string
+  status: string
+  hasGraphs: boolean
+  hasDashboard: boolean
+  stages: any[]
+}
+
 // Types
 interface User {
   id: number
@@ -21,6 +31,7 @@ interface User {
   disabled: boolean
   displayName: string
   superUser: boolean
+  sessions: Session[]
   userContext: {
     hasLiked: boolean
     isFollowing: boolean
@@ -192,27 +203,29 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
 // Add this helper function to transform user array to cohort format
 const transformUserArrayToCohort = (users: any[], cohortId: string): Cohort => {
   // Map the backend user format to your frontend User interface
-  const mappedUsers: User[] = users.map(user => ({
-    id: user.userId,
-    apUid: user.userId.toString(), // Assuming this maps to userId
-    email: user.userName + '@example.com', // You might need to adjust this
-    fullName: user.userName,
-    creationTime: user.startDate,
-    statuses: [user.status],
-    privileges: [],
-    reactivationToken: '',
-    disabled: user.status !== 'ACTIVE',
-    displayName: user.userName,
-    superUser: false,
-    userContext: {
-      hasLiked: false,
-      isFollowing: false,
-      isInFavorites: false,
-      owns: false,
-      isOwnerBlocked: false,
-      isOwnerMuted: false,
-    }
-  }))
+const mappedUsers: User[] = users.map(user => ({
+  id: user.userId,
+  apUid: user.userId.toString(),
+  email: user.userName + '@example.com',
+  fullName: user.userName,
+  creationTime: user.startDate,
+  statuses: [user.status],
+  privileges: [],
+  reactivationToken: '',
+  disabled: user.status !== 'ACTIVE',
+  displayName: user.userName,
+  superUser: false,
+  userContext: {
+    hasLiked: false,
+    isFollowing: false,
+    isInFavorites: false,
+    owns: false,
+    isOwnerBlocked: false,
+    isOwnerMuted: false,
+  },
+  sessions: user.sessions || []
+}))
+
 
   return {
     id: parseInt(cohortId),
@@ -246,10 +259,10 @@ const transformUserArrayToCohort = (users: any[], cohortId: string): Cohort => {
       return !user.disabled && user.statuses.length > 0
     }).length
 
-    const totalSessions = stages.reduce((sum, stage) => {
-      if (!stage.stageStats) return sum
-      return sum + (stage.stageStats.overall || 0)
-    }, 0)
+    const totalSessions = users.reduce((sum, user) => {
+  return sum + (user.sessions?.length || 0)
+}, 0)
+
 
     // Calculate average session duration based on actual data
     const avgSessionDuration = totalUsers > 0 ? Math.floor(totalSessions / totalUsers * 45) : 0
@@ -432,11 +445,7 @@ const transformUserArrayToCohort = (users: any[], cohortId: string): Cohort => {
           ) : (
             <ul role="list" className="divide-y divide-gray-200">
               {cohort.users.map((user) => {
-                const userSessions = cohort.stages?.reduce((sum, stage) => {
-                  if (!stage.stageStats) return sum
-                  // This is a rough estimate - in a real app, you'd have user-specific session data
-                  return sum + Math.floor((stage.stageStats.overall || 0) / cohort.users.length)
-                }, 0) || 0
+                const userSessions = user.sessions?.length || 0
 
                 return (
                   <li key={user.id}>
