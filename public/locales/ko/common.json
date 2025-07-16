@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "검색...",
+    "profile": "프로필",
+    "mute_notifications": "알림 끄기",
+    "themes": "테마",
+    "settings": "설정",
+    "help": "도움말",
+    "sign_out": "로그아웃",
+    "signing_out": "로그아웃 중...",
+    "switch_to_light_mode": "라이트 모드로 전환",
+    "switch_to_dark_mode": "다크 모드로 전환",
+    "change_language": "언어 변경",
+    "select_language": "언어 선택"
+  },
+  "languages": {
+    "en": "영어",
+    "fr": "프랑스어",
+    "es": "스페인어",
+    "nl": "네덜란드어",
+    "fi": "핀란드어",
+    "de": "독일어",
+    "it": "이탈리아어",
+    "ja": "일본어",
+    "ko": "한국어",
+    "no": "노르웨이어",
+    "pl": "폴란드어",
+    "pt": "포르투갈어",
+    "sr": "세르비아어",
+    "sv": "스웨덴어",
+    "tr": "터키어"
+  }
+}

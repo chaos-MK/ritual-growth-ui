@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "Søk...",
+    "profile": "Profil",
+    "mute_notifications": "Demp varsler",
+    "themes": "Temaer",
+    "settings": "Innstillinger",
+    "help": "Hjelp",
+    "sign_out": "Logg ut",
+    "signing_out": "Logger ut...",
+    "switch_to_light_mode": "Bytt til lys modus",
+    "switch_to_dark_mode": "Bytt til mørk modus",
+    "change_language": "Endre språk",
+    "select_language": "Velg språk"
+  },
+  "languages": {
+    "en": "Engelsk",
+    "fr": "Fransk",
+    "es": "Spansk",
+    "nl": "Nederlandsk",
+    "fi": "Finsk",
+    "de": "Tysk",
+    "it": "Italiensk",
+    "ja": "Japansk",
+    "ko": "Koreansk",
+    "no": "Norsk",
+    "pl": "Polsk",
+    "pt": "Portugisisk",
+    "sr": "Serbisk",
+    "sv": "Svensk",
+    "tr": "Tyrkisk"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "navigation": {
+    "search_placeholder": "Sök...",
+    "profile": "Profil",
+    "mute_notifications": "Tysta aviseringar",
+    "themes": "Teman",
+    "settings": "Inställningar",
+    "help": "Hjälp",
+    "sign_out": "Logga ut",
+    "signing_out": "Loggar ut...",
+    "switch_to_light_mode": "Växla till ljust läge",
+    "switch_to_dark_mode": "Växla till mörkt läge",
+    "change_language": "Byt språk",
+    "select_language": "Välj språk"
+  },
+  "languages": {
+    "en": "Engelska",
+    "fr": "Franska",
+    "es": "Spanska",
+    "nl": "Nederländska",
+    "fi": "Finska",
+    "de": "Tyska",
+    "it": "Italienska",
+    "ja": "Japanska",
+    "ko": "Koreanska",
+    "no": "Norska",
+    "pl": "Polska",
+    "pt": "Portugisiska",
+    "sr": "Serbiska",
+    "sv": "Svenska",
+    "tr": "Turkiska"
+  }
+}
