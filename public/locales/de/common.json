@@ -7,7 +7,7 @@
     "settings": "Einstellungen",
     "help": "Hilfe",
     "sign_out": "Abmelden",
-    "signing_out": "Abmelden...",
+    "signing_out": "Wird abgemeldet...",
     "switch_to_light_mode": "Zum hellen Modus wechseln",
     "switch_to_dark_mode": "Zum dunklen Modus wechseln",
     "change_language": "Sprache ändern",
@@ -29,5 +29,59 @@
     "sr": "Serbisch",
     "sv": "Schwedisch",
     "tr": "Türkisch"
+  },
+  "company": {
+    "title": "Unternehmens-Dashboard",
+    "loading": "Daten werden geladen...",
+    "error": "Fehler",
+    "stats": {
+      "total_projects": "Gesamtprojekte",
+      "total_cohorts": "Gesamt-Kohorten",
+      "total_users": "Gesamtbenutzer",
+      "total_sessions": "Gesamt-Sitzungen",
+      "active_users": "Aktive Benutzer",
+      "avg_session_duration": "Durchschn. Sitzungsdauer"
+    },
+    "projects": {
+      "title": "Projekte",
+      "no_projects": "Keine Projekte gefunden",
+      "load_failed": "Laden der Projekte fehlgeschlagen",
+      "cohorts": "Kohorten",
+      "users": "Benutzer",
+      "sessions": "Sitzungen",
+      "edit": "Projekt bearbeiten",
+      "delete": "Projekt löschen"
+    },
+    "cohorts": {
+      "title": "Kohorten",
+      "no_cohorts": "Keine Kohorten für dieses Projekt gefunden",
+      "load_failed": "Laden der Kohorten fehlgeschlagen",
+      "version": "Version",
+      "started": "Gestartet",
+      "total_users": "Gesamtbenutzer",
+      "active_users": "aktive Benutzer",
+      "sessions": "Sitzungen",
+      "stages": "Phasen"
+    },
+    "errors": {
+      "fetch_projects": "Projekte konnten nicht abgerufen werden",
+      "auth_required": "Authentifizierung erforderlich",
+      "delete_failed": "Löschen des Projekts fehlgeschlagen (Status: {status}, Fehler: {error})",
+      "delete_failed_generic": "Löschen des Projekts fehlgeschlagen",
+      "delete_error": "Fehler beim Löschen des Projekts: {error}",
+      "no_auth_token": "Kein Authentifizierungstoken verfügbar",
+      "token_validation_failed": "Token-Validierung fehlgeschlagen",
+      "missing_auth_cookies": "Fehlende Auth-Cookies, Weiterleitung zum Login",
+      "auth_check_failed": "Authentifizierungsprüfung fehlgeschlagen"
+    },
+    "success": {
+      "project_deleted": "Projekt {projectName} erfolgreich gelöscht"
+    },
+    "increased": "Erhöht",
+    "decreased": "Vermindert",
+    "by": "um",
+    "delete_confirmation": "Sind Sie sicher, dass Sie das Projekt {projectName} löschen möchten?",
+    "loading_project_data": "Projektdaten werden geladen...",
+    "project": "Projekt"
   }
 }

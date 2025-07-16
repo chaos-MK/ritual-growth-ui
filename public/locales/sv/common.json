@@ -2,14 +2,14 @@
   "navigation": {
     "search_placeholder": "Sök...",
     "profile": "Profil",
-    "mute_notifications": "Tysta aviseringar",
+    "mute_notifications": "Stäng av notiser",
     "themes": "Teman",
     "settings": "Inställningar",
     "help": "Hjälp",
     "sign_out": "Logga ut",
     "signing_out": "Loggar ut...",
-    "switch_to_light_mode": "Växla till ljust läge",
-    "switch_to_dark_mode": "Växla till mörkt läge",
+    "switch_to_light_mode": "Byt till ljust läge",
+    "switch_to_dark_mode": "Byt till mörkt läge",
     "change_language": "Byt språk",
     "select_language": "Välj språk"
   },
@@ -29,5 +29,59 @@
     "sr": "Serbiska",
     "sv": "Svenska",
     "tr": "Turkiska"
+  },
+  "company": {
+    "title": "Företagsdashboard",
+    "loading": "Laddar data...",
+    "error": "Fel",
+    "stats": {
+      "total_projects": "Totalt antal projekt",
+      "total_cohorts": "Totalt antal kohorter",
+      "total_users": "Totalt antal användare",
+      "total_sessions": "Totalt antal sessioner",
+      "active_users": "Aktiva användare",
+      "avg_session_duration": "Genomsnittlig sessionslängd"
+    },
+    "projects": {
+      "title": "Projekt",
+      "no_projects": "Inga projekt hittades",
+      "load_failed": "Misslyckades att ladda projekt",
+      "cohorts": "Kohorter",
+      "users": "Användare",
+      "sessions": "Sessioner",
+      "edit": "Redigera projekt",
+      "delete": "Radera projekt"
+    },
+    "cohorts": {
+      "title": "Kohorter",
+      "no_cohorts": "Inga kohorter hittades för detta projekt",
+      "load_failed": "Misslyckades att ladda kohorter",
+      "version": "Version",
+      "started": "Startad",
+      "total_users": "totalt antal användare",
+      "active_users": "aktiva användare",
+      "sessions": "sessioner",
+      "stages": "stadier"
+    },
+    "errors": {
+      "fetch_projects": "Kunde inte hämta projekt",
+      "auth_required": "Autentisering krävs",
+      "delete_failed": "Misslyckades att radera projekt (Status: {status}, Fel: {error})",
+      "delete_failed_generic": "Misslyckades att radera projekt",
+      "delete_error": "Fel vid radering av projekt: {error}",
+      "no_auth_token": "Ingen autentiseringstoken tillgänglig",
+      "token_validation_failed": "Tokenvalidering misslyckades",
+      "missing_auth_cookies": "Saknar autentiseringscookies, omdirigerar till inloggning",
+      "auth_check_failed": "Autentiseringskontroll misslyckades"
+    },
+    "success": {
+      "project_deleted": "Projekt {projectName} raderades framgångsrikt"
+    },
+    "increased": "Ökat",
+    "decreased": "Minskat",
+    "by": "med",
+    "delete_confirmation": "Är du säker på att du vill radera projektet {projectName}?",
+    "loading_project_data": "Laddar projektdata...",
+    "project": "Projekt"
   }
 }

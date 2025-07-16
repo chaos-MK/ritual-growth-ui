@@ -8,9 +8,9 @@
     "help": "Ajuda",
     "sign_out": "Sair",
     "signing_out": "Saindo...",
-    "switch_to_light_mode": "Mudar para modo claro",
-    "switch_to_dark_mode": "Mudar para modo escuro",
-    "change_language": "Alterar idioma",
+    "switch_to_light_mode": "Mudar para o modo claro",
+    "switch_to_dark_mode": "Mudar para o modo escuro",
+    "change_language": "Mudar idioma",
     "select_language": "Selecionar idioma"
   },
   "languages": {
@@ -29,5 +29,59 @@
     "sr": "Sérvio",
     "sv": "Sueco",
     "tr": "Turco"
+  },
+  "company": {
+    "title": "Painel da Empresa",
+    "loading": "Carregando dados...",
+    "error": "Erro",
+    "stats": {
+      "total_projects": "Projetos Totais",
+      "total_cohorts": "Coortes Totais",
+      "total_users": "Usuários Totais",
+      "total_sessions": "Sessões Totais",
+      "active_users": "Usuários Ativos",
+      "avg_session_duration": "Duração Média da Sessão"
+    },
+    "projects": {
+      "title": "Projetos",
+      "no_projects": "Nenhum projeto encontrado",
+      "load_failed": "Falha ao carregar projetos",
+      "cohorts": "Coortes",
+      "users": "Usuários",
+      "sessions": "Sessões",
+      "edit": "Editar Projeto",
+      "delete": "Excluir Projeto"
+    },
+    "cohorts": {
+      "title": "Coortes",
+      "no_cohorts": "Nenhuma coorte encontrada para este projeto",
+      "load_failed": "Falha ao carregar coortes",
+      "version": "Versão",
+      "started": "Iniciado",
+      "total_users": "usuários totais",
+      "active_users": "usuários ativos",
+      "sessions": "sessões",
+      "stages": "etapas"
+    },
+    "errors": {
+      "fetch_projects": "Não foi possível buscar projetos",
+      "auth_required": "Autenticação necessária",
+      "delete_failed": "Falha ao excluir projeto (Status: {status}, Erro: {error})",
+      "delete_failed_generic": "Falha ao excluir projeto",
+      "delete_error": "Erro ao excluir projeto: {error}",
+      "no_auth_token": "Nenhum token de autenticação disponível",
+      "token_validation_failed": "Validação do token falhou",
+      "missing_auth_cookies": "Cookies de autenticação ausentes, redirecionando para login",
+      "auth_check_failed": "Verificação de autenticação falhou"
+    },
+    "success": {
+      "project_deleted": "Projeto {projectName} excluído com sucesso"
+    },
+    "increased": "Aumentado",
+    "decreased": "Diminuído",
+    "by": "por",
+    "delete_confirmation": "Tem certeza de que deseja excluir o projeto {projectName}?",
+    "loading_project_data": "Carregando dados do projeto...",
+    "project": "Projeto"
   }
 }

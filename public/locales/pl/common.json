@@ -6,7 +6,7 @@
     "themes": "Motywy",
     "settings": "Ustawienia",
     "help": "Pomoc",
-    "sign_out": "Wyloguj",
+    "sign_out": "Wyloguj się",
     "signing_out": "Wylogowywanie...",
     "switch_to_light_mode": "Przełącz na tryb jasny",
     "switch_to_dark_mode": "Przełącz na tryb ciemny",
@@ -29,5 +29,59 @@
     "sr": "Serbski",
     "sv": "Szwedzki",
     "tr": "Turecki"
+  },
+  "company": {
+    "title": "Panel firmowy",
+    "loading": "Ładowanie danych...",
+    "error": "Błąd",
+    "stats": {
+      "total_projects": "Wszystkie projekty",
+      "total_cohorts": "Wszystkie kohorty",
+      "total_users": "Wszyscy użytkownicy",
+      "total_sessions": "Wszystkie sesje",
+      "active_users": "Aktywni użytkownicy",
+      "avg_session_duration": "Śr. czas trwania sesji"
+    },
+    "projects": {
+      "title": "Projekty",
+      "no_projects": "Nie znaleziono projektów",
+      "load_failed": "Nie udało się załadować projektów",
+      "cohorts": "Kohorty",
+      "users": "Użytkownicy",
+      "sessions": "Sesje",
+      "edit": "Edytuj projekt",
+      "delete": "Usuń projekt"
+    },
+    "cohorts": {
+      "title": "Kohorty",
+      "no_cohorts": "Nie znaleziono kohort dla tego projektu",
+      "load_failed": "Nie udało się załadować kohort",
+      "version": "Wersja",
+      "started": "Rozpoczęto",
+      "total_users": "wszyscy użytkownicy",
+      "active_users": "aktywni użytkownicy",
+      "sessions": "sesje",
+      "stages": "etapy"
+    },
+    "errors": {
+      "fetch_projects": "Nie można pobrać projektów",
+      "auth_required": "Wymagane uwierzytelnianie",
+      "delete_failed": "Nie udało się usunąć projektu (Status: {status}, Błąd: {error})",
+      "delete_failed_generic": "Nie udało się usunąć projektu",
+      "delete_error": "Błąd podczas usuwania projektu: {error}",
+      "no_auth_token": "Brak tokenu uwierzytelniającego",
+      "token_validation_failed": "Weryfikacja tokenu nie powiodła się",
+      "missing_auth_cookies": "Brak ciasteczek uwierzytelniających, przekierowanie do logowania",
+      "auth_check_failed": "Kontrola uwierzytelniania nie powiodła się"
+    },
+    "success": {
+      "project_deleted": "Projekt {projectName} został pomyślnie usunięty"
+    },
+    "increased": "Wzrost",
+    "decreased": "Spadek",
+    "by": "o",
+    "delete_confirmation": "Czy na pewno chcesz usunąć projekt {projectName}?",
+    "loading_project_data": "Ładowanie danych projektu...",
+    "project": "Projekt"
   }
 }

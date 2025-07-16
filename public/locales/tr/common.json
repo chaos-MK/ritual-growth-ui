@@ -2,15 +2,15 @@
   "navigation": {
     "search_placeholder": "Ara...",
     "profile": "Profil",
-    "mute_notifications": "Bildirimleri kapat",
+    "mute_notifications": "Bildirimleri sessize al",
     "themes": "Temalar",
     "settings": "Ayarlar",
     "help": "Yardım",
-    "sign_out": "Çıkış yap",
+    "sign_out": "Çıkış Yap",
     "signing_out": "Çıkış yapılıyor...",
     "switch_to_light_mode": "Açık moda geç",
     "switch_to_dark_mode": "Koyu moda geç",
-    "change_language": "Dili değiştir",
+    "change_language": "Dil değiştir",
     "select_language": "Dil seç"
   },
   "languages": {
@@ -29,5 +29,59 @@
     "sr": "Sırpça",
     "sv": "İsveççe",
     "tr": "Türkçe"
+  },
+  "company": {
+    "title": "Şirket Panosu",
+    "loading": "Veriler yükleniyor...",
+    "error": "Hata",
+    "stats": {
+      "total_projects": "Toplam Projeler",
+      "total_cohorts": "Toplam Kohortlar",
+      "total_users": "Toplam Kullanıcılar",
+      "total_sessions": "Toplam Oturumlar",
+      "active_users": "Aktif Kullanıcılar",
+      "avg_session_duration": "Ort. Oturum Süresi"
+    },
+    "projects": {
+      "title": "Projeler",
+      "no_projects": "Proje bulunamadı",
+      "load_failed": "Projeler yüklenemedi",
+      "cohorts": "Kohortlar",
+      "users": "Kullanıcılar",
+      "sessions": "Oturumlar",
+      "edit": "Projeyi Düzenle",
+      "delete": "Projeyi Sil"
+    },
+    "cohorts": {
+      "title": "Kohortlar",
+      "no_cohorts": "Bu proje için kohort bulunamadı",
+      "load_failed": "Kohortlar yüklenemedi",
+      "version": "Sürüm",
+      "started": "Başlangıç",
+      "total_users": "toplam kullanıcılar",
+      "active_users": "aktif kullanıcılar",
+      "sessions": "oturumlar",
+      "stages": "aşamalar"
+    },
+    "errors": {
+      "fetch_projects": "Projeler alınamadı",
+      "auth_required": "Kimlik doğrulama gerekli",
+      "delete_failed": "Proje silinemedi (Durum: {status}, Hata: {error})",
+      "delete_failed_generic": "Proje silinemedi",
+      "delete_error": "Proje silinirken hata oluştu: {error}",
+      "no_auth_token": "Kimlik doğrulama tokenı mevcut değil",
+      "token_validation_failed": "Token doğrulama başarısız",
+      "missing_auth_cookies": "Kimlik doğrulama çerezleri eksik, giriş sayfasına yönlendiriliyor",
+      "auth_check_failed": "Kimlik doğrulama kontrolü başarısız"
+    },
+    "success": {
+      "project_deleted": "Proje {projectName} başarıyla silindi"
+    },
+    "increased": "Arttı",
+    "decreased": "Azaldı",
+    "by": "kadar",
+    "delete_confirmation": "{projectName} projesini silmek istediğinizden emin misiniz?",
+    "loading_project_data": "Proje verileri yükleniyor...",
+    "project": "Proje"
   }
 }

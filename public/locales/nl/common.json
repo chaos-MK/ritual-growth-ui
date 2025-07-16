@@ -5,13 +5,13 @@
     "mute_notifications": "Meldingen dempen",
     "themes": "Thema's",
     "settings": "Instellingen",
-    "help": "Help",
+    "help": "Hulp",
     "sign_out": "Uitloggen",
-    "signing_out": "Uitloggen...",
-    "switch_to_light_mode": "Schakel naar lichte modus",
-    "switch_to_dark_mode": "Schakel naar donkere modus",
+    "signing_out": "Bezig met uitloggen...",
+    "switch_to_light_mode": "Overschakelen naar lichte modus",
+    "switch_to_dark_mode": "Overschakelen naar donkere modus",
     "change_language": "Taal wijzigen",
-    "select_language": "Selecteer Taal"
+    "select_language": "Taal selecteren"
   },
   "languages": {
     "en": "Engels",
@@ -29,5 +29,59 @@
     "sr": "Servisch",
     "sv": "Zweeds",
     "tr": "Turks"
+  },
+  "company": {
+    "title": "Bedrijfsdashboard",
+    "loading": "Gegevens laden...",
+    "error": "Fout",
+    "stats": {
+      "total_projects": "Totaal Projecten",
+      "total_cohorts": "Totaal Cohorten",
+      "total_users": "Totaal Gebruikers",
+      "total_sessions": "Totaal Sessies",
+      "active_users": "Actieve Gebruikers",
+      "avg_session_duration": "Gem. Sessieduur"
+    },
+    "projects": {
+      "title": "Projecten",
+      "no_projects": "Geen projecten gevonden",
+      "load_failed": "Laden van projecten mislukt",
+      "cohorts": "Cohorten",
+      "users": "Gebruikers",
+      "sessions": "Sessies",
+      "edit": "Project Bewerken",
+      "delete": "Project Verwijderen"
+    },
+    "cohorts": {
+      "title": "Cohorten",
+      "no_cohorts": "Geen cohorten gevonden voor dit project",
+      "load_failed": "Laden van cohorten mislukt",
+      "version": "Versie",
+      "started": "Gestart",
+      "total_users": "totaal gebruikers",
+      "active_users": "actieve gebruikers",
+      "sessions": "sessies",
+      "stages": "fasen"
+    },
+    "errors": {
+      "fetch_projects": "Kan projecten niet ophalen",
+      "auth_required": "Authenticatie vereist",
+      "delete_failed": "Verwijderen van project mislukt (Status: {status}, Fout: {error})",
+      "delete_failed_generic": "Verwijderen van project mislukt",
+      "delete_error": "Fout bij het verwijderen van project: {error}",
+      "no_auth_token": "Geen authenticatietoken beschikbaar",
+      "token_validation_failed": "Tokenvalidatie mislukt",
+      "missing_auth_cookies": "Ontbrekende auth-cookies, wordt doorgestuurd naar login",
+      "auth_check_failed": "Authenticatiecontrole mislukt"
+    },
+    "success": {
+      "project_deleted": "Project {projectName} succesvol verwijderd"
+    },
+    "increased": "Toegenomen",
+    "decreased": "Afgenomen",
+    "by": "met",
+    "delete_confirmation": "Weet je zeker dat je {projectName} wilt verwijderen?",
+    "loading_project_data": "Projectgegevens laden...",
+    "project": "Project"
   }
 }

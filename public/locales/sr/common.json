@@ -1,13 +1,13 @@
 {
   "navigation": {
-    "search_placeholder": "Претражи...",
+    "search_placeholder": "Претрага...",
     "profile": "Профил",
     "mute_notifications": "Искључи обавештења",
     "themes": "Теме",
     "settings": "Подешавања",
     "help": "Помоћ",
     "sign_out": "Одјави се",
-    "signing_out": "Одјављивање...",
+    "signing_out": "Одјава у току...",
     "switch_to_light_mode": "Пређи на светли режим",
     "switch_to_dark_mode": "Пређи на тамни режим",
     "change_language": "Промени језик",
@@ -29,5 +29,59 @@
     "sr": "Српски",
     "sv": "Шведски",
     "tr": "Турски"
+  },
+  "company": {
+    "title": "Контролна табла компаније",
+    "loading": "Учитавање података...",
+    "error": "Грешка",
+    "stats": {
+      "total_projects": "Укупно пројеката",
+      "total_cohorts": "Укупно кохорти",
+      "total_users": "Укупно корисника",
+      "total_sessions": "Укупно сесија",
+      "active_users": "Активни корисници",
+      "avg_session_duration": "Просечно трајање сесије"
+    },
+    "projects": {
+      "title": "Пројекти",
+      "no_projects": "Није пронађен ниједан пројекат",
+      "load_failed": "Учитавање пројеката није успело",
+      "cohorts": "Кохорте",
+      "users": "Корисници",
+      "sessions": "Сесије",
+      "edit": "Уреди пројекат",
+      "delete": "Обриши пројекат"
+    },
+    "cohorts": {
+      "title": "Кохорте",
+      "no_cohorts": "Није пронађена ниједна кохорта за овај пројекат",
+      "load_failed": "Учитавање кохорти није успело",
+      "version": "Верзија",
+      "started": "Започето",
+      "total_users": "укупно корисника",
+      "active_users": "активни корисници",
+      "sessions": "сесије",
+      "stages": "фазе"
+    },
+    "errors": {
+      "fetch_projects": "Није могуће преузети пројекте",
+      "auth_required": "Потребна је аутентификација",
+      "delete_failed": "Брисање пројекта није успело (Статус: {status}, Грешка: {error})",
+      "delete_failed_generic": "Брисање пројекта није успело",
+      "delete_error": "Грешка при брисању пројекта: {error}",
+      "no_auth_token": "Није доступан аутентификациони токен",
+      "token_validation_failed": "Валидација токена није успела",
+      "missing_auth_cookies": "Недостају аутентификациони колачићи, преусмеравање на пријаву",
+      "auth_check_failed": "Провера аутентификације није успела"
+    },
+    "success": {
+      "project_deleted": "Пројекат {projectName} је успешно обрисан"
+    },
+    "increased": "Повећано",
+    "decreased": "Смањено",
+    "by": "за",
+    "delete_confirmation": "Да ли сте сигурни да желите да обришете пројекат {projectName}?",
+    "loading_project_data": "Учитавање података о пројекту...",
+    "project": "Пројекат"
   }
 }

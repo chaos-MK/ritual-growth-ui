@@ -1,11 +1,11 @@
 {
   "navigation": {
-    "search_placeholder": "Etsi...",
+    "search_placeholder": "Haku...",
     "profile": "Profiili",
     "mute_notifications": "Mykistä ilmoitukset",
     "themes": "Teemat",
     "settings": "Asetukset",
-    "help": "Apua",
+    "help": "Ohje",
     "sign_out": "Kirjaudu ulos",
     "signing_out": "Kirjaudutaan ulos...",
     "switch_to_light_mode": "Vaihda vaaleaan tilaan",
@@ -29,5 +29,59 @@
     "sr": "Serbia",
     "sv": "Ruotsi",
     "tr": "Turkki"
+  },
+  "company": {
+    "title": "Yrityksen kojelauta",
+    "loading": "Ladataan tietoja...",
+    "error": "Virhe",
+    "stats": {
+      "total_projects": "Projektit yhteensä",
+      "total_cohorts": "Kohortit yhteensä",
+      "total_users": "Käyttäjät yhteensä",
+      "total_sessions": "Istunnot yhteensä",
+      "active_users": "Aktiiviset käyttäjät",
+      "avg_session_duration": "Keskim. istunnon kesto"
+    },
+    "projects": {
+      "title": "Projektit",
+      "no_projects": "Projekteja ei löytynyt",
+      "load_failed": "Projektien lataaminen epäonnistui",
+      "cohorts": "Kohortit",
+      "users": "Käyttäjät",
+      "sessions": "Istunnot",
+      "edit": "Muokkaa projektia",
+      "delete": "Poista projekti"
+    },
+    "cohorts": {
+      "title": "Kohortit",
+      "no_cohorts": "Tälle projektille ei löytynyt kohortteja",
+      "load_failed": "Kohorttien lataaminen epäonnistui",
+      "version": "Versio",
+      "started": "Aloitettu",
+      "total_users": "käyttäjiä yhteensä",
+      "active_users": "aktiivisia käyttäjiä",
+      "sessions": "istuntoja",
+      "stages": "vaiheita"
+    },
+    "errors": {
+      "fetch_projects": "Projekteja ei voitu hakea",
+      "auth_required": "Tunnistautuminen vaaditaan",
+      "delete_failed": "Projektin poistaminen epäonnistui (Tila: {status}, Virhe: {error})",
+      "delete_failed_generic": "Projektin poistaminen epäonnistui",
+      "delete_error": "Virhe projektin poistamisessa: {error}",
+      "no_auth_token": "Ei autentikaatiotunnusta saatavilla",
+      "token_validation_failed": "Tunnuksen validointi epäonnistui",
+      "missing_auth_cookies": "Puuttuvat autentikaatioevästeet, ohjataan kirjautumiseen",
+      "auth_check_failed": "Tunnistautumistarkistus epäonnistui"
+    },
+    "success": {
+      "project_deleted": "Projekti {projectName} poistettu onnistuneesti"
+    },
+    "increased": "Kasvanut",
+    "decreased": "Laskenut",
+    "by": "määrällä",
+    "delete_confirmation": "Oletko varma, että haluat poistaa projektin {projectName}?",
+    "loading_project_data": "Ladataan projektitietoja...",
+    "project": "Projekti"
   }
 }

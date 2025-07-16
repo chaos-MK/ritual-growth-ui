@@ -2,14 +2,14 @@
   "navigation": {
     "search_placeholder": "검색...",
     "profile": "프로필",
-    "mute_notifications": "알림 끄기",
+    "mute_notifications": "알림 음소거",
     "themes": "테마",
     "settings": "설정",
     "help": "도움말",
     "sign_out": "로그아웃",
     "signing_out": "로그아웃 중...",
-    "switch_to_light_mode": "라이트 모드로 전환",
-    "switch_to_dark_mode": "다크 모드로 전환",
+    "switch_to_light_mode": "밝은 모드로 전환",
+    "switch_to_dark_mode": "어두운 모드로 전환",
     "change_language": "언어 변경",
     "select_language": "언어 선택"
   },
@@ -29,5 +29,59 @@
     "sr": "세르비아어",
     "sv": "스웨덴어",
     "tr": "터키어"
+  },
+  "company": {
+    "title": "회사 대시보드",
+    "loading": "데이터를 불러오는 중...",
+    "error": "오류",
+    "stats": {
+      "total_projects": "총 프로젝트",
+      "total_cohorts": "총 코호트",
+      "total_users": "총 사용자",
+      "total_sessions": "총 세션",
+      "active_users": "활성 사용자",
+      "avg_session_duration": "평균 세션 시간"
+    },
+    "projects": {
+      "title": "프로젝트",
+      "no_projects": "프로젝트를 찾을 수 없습니다",
+      "load_failed": "프로젝트 로드 실패",
+      "cohorts": "코호트",
+      "users": "사용자",
+      "sessions": "세션",
+      "edit": "프로젝트 수정",
+      "delete": "프로젝트 삭제"
+    },
+    "cohorts": {
+      "title": "코호트",
+      "no_cohorts": "이 프로젝트에 대한 코호트가 없습니다",
+      "load_failed": "코호트 로드 실패",
+      "version": "버전",
+      "started": "시작됨",
+      "total_users": "총 사용자",
+      "active_users": "활성 사용자",
+      "sessions": "세션",
+      "stages": "단계"
+    },
+    "errors": {
+      "fetch_projects": "프로젝트를 가져올 수 없습니다",
+      "auth_required": "인증이 필요합니다",
+      "delete_failed": "프로젝트 삭제 실패 (상태: {status}, 오류: {error})",
+      "delete_failed_generic": "프로젝트 삭제 실패",
+      "delete_error": "프로젝트 삭제 오류: {error}",
+      "no_auth_token": "인증 토큰이 없습니다",
+      "token_validation_failed": "토큰 검증 실패",
+      "missing_auth_cookies": "인증 쿠키가 없습니다, 로그인으로 리디렉션합니다",
+      "auth_check_failed": "인증 확인 실패"
+    },
+    "success": {
+      "project_deleted": "프로젝트 {projectName}이(가) 성공적으로 삭제되었습니다"
+    },
+    "increased": "증가",
+    "decreased": "감소",
+    "by": "만큼",
+    "delete_confirmation": "프로젝트 {projectName}을(를) 삭제하시겠습니까?",
+    "loading_project_data": "프로젝트 데이터를 불러오는 중...",
+    "project": "프로젝트"
   }
 }

@@ -7,6 +7,8 @@ import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
+import { useTranslation } from '@/hooks/useTranslation'
+
 
 // Types
 interface User {
@@ -106,6 +108,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const [project, setProject] = useState<Project | null>(null)
   const [projectLoading, setProjectLoading] = useState(false)
   const { loadNavigationData } = useNavigation()
+  const { t, locale, changeLanguage, isLoading: translationLoading } = useTranslation()
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -445,16 +448,16 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          {projectLoading ? 'Loading...' : project?.name || 'Project'}
+          {projectLoading ? t('company.loading') : project?.name || t('company.project')}
         </h1>
         {project?.description && (
           <p className="text-gray-600 dark:text-gray-300 mt-2">{project.description}</p>
         )}
         {(apiLoading || projectLoading) && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Loading project data...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('company.loading_project_data')}</p>
         )}
         {apiError && (
-          <p className="text-sm text-red-600 dark:text-red-400 mt-1">Error: {apiError}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{t('company.error')}: {apiError}</p>
         )}
       </div>
       
@@ -484,7 +487,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
                   <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 )}
                 <span className="sr-only">
-                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                  {t(`company.${item.changeType}`)} {t('company.by')}
                 </span>
                 {item.change}
               </p>
@@ -495,7 +498,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
       <div className="bg-white shadow rounded-lg">
   <div className="px-4 py-5 sm:px-6">
     <div className="flex justify-between items-center">
-      <h3 className="text-lg font-medium leading-6 text-gray-900">Cohorts</h3>
+      <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.cohorts.title')}</h3>
       {(apiLoading || projectLoading) && (
         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
       )}

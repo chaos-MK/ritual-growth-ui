@@ -2,12 +2,12 @@
   "navigation": {
     "search_placeholder": "Cerca...",
     "profile": "Profilo",
-    "mute_notifications": "Silenzia notifiche",
+    "mute_notifications": "Disattiva notifiche",
     "themes": "Temi",
     "settings": "Impostazioni",
     "help": "Aiuto",
-    "sign_out": "Disconnetti",
-    "signing_out": "Disconnessione...",
+    "sign_out": "Esci",
+    "signing_out": "Disconnessione in corso...",
     "switch_to_light_mode": "Passa alla modalità chiara",
     "switch_to_dark_mode": "Passa alla modalità scura",
     "change_language": "Cambia lingua",
@@ -29,5 +29,59 @@
     "sr": "Serbo",
     "sv": "Svedese",
     "tr": "Turco"
+  },
+  "company": {
+    "title": "Dashboard aziendale",
+    "loading": "Caricamento dati...",
+    "error": "Errore",
+    "stats": {
+      "total_projects": "Progetti totali",
+      "total_cohorts": "Coorti totali",
+      "total_users": "Utenti totali",
+      "total_sessions": "Sessioni totali",
+      "active_users": "Utenti attivi",
+      "avg_session_duration": "Durata media sessione"
+    },
+    "projects": {
+      "title": "Progetti",
+      "no_projects": "Nessun progetto trovato",
+      "load_failed": "Caricamento dei progetti fallito",
+      "cohorts": "Coorti",
+      "users": "Utenti",
+      "sessions": "Sessioni",
+      "edit": "Modifica progetto",
+      "delete": "Elimina progetto"
+    },
+    "cohorts": {
+      "title": "Coorti",
+      "no_cohorts": "Nessuna coorte trovata per questo progetto",
+      "load_failed": "Caricamento delle coorti fallito",
+      "version": "Versione",
+      "started": "Iniziato",
+      "total_users": "utenti totali",
+      "active_users": "utenti attivi",
+      "sessions": "sessioni",
+      "stages": "fasi"
+    },
+    "errors": {
+      "fetch_projects": "Impossibile recuperare i progetti",
+      "auth_required": "Autenticazione richiesta",
+      "delete_failed": "Eliminazione del progetto fallita (Stato: {status}, Errore: {error})",
+      "delete_failed_generic": "Eliminazione del progetto fallita",
+      "delete_error": "Errore durante l'eliminazione del progetto: {error}",
+      "no_auth_token": "Nessun token di autenticazione disponibile",
+      "token_validation_failed": "Validazione del token fallita",
+      "missing_auth_cookies": "Cookie di autenticazione mancanti, reindirizzamento al login",
+      "auth_check_failed": "Controllo di autenticazione fallito"
+    },
+    "success": {
+      "project_deleted": "Progetto {projectName} eliminato con successo"
+    },
+    "increased": "Aumentato",
+    "decreased": "Diminuito",
+    "by": "di",
+    "delete_confirmation": "Sei sicuro di voler eliminare il progetto {projectName}?",
+    "loading_project_data": "Caricamento dati del progetto...",
+    "project": "Progetto"
   }
 }
