@@ -98,6 +98,8 @@ interface Stats {
   changeType: 'increase' | 'decrease'
 }
 
+export const dynamic = 'force-dynamic'
+
 export default function CompanySummary() {
   const router = useRouter();
   const { t } = useTranslation(); // Use translation hook

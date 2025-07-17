@@ -7,6 +7,8 @@ import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useTranslation } from '@/hooks/useTranslation'
 import NavigationTree from './NavigationTree'
+import { usePathname } from 'next/navigation'
+
 import { 
   MagnifyingGlassIcon, 
   BellIcon,
@@ -60,9 +62,12 @@ interface Language {
 
 export default function Navigation({ children }: NavigationProps) {
   const router = useRouter()
+   const pathname = usePathname()
   const { t, locale, changeLanguage } = useTranslation()
+  const [renderKey, setRenderKey] = useState(0)
 
   const breadcrumbs = useBreadcrumbs()
+ 
 
   const {
     isDropdownOpen,
@@ -134,6 +139,15 @@ export default function Navigation({ children }: NavigationProps) {
   const handleLanguageChange = (languageCode: string) => {
     changeLanguage(languageCode)
     closeAllDropdowns()
+    
+    // Force re-render by updating the key
+    setRenderKey(prev => prev + 1)
+    
+    if (router.refresh) {
+      router.refresh()
+    } else {
+      router.replace(pathname)
+    }
   }
 
   const getCurrentLanguage = () => {
@@ -512,7 +526,11 @@ export default function Navigation({ children }: NavigationProps) {
         </header>
 
         {/* Page content */}
-        <div className="p-6">{children}</div>
+        <div className="p-6">
+          <div key={`${locale}-${renderKey}`}>
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   )
