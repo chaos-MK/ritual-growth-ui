@@ -2,86 +2,111 @@
   "navigation": {
     "search_placeholder": "Ara...",
     "profile": "Profil",
-    "mute_notifications": "Bildirimleri sessize al",
+    "mute_notifications": "Bildirimleri sustur",
     "themes": "Temalar",
     "settings": "Ayarlar",
     "help": "Yardım",
-    "sign_out": "Çıkış Yap",
-    "signing_out": "Çıkış yapılıyor...",
-    "switch_to_light_mode": "Açık moda geç",
-    "switch_to_dark_mode": "Koyu moda geç",
-    "change_language": "Dil değiştir",
+    "sign_out": "Oturumu kapat",
+    "signing_out": "Oturum kapatılıyor...",
+    "switch_to_light_mode": "Aydınlık moda geç",
+    "switch_to_dark_mode": "Karanlık moda geç",
+    "change_language": "Dili değiştir",
     "select_language": "Dil seç"
   },
   "languages": {
-    "en": "İngilizce",
-    "fr": "Fransızca",
-    "es": "İspanyolca",
-    "nl": "Hollandaca",
-    "fi": "Fince",
-    "de": "Almanca",
-    "it": "İtalyanca",
-    "ja": "Japonca",
-    "ko": "Korece",
-    "no": "Norveççe",
-    "pl": "Lehçe",
-    "pt": "Portekizce",
-    "sr": "Sırpça",
-    "sv": "İsveççe",
-    "tr": "Türkçe"
+    "en": "English",
+    "fr": "French",
+    "es": "Spanish",
+    "nl": "Dutch",
+    "fi": "Finnish",
+    "de": "German",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "sr": "Serbian",
+    "sv": "Swedish",
+    "tr": "Turkish"
   },
   "company": {
-    "title": "Şirket Panosu",
+    "title": "Şirket Kontrol Paneli",
     "loading": "Veriler yükleniyor...",
     "error": "Hata",
     "stats": {
-      "total_projects": "Toplam Projeler",
-      "total_cohorts": "Toplam Kohortlar",
-      "total_users": "Toplam Kullanıcılar",
-      "total_sessions": "Toplam Oturumlar",
+      "total_projects": "Toplam Proje",
+      "total_cohorts": "Toplam Grup",
+      "total_users": "Toplam Kullanıcı",
+      "total_sessions": "Toplam Oturum",
       "active_users": "Aktif Kullanıcılar",
-      "avg_session_duration": "Ort. Oturum Süresi"
+      "avg_session_duration": "Ortalama Oturum Süresi"
     },
     "projects": {
       "title": "Projeler",
       "no_projects": "Proje bulunamadı",
-      "load_failed": "Projeler yüklenemedi",
-      "cohorts": "Kohortlar",
+      "load_failed": "Projeler yüklenirken hata oldu",
+      "cohorts": "Gruplar",
       "users": "Kullanıcılar",
       "sessions": "Oturumlar",
-      "edit": "Projeyi Düzenle",
-      "delete": "Projeyi Sil"
+      "edit": "Projeyi düzenle",
+      "delete": "Projeyi sil"
     },
     "cohorts": {
-      "title": "Kohortlar",
-      "no_cohorts": "Bu proje için kohort bulunamadı",
-      "load_failed": "Kohortlar yüklenemedi",
+      "title": "Gruplar",
+      "no_cohorts": "Bu proje için grup bulunamadı",
+      "load_failed": "Gruplar yüklenirken hata oluştu",
       "version": "Sürüm",
-      "started": "Başlangıç",
-      "total_users": "toplam kullanıcılar",
-      "active_users": "aktif kullanıcılar",
+      "started": "Başlandı",
+      "total_users": "toplam kullanıcı",
+      "active_users": "aktif kullanıcı",
       "sessions": "oturumlar",
-      "stages": "aşamalar"
+      "stages": "aşamalar",
+      "no_users": "Bu grup için kullanıcı bulunamadı",
+      "name": "Grup"
+    },
+    "users": {
+      "title": "Kullanıcılar",
+      "created": "Oluşturuldu",
+      "disabled": "Devre dışı",
+      "active": "Aktif",
+      "super_user": "Süper Kullanıcı"
     },
     "errors": {
       "fetch_projects": "Projeler alınamadı",
       "auth_required": "Kimlik doğrulama gerekli",
-      "delete_failed": "Proje silinemedi (Durum: {status}, Hata: {error})",
-      "delete_failed_generic": "Proje silinemedi",
+      "delete_failed": "Projeyi silme başarısız oldu (Durum: {status}, Hata: {error})",
+      "delete_failed_generic": "Projeyi silme başarısız oldu",
       "delete_error": "Proje silinirken hata oluştu: {error}",
-      "no_auth_token": "Kimlik doğrulama tokenı mevcut değil",
-      "token_validation_failed": "Token doğrulama başarısız",
+      "no_auth_token": "Kimlik doğrulama belirteci yok",
+      "token_validation_failed": "Belirteç doğrulaması başarısız oldu",
       "missing_auth_cookies": "Kimlik doğrulama çerezleri eksik, giriş sayfasına yönlendiriliyor",
-      "auth_check_failed": "Kimlik doğrulama kontrolü başarısız"
+      "auth_check_failed": "Kimlik doğrulama kontrolü başarısız oldu",
+      "fetch_cohort": "Grup alınamadı"
     },
     "success": {
-      "project_deleted": "Proje {projectName} başarıyla silindi"
+      "project_deleted": "{projectName} projesi başarıyla silindi"
     },
     "increased": "Arttı",
     "decreased": "Azaldı",
-    "by": "kadar",
-    "delete_confirmation": "{projectName} projesini silmek istediğinizden emin misiniz?",
+    "by": "ile",
+    "delete_confirmation": "{projectName} projesini silmek istediğinize emin misiniz?",
     "loading_project_data": "Proje verileri yükleniyor...",
     "project": "Proje"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Toplam Oturum",
+      "avg_session_duration": "Ortalama Oturum Süresi",
+      "page_views": "Sayfa Görünümleri",
+      "bounce_rate": "Bounced Oranı"
+    },
+    "sessions": "Oturumlar",
+    "failed_to_load_sessions": "Oturumlar yüklenemedi",
+    "no_sessions_found": "Bu kullanıcı için oturum bulunamadı",
+    "session": "Oturum",
+    "started": "Başladı",
+    "page_views_unit": "sayfa görüntülemesi",
+    "bounced": "Bounced"
   }
 }

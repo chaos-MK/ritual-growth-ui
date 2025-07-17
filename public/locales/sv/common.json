@@ -14,24 +14,24 @@
     "select_language": "Välj språk"
   },
   "languages": {
-    "en": "Engelska",
-    "fr": "Franska",
-    "es": "Spanska",
-    "nl": "Nederländska",
-    "fi": "Finska",
-    "de": "Tyska",
-    "it": "Italienska",
-    "ja": "Japanska",
-    "ko": "Koreanska",
-    "no": "Norska",
-    "pl": "Polska",
-    "pt": "Portugisiska",
-    "sr": "Serbiska",
-    "sv": "Svenska",
-    "tr": "Turkiska"
+    "en": "English",
+    "fr": "French",
+    "es": "Spanish",
+    "nl": "Dutch",
+    "fi": "Finnish",
+    "de": "German",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "sr": "Serbian",
+    "sv": "Swedish",
+    "tr": "Turkish"
   },
   "company": {
-    "title": "Företagsdashboard",
+    "title": "Företagspanel",
     "loading": "Laddar data...",
     "error": "Fel",
     "stats": {
@@ -40,48 +40,73 @@
       "total_users": "Totalt antal användare",
       "total_sessions": "Totalt antal sessioner",
       "active_users": "Aktiva användare",
-      "avg_session_duration": "Genomsnittlig sessionslängd"
+      "avg_session_duration": "Genomsnittlig sessionstid"
     },
     "projects": {
       "title": "Projekt",
       "no_projects": "Inga projekt hittades",
-      "load_failed": "Misslyckades att ladda projekt",
+      "load_failed": "Misslyckades med att ladda projekt",
       "cohorts": "Kohorter",
       "users": "Användare",
       "sessions": "Sessioner",
       "edit": "Redigera projekt",
-      "delete": "Radera projekt"
+      "delete": "Ta bort projekt"
     },
     "cohorts": {
       "title": "Kohorter",
-      "no_cohorts": "Inga kohorter hittades för detta projekt",
-      "load_failed": "Misslyckades att ladda kohorter",
+      "no_cohorts": "Inga kohorter för detta projekt",
+      "load_failed": "Misslyckades med att ladda kohorter",
       "version": "Version",
       "started": "Startad",
-      "total_users": "totalt antal användare",
+      "total_users": "totalt användare",
       "active_users": "aktiva användare",
       "sessions": "sessioner",
-      "stages": "stadier"
+      "stages": "steg",
+      "no_users": "Inga användare hittades för denna kohort",
+      "name": "Kohort"
+    },
+    "users": {
+      "title": "Användare",
+      "created": "Skapat",
+      "disabled": "Inaktiverad",
+      "active": "Aktiv",
+      "super_user": "Superanvändare"
     },
     "errors": {
       "fetch_projects": "Kunde inte hämta projekt",
       "auth_required": "Autentisering krävs",
-      "delete_failed": "Misslyckades att radera projekt (Status: {status}, Fel: {error})",
-      "delete_failed_generic": "Misslyckades att radera projekt",
-      "delete_error": "Fel vid radering av projekt: {error}",
+      "delete_failed": "Misslyckades med att ta bort projekt (Status: {status}, Fel: {error})",
+      "delete_failed_generic": "Misslyckades med att ta ta bort projektet",
+      "delete_error": "Fel vid borttagning av projekt: {error}",
       "no_auth_token": "Ingen autentiseringstoken tillgänglig",
       "token_validation_failed": "Tokenvalidering misslyckades",
-      "missing_auth_cookies": "Saknar autentiseringscookies, omdirigerar till inloggning",
-      "auth_check_failed": "Autentiseringskontroll misslyckades"
+      "missing_auth_cookies": "Saknas autentiseringscookies, omdirigerar till inloggning",
+      "auth_check_failed": "Autentiseringskontroll misslyckades",
+      "fetch_cohort": "Misslyckades med att hämta kohort"
     },
     "success": {
-      "project_deleted": "Projekt {projectName} raderades framgångsrikt"
+      "project_deleted": "Projektet {projectName} raderades framgångsrikt"
     },
     "increased": "Ökat",
     "decreased": "Minskat",
     "by": "med",
-    "delete_confirmation": "Är du säker på att du vill radera projektet {projectName}?",
-    "loading_project_data": "Laddar projektdata...",
+    "delete_confirmation": "Är du säker på att du vill ta bort {projectName}?",
+    "loading_project_data": "Laddar projektdatа…",
     "project": "Projekt"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Totalt antal sessioner",
+      "avg_session_duration": "Genomsnittlig sessionstid",
+      "page_views": "Sidvisningar",
+      "bounce_rate": "Studsfrekvens"
+    },
+    "sessions": "Sessioner",
+    "failed_to_load_sessions": "Misslyckades med att hämta sessioner",
+    "no_sessions_found": "Inga sessioner hittades för denna användare",
+    "session": "Session",
+    "started": "Startad",
+    "page_views_unit": "sidvisningar",
+    "bounced": "Studs"
   }
 }

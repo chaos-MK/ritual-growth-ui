@@ -1,42 +1,42 @@
 {
   "navigation": {
-    "search_placeholder": "Претрага...",
+    "search_placeholder": "Претражи...",
     "profile": "Профил",
     "mute_notifications": "Искључи обавештења",
     "themes": "Теме",
     "settings": "Подешавања",
     "help": "Помоћ",
     "sign_out": "Одјави се",
-    "signing_out": "Одјава у току...",
-    "switch_to_light_mode": "Пређи на светли режим",
-    "switch_to_dark_mode": "Пређи на тамни режим",
+    "signing_out": "Одјављивање...",
+    "switch_to_light_mode": "Пребаци на светли режим",
+    "switch_to_dark_mode": "Пребаци на тамни режим",
     "change_language": "Промени језик",
     "select_language": "Изабери језик"
   },
   "languages": {
-    "en": "Енглески",
-    "fr": "Француски",
-    "es": "Шпански",
-    "nl": "Холандски",
-    "fi": "Фински",
-    "de": "Немачки",
-    "it": "Италијански",
-    "ja": "Јапански",
-    "ko": "Корејски",
-    "no": "Норвешки",
-    "pl": "Пољски",
-    "pt": "Португалски",
-    "sr": "Српски",
-    "sv": "Шведски",
-    "tr": "Турски"
+    "en": "English",
+    "fr": "French",
+    "es": "Spanish",
+    "nl": "Dutch",
+    "fi": "Finnish",
+    "de": "German",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "sr": "Serbian",
+    "sv": "Swedish",
+    "tr": "Turkish"
   },
   "company": {
-    "title": "Контролна табла компаније",
+    "title": "Компаниски контролни панел",
     "loading": "Учитавање података...",
     "error": "Грешка",
     "stats": {
       "total_projects": "Укупно пројеката",
-      "total_cohorts": "Укупно кохорти",
+      "total_cohorts": "Укупно когорти",
       "total_users": "Укупно корисника",
       "total_sessions": "Укупно сесија",
       "active_users": "Активни корисници",
@@ -44,44 +44,69 @@
     },
     "projects": {
       "title": "Пројекти",
-      "no_projects": "Није пронађен ниједан пројекат",
-      "load_failed": "Учитавање пројеката није успело",
-      "cohorts": "Кохорте",
+      "no_projects": "Нема пројеката",
+      "load_failed": "Неуспело учитавање пројеката",
+      "cohorts": "Когорте",
       "users": "Корисници",
       "sessions": "Сесије",
       "edit": "Уреди пројекат",
-      "delete": "Обриши пројекат"
+      "delete": "Избриши пројекат"
     },
     "cohorts": {
-      "title": "Кохорте",
-      "no_cohorts": "Није пронађена ниједна кохорта за овај пројекат",
-      "load_failed": "Учитавање кохорти није успело",
+      "title": "Когорте",
+      "no_cohorts": "Нема когорти за овај пројекат",
+      "load_failed": "Неуспело учитавање когорти",
       "version": "Верзија",
-      "started": "Започето",
+      "started": "Почело",
       "total_users": "укупно корисника",
       "active_users": "активни корисници",
       "sessions": "сесије",
-      "stages": "фазе"
+      "stages": "етапе",
+      "no_users": "Нема корисника за ову когорту",
+      "name": "Когорта"
+    },
+    "users": {
+      "title": "Корисници",
+      "created": "Креирано",
+      "disabled": "Онемогућено",
+      "active": "Активно",
+      "super_user": "Супер корисник"
     },
     "errors": {
-      "fetch_projects": "Није могуће преузети пројекте",
-      "auth_required": "Потребна је аутентификација",
-      "delete_failed": "Брисање пројекта није успело (Статус: {status}, Грешка: {error})",
-      "delete_failed_generic": "Брисање пројекта није успело",
+      "fetch_projects": "Не може да преузме пројекте",
+      "auth_required": "Потребна аутентикација",
+      "delete_failed": "Неуспешно брисање пројекта (Статус: {status}, Грешка: {error})",
+      "delete_failed_generic": "Неуспешно брисање пројекта",
       "delete_error": "Грешка при брисању пројекта: {error}",
-      "no_auth_token": "Није доступан аутентификациони токен",
-      "token_validation_failed": "Валидација токена није успела",
-      "missing_auth_cookies": "Недостају аутентификациони колачићи, преусмеравање на пријаву",
-      "auth_check_failed": "Провера аутентификације није успела"
+      "no_auth_token": "Нема доступног токена за аутентикацију",
+      "token_validation_failed": "Провера токена није успела",
+      "missing_auth_cookies": "Нема аутентикационих колачића, преусмеравање на пријаву",
+      "auth_check_failed": "Провера аутентичности није успела",
+      "fetch_cohort": "Неуспело преузимање когорте"
     },
     "success": {
-      "project_deleted": "Пројекат {projectName} је успешно обрисан"
+      "project_deleted": "Пројекат {projectName} је успешно избрисан"
     },
     "increased": "Повећано",
     "decreased": "Смањено",
     "by": "за",
-    "delete_confirmation": "Да ли сте сигурни да желите да обришете пројекат {projectName}?",
-    "loading_project_data": "Учитавање података о пројекту...",
+    "delete_confirmation": "Да ли сте сигурни да желите да избришете {projectName}?",
+    "loading_project_data": "Учитавање података пројекта...",
     "project": "Пројекат"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Укупно сесија",
+      "avg_session_duration": "Просечно трајање сесије",
+      "page_views": "Прегледа страница",
+      "bounce_rate": "Стопа напуштања"
+    },
+    "sessions": "Сесије",
+    "failed_to_load_sessions": "Неуспело учитавање сесија",
+    "no_sessions_found": "Нигде нема сесија за овог корисника",
+    "session": "Сесија",
+    "started": "Почело",
+    "page_views_unit": "прегледа страница",
+    "bounced": "Напуштена"
   }
 }

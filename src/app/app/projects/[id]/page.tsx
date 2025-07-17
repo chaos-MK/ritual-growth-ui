@@ -252,10 +252,10 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   // Add null check for cohorts
   if (!cohorts || !Array.isArray(cohorts)) {
     return [
-      { name: 'Total Cohorts', stat: '0', change: '+0', changeType: 'increase' },
-      { name: 'Active Users', stat: '0', change: '+0', changeType: 'increase' },
-      { name: 'Total Sessions', stat: '0', change: '+0', changeType: 'increase' },
-      { name: 'Avg. Session Duration', stat: '0m 0s', change: '+0s', changeType: 'increase' },
+      { name: t('company.stats.total_cohorts').toString(), stat: '0', change: '+0', changeType: 'increase' },
+      { name: t('company.stats.active_users').toString(), stat: '0', change: '+0', changeType: 'increase' },
+      { name: t('company.stats.total_sessions').toString(), stat: '0', change: '+0', changeType: 'increase' },
+      { name: t('company.stats.avg_session_duration').toString(), stat: '0m 0s', change: '+0s', changeType: 'increase' },
     ];
   }
 
@@ -321,25 +321,25 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
 
   return [
     { 
-      name: 'Total Cohorts', 
+      name: t('company.stats.total_cohorts').toString(), 
       stat: totalCohorts.toString(), 
       change: cohortChange >= 0 ? `+${cohortChange}` : cohortChange.toString(), 
       changeType: cohortChange >= 0 ? 'increase' : 'decrease' 
     },
     { 
-      name: 'Active Users', 
+      name: t('company.stats.active_users').toString(), 
       stat: activeUsers.toLocaleString(), 
       change: userChange >= 0 ? `+${userChange}` : userChange.toString(), 
       changeType: userChange >= 0 ? 'increase' : 'decrease' 
     },
     { 
-      name: 'Total Sessions', 
+      name: t('company.stats.total_sessions').toString(), 
       stat: totalSessions.toLocaleString(), 
       change: sessionChange >= 0 ? `+${sessionChange}` : sessionChange.toString(), 
       changeType: sessionChange >= 0 ? 'increase' : 'decrease' 
     },
     { 
-      name: 'Avg. Session Duration', 
+      name: t('company.stats.avg_session_duration').toString(), 
       stat: avgSessionDuration > 0 ? `${avgDurationMinutes}m ${avgDurationSeconds}s` : '0m 0s', 
       change: '+30s', 
       changeType: 'increase' 
@@ -521,7 +521,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
       </ul>
     ) : cohorts.length === 0 ? (
       <div className="px-4 py-8 text-center text-gray-500">
-        {apiError ? 'Failed to load cohorts' : 'No cohorts found for this project'}
+        {apiError ? t('company.cohorts.load_failed') : t('company.cohorts.no_cohorts')}
       </div>
     ) : (
       <ul role="list" className="divide-y divide-gray-200">
@@ -556,28 +556,28 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
                 {cohort.cohortName}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Version: {cohort.version}
+                {t('company.cohorts.version')}: {cohort.version}
               </p>
             </div>
             <div className="ml-2 flex flex-shrink-0">
               <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                Started {new Date(cohort.startDate).toLocaleDateString()}
+                {t('company.cohorts.started')} {new Date(cohort.startDate).toLocaleDateString(locale)}
               </p>
             </div>
           </div>
           <div className="mt-2 sm:flex sm:justify-between">
             <div className="sm:flex">
               <p className="flex items-center text-sm text-gray-500">
-                {users.length} total users
+                {users.length} {t('company.cohorts.total_users')}
               </p>
               <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                {activeUsers} active users
+                {activeUsers} {t('company.cohorts.active_users')}
               </p>
               <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                {totalSessions} sessions
+                {totalSessions} {t('company.cohorts.sessions')}
               </p>
               <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                {stages.length} stages
+                {stages.length} {t('company.cohorts.stages')}
               </p>
             </div>
           </div>

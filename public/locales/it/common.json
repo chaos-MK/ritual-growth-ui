@@ -6,8 +6,8 @@
     "themes": "Temi",
     "settings": "Impostazioni",
     "help": "Aiuto",
-    "sign_out": "Esci",
-    "signing_out": "Disconnessione in corso...",
+    "sign_out": "Disconnetti",
+    "signing_out": "Disconnessione...",
     "switch_to_light_mode": "Passa alla modalità chiara",
     "switch_to_dark_mode": "Passa alla modalità scura",
     "change_language": "Cambia lingua",
@@ -45,7 +45,7 @@
     "projects": {
       "title": "Progetti",
       "no_projects": "Nessun progetto trovato",
-      "load_failed": "Caricamento dei progetti fallito",
+      "load_failed": "Caricamento progetti fallito",
       "cohorts": "Coorti",
       "users": "Utenti",
       "sessions": "Sessioni",
@@ -55,24 +55,34 @@
     "cohorts": {
       "title": "Coorti",
       "no_cohorts": "Nessuna coorte trovata per questo progetto",
-      "load_failed": "Caricamento delle coorti fallito",
+      "load_failed": "Caricamento coorti fallito",
       "version": "Versione",
       "started": "Iniziato",
       "total_users": "utenti totali",
       "active_users": "utenti attivi",
       "sessions": "sessioni",
-      "stages": "fasi"
+      "stages": "fasi",
+      "no_users": "Nessun utente trovato per questa coorte",
+      "name": "Coorte"
+    },
+    "users": {
+      "title": "Utenti",
+      "created": "Creato",
+      "disabled": "Disabilitato",
+      "active": "Attivo",
+      "super_user": "Super utente"
     },
     "errors": {
       "fetch_projects": "Impossibile recuperare i progetti",
       "auth_required": "Autenticazione richiesta",
-      "delete_failed": "Eliminazione del progetto fallita (Stato: {status}, Errore: {error})",
-      "delete_failed_generic": "Eliminazione del progetto fallita",
-      "delete_error": "Errore durante l'eliminazione del progetto: {error}",
+      "delete_failed": "Eliminazione progetto fallita (Stato: {status}, Errore: {error})",
+      "delete_failed_generic": "Eliminazione progetto fallita",
+      "delete_error": "Errore nell'eliminazione del progetto: {error}",
       "no_auth_token": "Nessun token di autenticazione disponibile",
-      "token_validation_failed": "Validazione del token fallita",
+      "token_validation_failed": "Validazione token fallita",
       "missing_auth_cookies": "Cookie di autenticazione mancanti, reindirizzamento al login",
-      "auth_check_failed": "Controllo di autenticazione fallito"
+      "auth_check_failed": "Controllo autenticazione fallito",
+      "fetch_cohort": "Recupero coorte fallito"
     },
     "success": {
       "project_deleted": "Progetto {projectName} eliminato con successo"
@@ -80,8 +90,23 @@
     "increased": "Aumentato",
     "decreased": "Diminuito",
     "by": "di",
-    "delete_confirmation": "Sei sicuro di voler eliminare il progetto {projectName}?",
-    "loading_project_data": "Caricamento dati del progetto...",
+    "delete_confirmation": "Sei sicuro di voler eliminare {projectName}?",
+    "loading_project_data": "Caricamento dati progetto...",
     "project": "Progetto"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Sessioni totali",
+      "avg_session_duration": "Durata media sessione",
+      "page_views": "Visualizzazioni pagina",
+      "bounce_rate": "Tasso di rimbalzo"
+    },
+    "sessions": "Sessioni",
+    "failed_to_load_sessions": "Caricamento sessioni fallito",
+    "no_sessions_found": "Nessuna sessione trovata per questo utente",
+    "session": "Sessione",
+    "started": "Iniziato",
+    "page_views_unit": "visualizzazioni pagina",
+    "bounced": "Rimbalzato"
   }
 }

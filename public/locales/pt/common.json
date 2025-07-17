@@ -8,9 +8,9 @@
     "help": "Ajuda",
     "sign_out": "Sair",
     "signing_out": "Saindo...",
-    "switch_to_light_mode": "Mudar para o modo claro",
-    "switch_to_dark_mode": "Mudar para o modo escuro",
-    "change_language": "Mudar idioma",
+    "switch_to_light_mode": "Mudar para modo claro",
+    "switch_to_dark_mode": "Mudar para modo escuro",
+    "change_language": "Alterar idioma",
     "select_language": "Selecionar idioma"
   },
   "languages": {
@@ -31,16 +31,16 @@
     "tr": "Turco"
   },
   "company": {
-    "title": "Painel da Empresa",
+    "title": "Painel da empresa",
     "loading": "Carregando dados...",
     "error": "Erro",
     "stats": {
-      "total_projects": "Projetos Totais",
-      "total_cohorts": "Coortes Totais",
-      "total_users": "Usuários Totais",
-      "total_sessions": "Sessões Totais",
-      "active_users": "Usuários Ativos",
-      "avg_session_duration": "Duração Média da Sessão"
+      "total_projects": "Total de projetos",
+      "total_cohorts": "Total de coortes",
+      "total_users": "Total de usuários",
+      "total_sessions": "Total de sessões",
+      "active_users": "Usuários ativos",
+      "avg_session_duration": "Duração média da sessão"
     },
     "projects": {
       "title": "Projetos",
@@ -49,8 +49,8 @@
       "cohorts": "Coortes",
       "users": "Usuários",
       "sessions": "Sessões",
-      "edit": "Editar Projeto",
-      "delete": "Excluir Projeto"
+      "edit": "Editar projeto",
+      "delete": "Excluir projeto"
     },
     "cohorts": {
       "title": "Coortes",
@@ -58,10 +58,19 @@
       "load_failed": "Falha ao carregar coortes",
       "version": "Versão",
       "started": "Iniciado",
-      "total_users": "usuários totais",
+      "total_users": "total de usuários",
       "active_users": "usuários ativos",
       "sessions": "sessões",
-      "stages": "etapas"
+      "stages": "estágios",
+      "no_users": "Nenhum usuário encontrado para esta coorte",
+      "name": "Coorte"
+    },
+    "users": {
+      "title": "Usuários",
+      "created": "Criado",
+      "disabled": "Desabilitado",
+      "active": "Ativo",
+      "super_user": "Superusuário"
     },
     "errors": {
       "fetch_projects": "Não foi possível buscar projetos",
@@ -70,18 +79,34 @@
       "delete_failed_generic": "Falha ao excluir projeto",
       "delete_error": "Erro ao excluir projeto: {error}",
       "no_auth_token": "Nenhum token de autenticação disponível",
-      "token_validation_failed": "Validação do token falhou",
+      "token_validation_failed": "Falha na validação do token",
       "missing_auth_cookies": "Cookies de autenticação ausentes, redirecionando para login",
-      "auth_check_failed": "Verificação de autenticação falhou"
+      "auth_check_failed": "Verificação de autenticação falhou",
+      "fetch_cohort": "Falha ao buscar coorte"
     },
     "success": {
       "project_deleted": "Projeto {projectName} excluído com sucesso"
     },
     "increased": "Aumentado",
     "decreased": "Diminuído",
-    "by": "por",
-    "delete_confirmation": "Tem certeza de que deseja excluir o projeto {projectName}?",
+    "by": "em",
+    "delete_confirmation": "Tem certeza de que deseja excluir {projectName}?",
     "loading_project_data": "Carregando dados do projeto...",
     "project": "Projeto"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Total de sessões",
+      "avg_session_duration": "Duração média da sessão",
+      "page_views": "Visualizações de página",
+      "bounce_rate": "Taxa de rejeição"
+    },
+    "sessions": "Sessões",
+    "failed_to_load_sessions": "Falha ao carregar sessões",
+    "no_sessions_found": "Nenhuma sessão encontrada para este usuário",
+    "session": "Sessão",
+    "started": "Iniciado",
+    "page_views_unit": "visualizações de página",
+    "bounced": "Rejeitado"
   }
 }
