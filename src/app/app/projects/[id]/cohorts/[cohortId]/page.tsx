@@ -7,6 +7,7 @@ import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface Session {
   sessionId: number
@@ -97,6 +98,7 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const { loadNavigationData } = useNavigation()
+  const { t, locale, changeLanguage, isLoading: translationLoading } = useTranslation()
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -143,7 +145,7 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
 
   const userToken = getCookie('userToken')
   if (!userToken) {
-    setApiError('No authentication token available')
+    setApiError(t('errors.no_auth_token'))
     setApiLoading(false)
     return null
   }
@@ -192,8 +194,8 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
     const userData = await response.json()
     return transformUserArrayToCohort(userData, cohortId)
   } catch (error) {
-    console.error('Failed to fetch cohort:', error)
-    setApiError(error instanceof Error ? error.message : 'Failed to fetch cohort')
+    console.error(t('errors.fetch_cohort'), error)
+    setApiError(error instanceof Error ? error.message : t('errors.fetch_cohort'))
     return null
   } finally {
     setApiLoading(false)
@@ -229,7 +231,7 @@ const mappedUsers: User[] = users.map(user => ({
 
   return {
     id: parseInt(cohortId),
-    cohortName: `Cohort ${cohortId}`,
+    cohortName: t('company.cohorts.name').toString() + `${cohortId}`,
     startDate: users[0]?.startDate || new Date().toISOString(),
     endDate: '',
     version: '1.0',
@@ -271,11 +273,11 @@ const mappedUsers: User[] = users.map(user => ({
 
     // For now, we'll use static changes. In a real app, you'd compare with historical data
     return [
-      { name: 'Total Users', stat: totalUsers.toString(), change: '+15', changeType: 'increase' },
-      { name: 'Active Users', stat: activeUsers.toString(), change: '+12', changeType: 'increase' },
-      { name: 'Total Sessions', stat: totalSessions.toString(), change: '+40', changeType: 'increase' },
+      { name:  t('company.stats.total_users').toString(), stat: totalUsers.toString(), change: '+15', changeType: 'increase' },
+      { name: t('company.stats.active_users').toString(), stat: activeUsers.toString(), change: '+12', changeType: 'increase' },
+      { name: t('company.stats.total_sessions').toString(), stat: totalSessions.toString(), change: '+40', changeType: 'increase' },
       { 
-        name: 'Avg. Session Duration', 
+        name: t('company.stats.avg_session_duration').toString(), 
         stat: avgSessionDuration > 0 ? `${avgDurationMinutes}m ${avgDurationSeconds}s` : '5m 12s', 
         change: '+45s', 
         changeType: 'increase' 
@@ -365,16 +367,16 @@ const mappedUsers: User[] = users.map(user => ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
-          {apiLoading ? 'Loading...' : cohort?.cohortName || 'Cohort'}
+          {apiLoading ? t('company.loading') : cohort?.cohortName || t('company.cohorts.name')}
         </h2>
         <p className="text-sm text-gray-500">
-          {cohort?.startDate ? `Started ${new Date(cohort.startDate).toLocaleDateString()}` : 'Loading...'}
+          {cohort?.startDate ? `${t('company.cohorts.started')} ${new Date(cohort.startDate).toLocaleDateString(locale)}` : t('company.loading')}
         </p>
       </div>
 
       {apiError && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-sm text-red-600">Error: {apiError}</p>
+          <p className="text-sm text-red-600">{t('company.error')}: {apiError}</p>
         </div>
       )}
       
@@ -404,7 +406,7 @@ const mappedUsers: User[] = users.map(user => ({
                   <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 )}
                 <span className="sr-only">
-                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                  {t(`company.${item.changeType}`)} {t('company.by')}
                 </span>
                 {item.change}
               </p>
@@ -417,7 +419,7 @@ const mappedUsers: User[] = users.map(user => ({
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Users</h3>
+            <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.users.title')}</h3>
             {apiLoading && (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
             )}
@@ -440,7 +442,7 @@ const mappedUsers: User[] = users.map(user => ({
             </ul>
           ) : !cohort?.users || cohort.users.length === 0 ? (
             <div className="px-4 py-8 text-center text-gray-500">
-              {apiError ? 'Failed to load users' : 'No users found for this cohort'}
+              {apiError ? t('company.errors.fetch_cohort') : t('company.cohorts.no_users')}
             </div>
           ) : (
             <ul role="list" className="divide-y divide-gray-200">
@@ -463,13 +465,13 @@ const mappedUsers: User[] = users.map(user => ({
                           </div>
                           <div className="ml-2 flex flex-shrink-0">
                             <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                              {userSessions} sessions
+                              {userSessions} {t('company.cohorts.sessions')}
                             </p>
                           </div>
                         </div>
                         <div className="mt-2">
                           <p className="text-sm text-gray-500">
-                            Created: {new Date(user.creationTime).toLocaleDateString()}
+                            {t('company.users.created')}: {new Date(user.creationTime).toLocaleDateString(locale)}
                           </p>
                           <div className="flex items-center mt-1">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -477,11 +479,11 @@ const mappedUsers: User[] = users.map(user => ({
                                 ? 'bg-red-100 text-red-800' 
                                 : 'bg-green-100 text-green-800'
                             }`}>
-                              {user.disabled ? 'Disabled' : 'Active'}
+                              {user.disabled ? t('company.users.disabled') : t('company.users.active')}
                             </span>
                             {user.superUser && (
                               <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                Super User
+                                {t('company.users.super_user')}
                               </span>
                             )}
                           </div>

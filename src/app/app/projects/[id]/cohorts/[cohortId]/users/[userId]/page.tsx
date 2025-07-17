@@ -7,6 +7,7 @@ import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
+import { useTranslation } from '@/hooks/useTranslation'
 
 // Types
 interface User {
@@ -62,6 +63,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const { loadNavigationData } = useNavigation()
+  const { t, locale, changeLanguage } = useTranslation()
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -108,7 +110,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
 
     const userToken = getCookie('userToken')
     if (!userToken) {
-      setApiError('No authentication token available')
+      setApiError(t('errors.no_auth_token'))
       setApiLoading(false)
       return null
     }
@@ -155,8 +157,8 @@ export default function UserSummary({ params }: UserSummaryProps) {
       const userData = await response.json()
       return transformUserData(userData)
     } catch (error) {
-      console.error('Failed to fetch user:', error)
-      setApiError(error instanceof Error ? error.message : 'Failed to fetch user')
+      console.error(t('errors.fetch_user'), error)
+      setApiError(error instanceof Error ? error.message : t('errors.fetch_user'))
       return null
     } finally {
       setApiLoading(false)
@@ -208,7 +210,8 @@ export default function UserSummary({ params }: UserSummaryProps) {
       const sessionsData = await response.json()
       return transformSessionsData(sessionsData)
     } catch (error) {
-      console.error('Failed to fetch user sessions:', error)
+      console.error(t('user_summary.failed_to_load_sessions'), error)
+      setApiError(t('user_summary.failed_to_load_sessions'))
       return []
     }
   }
@@ -264,10 +267,10 @@ export default function UserSummary({ params }: UserSummaryProps) {
   const calculateStats = (user: User | null, sessions: Session[]): Stats[] => {
     if (!user || !sessions.length) {
       return [
-        { name: 'Total Sessions', stat: '0', change: '+0', changeType: 'increase' },
-        { name: 'Avg. Session Duration', stat: '0m 0s', change: '+0s', changeType: 'increase' },
-        { name: 'Page Views', stat: '0', change: '+0', changeType: 'increase' },
-        { name: 'Bounce Rate', stat: '0%', change: '+0%', changeType: 'increase' },
+        { name: t('user_summary.stats.total_sessions'), stat: '0', change: '+0', changeType: 'increase' },
+        { name: t('user_summary.stats.avg_session_duration'), stat: '0m 0s', change: '+0s', changeType: 'increase' },
+        { name: t('user_summary.stats.page_views'), stat: '0', change: '+0', changeType: 'increase' },
+        { name: t('user_summary.stats.bounce_rate'), stat: '0%', change: '+0%', changeType: 'increase' },
       ]
     }
 
@@ -288,15 +291,15 @@ export default function UserSummary({ params }: UserSummaryProps) {
     const avgDurationSeconds = Math.round(((totalDurationMinutes / totalSessions) % 1) * 60)
 
     return [
-      { name: 'Total Sessions', stat: totalSessions.toString(), change: '+2', changeType: 'increase' },
+      { name: t('user_summary.stats.total_sessions'), stat: totalSessions.toString(), change: '+2', changeType: 'increase' },
       { 
-        name: 'Avg. Session Duration', 
+        name: t('user_summary.stats.avg_session_duration'),
         stat: `${avgDurationMinutes}m ${avgDurationSeconds}s`, 
         change: '+45s', 
         changeType: 'increase' 
       },
-      { name: 'Page Views', stat: totalPageViews.toString(), change: '+8', changeType: 'increase' },
-      { name: 'Bounce Rate', stat: `${bounceRate}%`, change: '-5%', changeType: 'decrease' },
+      { name: t('user_summary.stats.page_views'), stat: totalPageViews.toString(), change: '+8', changeType: 'increase' },
+      { name: t('user_summary.stats.bounce_rate'), stat: `${bounceRate}%`, change: '-5%', changeType: 'decrease' },
     ]
   }
 
@@ -320,7 +323,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
         await loadNavigationData(userInfo.email)
 
       } catch (error) {
-        console.error('Failed to load user data:', error)
+        console.error(t('errors.fetch_user'), error)
       }
     }
 
@@ -337,14 +340,14 @@ export default function UserSummary({ params }: UserSummaryProps) {
         const userDisplayName = getCookie('userDisplayName')
         
         if (!userToken || !userEmail || !userId) {
-          console.log('Missing auth cookies, redirecting to login')
+          console.log(t('errors.missing_auth_cookies'))
           router.push('/login')
           return
         }
 
         const isTokenValid = await validateToken()
         if (!isTokenValid) {
-          console.log('Token validation failed, redirecting to login')
+          console.log(t('errors.token_validation_failed'))
           clearAuthCookies()
           router.push('/login')
           return
@@ -357,7 +360,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
           displayName: userDisplayName || '',
         })
       } catch (error) {
-        console.error('Auth check failed:', error)
+        console.error(t('errors.auth_check_failed'), error)
         clearAuthCookies()
         router.push('/login')
       } finally {
@@ -388,17 +391,17 @@ export default function UserSummary({ params }: UserSummaryProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">
-            {apiLoading ? 'Loading...' : user?.displayName || user?.fullName || 'User'}
+            {apiLoading ? t('company.loading') : user?.displayName || user?.fullName || t('company.users.title')}
           </h2>
           <p className="text-sm text-gray-500">
-            {apiLoading ? 'Loading...' : user?.email || 'Loading...'}
+            {apiLoading ? t('company.loading') : user?.email || t('company.loading')}
           </p>
         </div>
       </div>
 
       {apiError && (
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-sm text-red-600">Error: {apiError}</p>
+          <p className="text-sm text-red-600">{t('company.error')}: {apiError}</p>
         </div>
       )}
       
@@ -428,7 +431,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
                   <ArrowDownIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                 )}
                 <span className="sr-only">
-                  {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by
+                  {t(`company.${item.changeType}`)} {t('company.by')}
                 </span>
                 {item.change}
               </p>
@@ -441,7 +444,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Sessions</h3>
+            <h3 className="text-lg font-medium leading-6 text-gray-900">{t('user_summary.sessions')}</h3>
             {apiLoading && (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
             )}
@@ -464,7 +467,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
             </ul>
           ) : !sessions || sessions.length === 0 ? (
             <div className="px-4 py-8 text-center text-gray-500">
-              {apiError ? 'Failed to load sessions' : 'No sessions found for this user'}
+              {apiError ? t('user_summary.failed_to_load_sessions') : t('user_summary.no_sessions_found')}
             </div>
           ) : (
             <ul role="list" className="divide-y divide-gray-200">
@@ -478,10 +481,10 @@ export default function UserSummary({ params }: UserSummaryProps) {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="truncate text-sm font-medium text-indigo-600">
-                            Session {session.id}
+                            {t('user_summary.session')} {session.id}
                           </p>
                           <p className="text-sm text-gray-500">
-                            Started: {new Date(session.startTime).toLocaleString()}
+                            {t('user_summary.started')}: {new Date(session.startTime).toLocaleString(locale)}
                           </p>
                         </div>
                         <div className="ml-2 flex flex-shrink-0">
@@ -493,11 +496,11 @@ export default function UserSummary({ params }: UserSummaryProps) {
                       <div className="mt-2 sm:flex sm:justify-between">
                         <div className="sm:flex">
                           <p className="flex items-center text-sm text-gray-500">
-                            {session.pageViews} page views
+                            {session.pageViews} {t('user_summary.page_views_unit')}
                           </p>
                           {session.bounce && (
                             <p className="mt-2 flex items-center text-sm text-red-500 sm:mt-0 sm:ml-6">
-                              Bounced
+                              {t('user_summary.bounced')}
                             </p>
                           )}
                         </div>

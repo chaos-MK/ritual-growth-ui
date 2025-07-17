@@ -1,6 +1,6 @@
 {
   "navigation": {
-    "search_placeholder": "Haku...",
+    "search_placeholder": "Hae...",
     "profile": "Profiili",
     "mute_notifications": "Mykistä ilmoitukset",
     "themes": "Teemat",
@@ -31,29 +31,29 @@
     "tr": "Turkki"
   },
   "company": {
-    "title": "Yrityksen kojelauta",
+    "title": "Yrityksen hallintapaneeli",
     "loading": "Ladataan tietoja...",
     "error": "Virhe",
     "stats": {
-      "total_projects": "Projektit yhteensä",
-      "total_cohorts": "Kohortit yhteensä",
-      "total_users": "Käyttäjät yhteensä",
-      "total_sessions": "Istunnot yhteensä",
+      "total_projects": "Projekteja yhteensä",
+      "total_cohorts": "Kohortteja yhteensä",
+      "total_users": "Käyttäjiä yhteensä",
+      "total_sessions": "Istuntoja yhteensä",
       "active_users": "Aktiiviset käyttäjät",
-      "avg_session_duration": "Keskim. istunnon kesto"
+      "avg_session_duration": "Keskimääräinen istunnon kesto"
     },
     "projects": {
       "title": "Projektit",
       "no_projects": "Projekteja ei löytynyt",
       "load_failed": "Projektien lataaminen epäonnistui",
-      "cohorts": "Kohortit",
+      "cohorts": "Kohorttit",
       "users": "Käyttäjät",
       "sessions": "Istunnot",
       "edit": "Muokkaa projektia",
       "delete": "Poista projekti"
     },
     "cohorts": {
-      "title": "Kohortit",
+      "title": "Kohorttit",
       "no_cohorts": "Tälle projektille ei löytynyt kohortteja",
       "load_failed": "Kohorttien lataaminen epäonnistui",
       "version": "Versio",
@@ -61,27 +61,52 @@
       "total_users": "käyttäjiä yhteensä",
       "active_users": "aktiivisia käyttäjiä",
       "sessions": "istuntoja",
-      "stages": "vaiheita"
+      "stages": "vaiheita",
+      "no_users": "Tälle kohortille ei löytynyt käyttäjiä",
+      "name": "Kohortti"
+    },
+    "users": {
+      "title": "Käyttäjät",
+      "created": "Luotu",
+      "disabled": "Poistettu käytöstä",
+      "active": "Aktiivinen",
+      "super_user": "Superkäyttäjä"
     },
     "errors": {
-      "fetch_projects": "Projekteja ei voitu hakea",
+      "fetch_projects": "Projektien hakeminen epäonnistui",
       "auth_required": "Tunnistautuminen vaaditaan",
       "delete_failed": "Projektin poistaminen epäonnistui (Tila: {status}, Virhe: {error})",
       "delete_failed_generic": "Projektin poistaminen epäonnistui",
-      "delete_error": "Virhe projektin poistamisessa: {error}",
-      "no_auth_token": "Ei autentikaatiotunnusta saatavilla",
-      "token_validation_failed": "Tunnuksen validointi epäonnistui",
-      "missing_auth_cookies": "Puuttuvat autentikaatioevästeet, ohjataan kirjautumiseen",
-      "auth_check_failed": "Tunnistautumistarkistus epäonnistui"
+      "delete_error": "Virhe projektia poistettaessa: {error}",
+      "no_auth_token": "Tunnistautumistokeni ei ole saatavilla",
+      "token_validation_failed": "Tokenin validointi epäonnistui",
+      "missing_auth_cookies": "Tunnistautumisevästeet puuttuvat, ohjataan kirjautumiseen",
+      "auth_check_failed": "Tunnistautumisen tarkistus epäonnistui",
+      "fetch_cohort": "Kohortin hakeminen epäonnistui"
     },
     "success": {
       "project_deleted": "Projekti {projectName} poistettu onnistuneesti"
     },
     "increased": "Kasvanut",
-    "decreased": "Laskenut",
+    "decreased": "Vähentynyt",
     "by": "määrällä",
-    "delete_confirmation": "Oletko varma, että haluat poistaa projektin {projectName}?",
+    "delete_confirmation": "Oletko varma, että haluat poistaa {projectName}?",
     "loading_project_data": "Ladataan projektitietoja...",
     "project": "Projekti"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Istuntoja yhteensä",
+      "avg_session_duration": "Keskimääräinen istunnon kesto",
+      "page_views": "Sivujen katselut",
+      "bounce_rate": "Pomppimisprosentti"
+    },
+    "sessions": "Istunnot",
+    "failed_to_load_sessions": "Istuntojen lataaminen epäonnistui",
+    "no_sessions_found": "Tälle käyttäjälle ei löytynyt istuntoja",
+    "session": "Istunto",
+    "started": "Aloitettu",
+    "page_views_unit": "sivujen katselut",
+    "bounced": "Pomppinut"
   }
 }

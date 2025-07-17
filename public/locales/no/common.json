@@ -31,14 +31,14 @@
     "tr": "Tyrkisk"
   },
   "company": {
-    "title": "Bedriftsdashbord",
-    "loading": "Laster inn data...",
+    "title": "Bedriftsdashboard",
+    "loading": "Laster data...",
     "error": "Feil",
     "stats": {
-      "total_projects": "Totalt antall prosjekter",
-      "total_cohorts": "Totalt antall kohorter",
-      "total_users": "Totalt antall brukere",
-      "total_sessions": "Totalt antall økter",
+      "total_projects": "Totalt prosjekter",
+      "total_cohorts": "Totalt kohorter",
+      "total_users": "Totalt brukere",
+      "total_sessions": "Totalt økter",
       "active_users": "Aktive brukere",
       "avg_session_duration": "Gjennomsnittlig øktvarighet"
     },
@@ -58,21 +58,31 @@
       "load_failed": "Kunne ikke laste kohorter",
       "version": "Versjon",
       "started": "Startet",
-      "total_users": "totalt antall brukere",
+      "total_users": "totalt brukere",
       "active_users": "aktive brukere",
       "sessions": "økter",
-      "stages": "stadier"
+      "stages": "faser",
+      "no_users": "Ingen brukere funnet for denne kohorten",
+      "name": "Kohort"
+    },
+    "users": {
+      "title": "Brukere",
+      "created": "Opprettet",
+      "disabled": "Deaktivert",
+      "active": "Aktiv",
+      "super_user": "Superbruker"
     },
     "errors": {
-      "fetch_projects": "Kunne ikke hente prosjekter",
+      "fetch_projects": "Kan ikke hente prosjekter",
       "auth_required": "Autentisering kreves",
-      "delete_failed": "Kunne ikke slette prosjekt (Status: {status}, Feil: {error})",
-      "delete_failed_generic": "Kunne ikke slette prosjekt",
+      "delete_failed": "Sletting av prosjekt feilet (Status: {status}, Feil: {error})",
+      "delete_failed_generic": "Sletting av prosjekt feilet",
       "delete_error": "Feil ved sletting av prosjekt: {error}",
       "no_auth_token": "Ingen autentiseringstoken tilgjengelig",
       "token_validation_failed": "Tokenvalidering feilet",
-      "missing_auth_cookies": "Manglende autentiseringscookies, videresender til innlogging",
-      "auth_check_failed": "Autentiseringskontroll feilet"
+      "missing_auth_cookies": "Mangler autentiseringscookies, omdirigerer til pålogging",
+      "auth_check_failed": "Autentiseringssjekk feilet",
+      "fetch_cohort": "Henting av kohort feilet"
     },
     "success": {
       "project_deleted": "Prosjekt {projectName} slettet vellykket"
@@ -81,7 +91,22 @@
     "decreased": "Redusert",
     "by": "med",
     "delete_confirmation": "Er du sikker på at du vil slette {projectName}?",
-    "loading_project_data": "Laster inn prosjektdata...",
+    "loading_project_data": "Laster prosjektdata...",
     "project": "Prosjekt"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Totalt økter",
+      "avg_session_duration": "Gjennomsnittlig øktvarighet",
+      "page_views": "Sidevisninger",
+      "bounce_rate": "Avvisningsrate"
+    },
+    "sessions": "Økter",
+    "failed_to_load_sessions": "Kunne ikke laste økter",
+    "no_sessions_found": "Ingen økter funnet for denne brukeren",
+    "session": "Økt",
+    "started": "Startet",
+    "page_views_unit": "sidevisninger",
+    "bounced": "Avvist"
   }
 }

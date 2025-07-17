@@ -2,14 +2,14 @@
   "navigation": {
     "search_placeholder": "Suchen...",
     "profile": "Profil",
-    "mute_notifications": "Benachrichtigungen stummschalten",
+    "mute_notifications": "Benachrichtigungen stumm schalten",
     "themes": "Themen",
     "settings": "Einstellungen",
     "help": "Hilfe",
     "sign_out": "Abmelden",
-    "signing_out": "Wird abgemeldet...",
-    "switch_to_light_mode": "Zum hellen Modus wechseln",
-    "switch_to_dark_mode": "Zum dunklen Modus wechseln",
+    "signing_out": "Abmeldung...",
+    "switch_to_light_mode": "Zu hellem Modus wechseln",
+    "switch_to_dark_mode": "Zu dunklem Modus wechseln",
     "change_language": "Sprache ändern",
     "select_language": "Sprache auswählen"
   },
@@ -32,15 +32,15 @@
   },
   "company": {
     "title": "Unternehmens-Dashboard",
-    "loading": "Daten werden geladen...",
+    "loading": "Daten laden...",
     "error": "Fehler",
     "stats": {
-      "total_projects": "Gesamtprojekte",
-      "total_cohorts": "Gesamt-Kohorten",
-      "total_users": "Gesamtbenutzer",
-      "total_sessions": "Gesamt-Sitzungen",
+      "total_projects": "Projekte insgesamt",
+      "total_cohorts": "Kohorten insgesamt",
+      "total_users": "Benutzer insgesamt",
+      "total_sessions": "Sitzungen insgesamt",
       "active_users": "Aktive Benutzer",
-      "avg_session_duration": "Durchschn. Sitzungsdauer"
+      "avg_session_duration": "Durchschnittliche Sitzungsdauer"
     },
     "projects": {
       "title": "Projekte",
@@ -58,30 +58,55 @@
       "load_failed": "Laden der Kohorten fehlgeschlagen",
       "version": "Version",
       "started": "Gestartet",
-      "total_users": "Gesamtbenutzer",
+      "total_users": "Benutzer insgesamt",
       "active_users": "aktive Benutzer",
       "sessions": "Sitzungen",
-      "stages": "Phasen"
+      "stages": "Phasen",
+      "no_users": "Keine Benutzer für diese Kohorte gefunden",
+      "name": "Kohorte"
+    },
+    "users": {
+      "title": "Benutzer",
+      "created": "Erstellt",
+      "disabled": "Deaktiviert",
+      "active": "Aktiv",
+      "super_user": "Superbenutzer"
     },
     "errors": {
-      "fetch_projects": "Projekte konnten nicht abgerufen werden",
+      "fetch_projects": "Projekte können nicht abgerufen werden",
       "auth_required": "Authentifizierung erforderlich",
       "delete_failed": "Löschen des Projekts fehlgeschlagen (Status: {status}, Fehler: {error})",
       "delete_failed_generic": "Löschen des Projekts fehlgeschlagen",
       "delete_error": "Fehler beim Löschen des Projekts: {error}",
       "no_auth_token": "Kein Authentifizierungstoken verfügbar",
       "token_validation_failed": "Token-Validierung fehlgeschlagen",
-      "missing_auth_cookies": "Fehlende Auth-Cookies, Weiterleitung zum Login",
-      "auth_check_failed": "Authentifizierungsprüfung fehlgeschlagen"
+      "missing_auth_cookies": "Authentifizierungs-Cookies fehlen, Weiterleitung zur Anmeldung",
+      "auth_check_failed": "Authentifizierungsprüfung fehlgeschlagen",
+      "fetch_cohort": "Abrufen der Kohorte fehlgeschlagen"
     },
     "success": {
       "project_deleted": "Projekt {projectName} erfolgreich gelöscht"
     },
     "increased": "Erhöht",
-    "decreased": "Vermindert",
+    "decreased": "Verringert",
     "by": "um",
-    "delete_confirmation": "Sind Sie sicher, dass Sie das Projekt {projectName} löschen möchten?",
-    "loading_project_data": "Projektdaten werden geladen...",
+    "delete_confirmation": "Sind Sie sicher, dass Sie {projectName} löschen möchten?",
+    "loading_project_data": "Projektdaten laden...",
     "project": "Projekt"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Sitzungen insgesamt",
+      "avg_session_duration": "Durchschnittliche Sitzungsdauer",
+      "page_views": "Seitenaufrufe",
+      "bounce_rate": "Absprungrate"
+    },
+    "sessions": "Sitzungen",
+    "failed_to_load_sessions": "Laden der Sitzungen fehlgeschlagen",
+    "no_sessions_found": "Keine Sitzungen für diesen Benutzer gefunden",
+    "session": "Sitzung",
+    "started": "Gestartet",
+    "page_views_unit": "Seitenaufrufe",
+    "bounced": "Abgesprungen"
   }
 }

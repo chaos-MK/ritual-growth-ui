@@ -61,7 +61,16 @@
       "total_users": "total users",
       "active_users": "active users",
       "sessions": "sessions",
-      "stages": "stages"
+      "stages": "stages",
+      "no_users": "No users found for this cohort",
+      "name": "Cohort"
+    },
+    "users": {
+      "title": "Users",
+      "created": "Created",
+      "disabled": "Disabled",
+      "active": "Active",
+      "super_user": "Super User"
     },
     "errors": {
       "fetch_projects": "Unable to fetch projects",
@@ -72,7 +81,8 @@
       "no_auth_token": "No authentication token available",
       "token_validation_failed": "Token validation failed",
       "missing_auth_cookies": "Missing auth cookies, redirecting to login",
-      "auth_check_failed": "Auth check failed"
+      "auth_check_failed": "Auth check failed",
+      "fetch_cohort": "Failed to fetch cohort"
     },
     "success": {
       "project_deleted": "Project {projectName} deleted successfully"
@@ -83,5 +93,20 @@
     "delete_confirmation": "Are you sure you want to delete {projectName}?",
     "loading_project_data": "Loading project data...",
     "project": "Project"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Total Sessions",
+      "avg_session_duration": "Avg. Session Duration",
+      "page_views": "Page Views",
+      "bounce_rate": "Bounce Rate"
+    },
+    "sessions": "Sessions",
+    "failed_to_load_sessions": "Failed to load sessions",
+    "no_sessions_found": "No sessions found for this user",
+    "session": "Session",
+    "started": "Started",
+    "page_views_unit": "page views",
+    "bounced": "Bounced"
   }
 }

@@ -7,10 +7,10 @@
     "settings": "Paramètres",
     "help": "Aide",
     "sign_out": "Se déconnecter",
-    "signing_out": "Déconnexion en cours...",
+    "signing_out": "Déconnexion...",
     "switch_to_light_mode": "Passer en mode clair",
     "switch_to_dark_mode": "Passer en mode sombre",
-    "change_language": "Changer de langue",
+    "change_language": "Changer la langue",
     "select_language": "Sélectionner la langue"
   },
   "languages": {
@@ -35,10 +35,10 @@
     "loading": "Chargement des données...",
     "error": "Erreur",
     "stats": {
-      "total_projects": "Projets totaux",
-      "total_cohorts": "Cohortes totales",
-      "total_users": "Utilisateurs totaux",
-      "total_sessions": "Sessions totales",
+      "total_projects": "Total des projets",
+      "total_cohorts": "Total des cohortes",
+      "total_users": "Total des utilisateurs",
+      "total_sessions": "Total des sessions",
       "active_users": "Utilisateurs actifs",
       "avg_session_duration": "Durée moyenne des sessions"
     },
@@ -57,22 +57,32 @@
       "no_cohorts": "Aucune cohorte trouvée pour ce projet",
       "load_failed": "Échec du chargement des cohortes",
       "version": "Version",
-      "started": "Démarré",
-      "total_users": "utilisateurs totaux",
+      "started": "Commencé",
+      "total_users": "total des utilisateurs",
       "active_users": "utilisateurs actifs",
       "sessions": "sessions",
-      "stages": "étapes"
+      "stages": "étapes",
+      "no_users": "Aucun utilisateur trouvé pour cette cohorte",
+      "name": "Cohorte"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "created": "Créé",
+      "disabled": "Désactivé",
+      "active": "Actif",
+      "super_user": "Super utilisateur"
     },
     "errors": {
       "fetch_projects": "Impossible de récupérer les projets",
       "auth_required": "Authentification requise",
-      "delete_failed": "Échec de la suppression du projet (Statut : {status}, Erreur : {error})",
+      "delete_failed": "Échec de la suppression du projet (Statut: {status}, Erreur: {error})",
       "delete_failed_generic": "Échec de la suppression du projet",
-      "delete_error": "Erreur lors de la suppression du projet : {error}",
-      "no_auth_token": "Aucun jeton d'authentification disponible",
-      "token_validation_failed": "Échec de la validation du jeton",
+      "delete_error": "Erreur lors de la suppression du projet: {error}",
+      "no_auth_token": "Aucun token d'authentification disponible",
+      "token_validation_failed": "Échec de la validation du token",
       "missing_auth_cookies": "Cookies d'authentification manquants, redirection vers la connexion",
-      "auth_check_failed": "Échec de la vérification d'authentification"
+      "auth_check_failed": "Échec de la vérification d'authentification",
+      "fetch_cohort": "Échec de la récupération de la cohorte"
     },
     "success": {
       "project_deleted": "Projet {projectName} supprimé avec succès"
@@ -80,8 +90,23 @@
     "increased": "Augmenté",
     "decreased": "Diminué",
     "by": "de",
-    "delete_confirmation": "Êtes-vous sûr de vouloir supprimer le projet {projectName} ?",
+    "delete_confirmation": "Êtes-vous sûr de vouloir supprimer {projectName}?",
     "loading_project_data": "Chargement des données du projet...",
     "project": "Projet"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Total des sessions",
+      "avg_session_duration": "Durée moyenne des sessions",
+      "page_views": "Vues de page",
+      "bounce_rate": "Taux de rebond"
+    },
+    "sessions": "Sessions",
+    "failed_to_load_sessions": "Échec du chargement des sessions",
+    "no_sessions_found": "Aucune session trouvée pour cet utilisateur",
+    "session": "Session",
+    "started": "Commencé",
+    "page_views_unit": "vues de page",
+    "bounced": "Rebondi"
   }
 }

@@ -32,13 +32,13 @@
   },
   "company": {
     "title": "企業ダッシュボード",
-    "loading": "データを読み込んでいます...",
+    "loading": "データを読み込み中...",
     "error": "エラー",
     "stats": {
-      "total_projects": "プロジェクト合計",
-      "total_cohorts": "コホート合計",
-      "total_users": "ユーザー合計",
-      "total_sessions": "セッション合計",
+      "total_projects": "総プロジェクト数",
+      "total_cohorts": "総コホート数",
+      "total_users": "総ユーザー数",
+      "total_sessions": "総セッション数",
       "active_users": "アクティブユーザー",
       "avg_session_duration": "平均セッション時間"
     },
@@ -58,30 +58,55 @@
       "load_failed": "コホートの読み込みに失敗しました",
       "version": "バージョン",
       "started": "開始",
-      "total_users": "総ユーザー",
+      "total_users": "総ユーザー数",
       "active_users": "アクティブユーザー",
       "sessions": "セッション",
-      "stages": "ステージ"
+      "stages": "ステージ",
+      "no_users": "このコホートにユーザーが見つかりません",
+      "name": "コホート"
+    },
+    "users": {
+      "title": "ユーザー",
+      "created": "作成済み",
+      "disabled": "無効",
+      "active": "アクティブ",
+      "super_user": "スーパーユーザー"
     },
     "errors": {
       "fetch_projects": "プロジェクトを取得できません",
       "auth_required": "認証が必要です",
       "delete_failed": "プロジェクトの削除に失敗しました（ステータス: {status}、エラー: {error}）",
       "delete_failed_generic": "プロジェクトの削除に失敗しました",
-      "delete_error": "プロジェクトの削除エラー: {error}",
-      "no_auth_token": "認証トークンがありません",
+      "delete_error": "プロジェクト削除エラー: {error}",
+      "no_auth_token": "認証トークンが利用できません",
       "token_validation_failed": "トークンの検証に失敗しました",
-      "missing_auth_cookies": "認証クッキーがありません、ログインにリダイレクトします",
-      "auth_check_failed": "認証チェックに失敗しました"
+      "missing_auth_cookies": "認証Cookieが見つかりません、ログインにリダイレクトします",
+      "auth_check_failed": "認証チェックに失敗しました",
+      "fetch_cohort": "コホートの取得に失敗しました"
     },
     "success": {
       "project_deleted": "プロジェクト {projectName} が正常に削除されました"
     },
     "increased": "増加",
     "decreased": "減少",
-    "by": "で",
-    "delete_confirmation": "プロジェクト {projectName} を削除してもよろしいですか？",
-    "loading_project_data": "プロジェクトデータを読み込んでいます...",
+    "by": "による",
+    "delete_confirmation": "{projectName} を削除してもよろしいですか？",
+    "loading_project_data": "プロジェクトデータを読み込み中...",
     "project": "プロジェクト"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "総セッション数",
+      "avg_session_duration": "平均セッション時間",
+      "page_views": "ページビュー",
+      "bounce_rate": "バウンス率"
+    },
+    "sessions": "セッション",
+    "failed_to_load_sessions": "セッションの読み込みに失敗しました",
+    "no_sessions_found": "このユーザーのセッションが見つかりません",
+    "session": "セッション",
+    "started": "開始",
+    "page_views_unit": "ページビュー",
+    "bounced": "バウンス"
   }
 }

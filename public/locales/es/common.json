@@ -4,7 +4,7 @@
     "profile": "Perfil",
     "mute_notifications": "Silenciar notificaciones",
     "themes": "Temas",
-    "settings": "Configuración",
+    "settings": "Ajustes",
     "help": "Ayuda",
     "sign_out": "Cerrar sesión",
     "signing_out": "Cerrando sesión...",
@@ -14,33 +14,33 @@
     "select_language": "Seleccionar idioma"
   },
   "languages": {
-    "en": "Inglés",
-    "fr": "Francés",
-    "es": "Español",
-    "nl": "Neerlandés",
-    "fi": "Finlandés",
-    "de": "Alemán",
-    "it": "Italiano",
-    "ja": "Japonés",
-    "ko": "Coreano",
-    "no": "Noruego",
-    "pl": "Polaco",
-    "pt": "Portugués",
-    "sr": "Serbio",
-    "sv": "Sueco",
-    "tr": "Turco"
+    "en": "English",
+    "fr": "French",
+    "es": "Spanish",
+    "nl": "Dutch",
+    "fi": "Finnish",
+    "de": "German",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "sr": "Serbian",
+    "sv": "Swedish",
+    "tr": "Turkish"
   },
   "company": {
     "title": "Panel de la empresa",
     "loading": "Cargando datos...",
     "error": "Error",
     "stats": {
-      "total_projects": "Proyectos totales",
-      "total_cohorts": "Cohortes totales",
-      "total_users": "Usuarios totales",
-      "total_sessions": "Sesiones totales",
+      "total_projects": "Total de proyectos",
+      "total_cohorts": "Total de cohortes",
+      "total_users": "Total de usuarios",
+      "total_sessions": "Total de sesiones",
       "active_users": "Usuarios activos",
-      "avg_session_duration": "Duración media de la sesión"
+      "avg_session_duration": "Duración media de sesion"
     },
     "projects": {
       "title": "Proyectos",
@@ -54,34 +54,59 @@
     },
     "cohorts": {
       "title": "Cohortes",
-      "no_cohorts": "No se encontraron cohortes para este proyecto",
+      "no_cohorts": "No hay cohortes para este proyecto",
       "load_failed": "Error al cargar cohortes",
       "version": "Versión",
       "started": "Iniciado",
       "total_users": "usuarios totales",
       "active_users": "usuarios activos",
       "sessions": "sesiones",
-      "stages": "etapas"
+      "stages": "etapas",
+      "no_users": "No se encontraron usuarios para esta cohorte",
+      "name": "Cohorte"
+    },
+    "users": {
+      "title": "Usuarios",
+      "created": "Creado",
+      "disabled": "Deshabilitado",
+      "active": "Activo",
+      "super_user": "Superusuario"
     },
     "errors": {
-      "fetch_projects": "No se pudieron recuperar los proyectos",
-      "auth_required": "Se requiere autenticación",
-      "delete_failed": "Error al eliminar el proyecto (Estado: {status}, Error: {error})",
-      "delete_failed_generic": "Error al eliminar el proyecto",
+      "fetch_projects": "No se pueden obtener proyectos",
+      "auth_required": "Autenticación requerida",
+      "delete_failed": "Error al eliminar proyecto (Estado: {status}, Error: {error})",
+      "delete_failed_generic": "Error al eliminar proyecto",
       "delete_error": "Error al eliminar el proyecto: {error}",
       "no_auth_token": "No hay token de autenticación disponible",
-      "token_validation_failed": "Fallo en la validación del token",
+      "token_validation_failed": "Falló la validación del token",
       "missing_auth_cookies": "Faltan cookies de autenticación, redirigiendo al inicio de sesión",
-      "auth_check_failed": "Fallo en la verificación de autenticación"
+      "auth_check_failed": "Fallo en la comprobación de autenticidad",
+      "fetch_cohort": "Error al obtener cohorte"
     },
     "success": {
       "project_deleted": "Proyecto {projectName} eliminado con éxito"
     },
     "increased": "Aumentado",
     "decreased": "Disminuido",
-    "by": "por",
-    "delete_confirmation": "¿Estás seguro de que quieres eliminar el proyecto {projectName}?",
+    "by": "en",
+    "delete_confirmation": "¿Seguro que deseas eliminar {projectName}?",
     "loading_project_data": "Cargando datos del proyecto...",
     "project": "Proyecto"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Total de sesiones",
+      "avg_session_duration": "Duración media de sesión",
+      "page_views": "Vistas de página",
+      "bounce_rate": "Tasa de rebote"
+    },
+    "sessions": "Sesiones",
+    "failed_to_load_sessions": "Error al cargar sesiones",
+    "no_sessions_found": "No se encontraron sesiones para este usuario",
+    "session": "Sesión",
+    "started": "Iniciada",
+    "page_views_unit": "vistas de página",
+    "bounced": "Rebote"
   }
 }

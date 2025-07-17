@@ -5,11 +5,11 @@
     "mute_notifications": "Meldingen dempen",
     "themes": "Thema's",
     "settings": "Instellingen",
-    "help": "Hulp",
+    "help": "Help",
     "sign_out": "Uitloggen",
-    "signing_out": "Bezig met uitloggen...",
-    "switch_to_light_mode": "Overschakelen naar lichte modus",
-    "switch_to_dark_mode": "Overschakelen naar donkere modus",
+    "signing_out": "Uitloggen...",
+    "switch_to_light_mode": "Schakel naar lichte modus",
+    "switch_to_dark_mode": "Schakel naar donkere modus",
     "change_language": "Taal wijzigen",
     "select_language": "Taal selecteren"
   },
@@ -35,12 +35,12 @@
     "loading": "Gegevens laden...",
     "error": "Fout",
     "stats": {
-      "total_projects": "Totaal Projecten",
-      "total_cohorts": "Totaal Cohorten",
-      "total_users": "Totaal Gebruikers",
-      "total_sessions": "Totaal Sessies",
-      "active_users": "Actieve Gebruikers",
-      "avg_session_duration": "Gem. Sessieduur"
+      "total_projects": "Totaal projecten",
+      "total_cohorts": "Totaal cohorten",
+      "total_users": "Totaal gebruikers",
+      "total_sessions": "Totaal sessies",
+      "active_users": "Actieve gebruikers",
+      "avg_session_duration": "Gem. sessieduur"
     },
     "projects": {
       "title": "Projecten",
@@ -49,8 +49,8 @@
       "cohorts": "Cohorten",
       "users": "Gebruikers",
       "sessions": "Sessies",
-      "edit": "Project Bewerken",
-      "delete": "Project Verwijderen"
+      "edit": "Project bewerken",
+      "delete": "Project verwijderen"
     },
     "cohorts": {
       "title": "Cohorten",
@@ -61,18 +61,28 @@
       "total_users": "totaal gebruikers",
       "active_users": "actieve gebruikers",
       "sessions": "sessies",
-      "stages": "fasen"
+      "stages": "fasen",
+      "no_users": "Geen gebruikers gevonden voor deze cohort",
+      "name": "Cohort"
+    },
+    "users": {
+      "title": "Gebruikers",
+      "created": "Aangemaakt",
+      "disabled": "Uitgeschakeld",
+      "active": "Actief",
+      "super_user": "Supergebruiker"
     },
     "errors": {
       "fetch_projects": "Kan projecten niet ophalen",
       "auth_required": "Authenticatie vereist",
       "delete_failed": "Verwijderen van project mislukt (Status: {status}, Fout: {error})",
       "delete_failed_generic": "Verwijderen van project mislukt",
-      "delete_error": "Fout bij het verwijderen van project: {error}",
+      "delete_error": "Fout bij verwijderen van project: {error}",
       "no_auth_token": "Geen authenticatietoken beschikbaar",
       "token_validation_failed": "Tokenvalidatie mislukt",
-      "missing_auth_cookies": "Ontbrekende auth-cookies, wordt doorgestuurd naar login",
-      "auth_check_failed": "Authenticatiecontrole mislukt"
+      "missing_auth_cookies": "Ontbrekende authenticatiecookies, doorverwijzen naar login",
+      "auth_check_failed": "Authenticatiecontrole mislukt",
+      "fetch_cohort": "Ophalen van cohort mislukt"
     },
     "success": {
       "project_deleted": "Project {projectName} succesvol verwijderd"
@@ -83,5 +93,20 @@
     "delete_confirmation": "Weet je zeker dat je {projectName} wilt verwijderen?",
     "loading_project_data": "Projectgegevens laden...",
     "project": "Project"
+  },
+  "user_summary": {
+    "stats": {
+      "total_sessions": "Totaal sessies",
+      "avg_session_duration": "Gem. sessieduur",
+      "page_views": "Paginaweergaven",
+      "bounce_rate": "Bouncepercentage"
+    },
+    "sessions": "Sessies",
+    "failed_to_load_sessions": "Laden van sessies mislukt",
+    "no_sessions_found": "Geen sessies gevonden voor deze gebruiker",
+    "session": "Sessie",
+    "started": "Gestart",
+    "page_views_unit": "paginaweergaven",
+    "bounced": "Gebounced"
   }
 }
