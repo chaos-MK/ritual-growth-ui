@@ -63,6 +63,8 @@ export interface NavigationState {
   currentCohortId: string | null
   currentUserId: string | null
   currentSessionId: string | null
+
+  authIsReady: boolean
   
   // Tree actions
   setNavigationTree: (tree: NavigationTreeNode[]) => void
@@ -73,6 +75,7 @@ export interface NavigationState {
   setNodeLoading: (nodeId: string, isLoading: boolean) => void
   updateNodeChildren: (nodeId: string, children: NavigationTreeNode[]) => void
   setActiveNode: (nodeId: string) => void
+  setAuthIsReady: (ready: boolean) => void
   
   // Breadcrumb actions
   setBreadcrumbs: (breadcrumbs: Breadcrumb[]) => void
@@ -266,6 +269,7 @@ export const useNavigationStore = create<NavigationState>()(
         currentCohortId: null,
         currentUserId: null,
         currentSessionId: null,
+        authIsReady: false,
 
         // Tree actions
         setNavigationTree: (tree) =>
@@ -273,6 +277,9 @@ export const useNavigationStore = create<NavigationState>()(
             navigationTree: tree,
             expandedNodes: new Set(getExpandedNodeIds(tree))
           }, false, 'setNavigationTree'),
+
+          setAuthIsReady: (ready: boolean) => set({ authIsReady: ready }),
+
 
         toggleNodeExpansion: (nodeId) => {
           const state = get()
@@ -620,6 +627,7 @@ export const useUserState = () =>
       setUserInfo: state.setUserInfo,
       setIsLoading: state.setIsLoading,
       setIsLoggingOut: state.setIsLoggingOut,
+      setAuthIsReady: state.setAuthIsReady,
       clearUserState: state.clearUserState,
     }))
   )
