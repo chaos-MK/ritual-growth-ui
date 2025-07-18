@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState, use } from 'react'
+import { useCallback, useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
@@ -64,6 +64,32 @@ export default function UserSummary({ params }: UserSummaryProps) {
   const [apiError, setApiError] = useState<string | null>(null)
   const { loadNavigationData } = useNavigation()
   const { t, locale, changeLanguage } = useTranslation()
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [debouncedLoading, setDebouncedLoading] = useState(false)
+  const [hasInitialData, setHasInitialData] = useState(false)
+
+  // Debounced loading state
+  useEffect(() => {
+    if (apiLoading && !hasInitialData) {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+      loadingTimeoutRef.current = setTimeout(() => {
+        setDebouncedLoading(true)
+      }, 300) // 300ms debounce
+    } else {
+      setDebouncedLoading(false)
+      if (user || sessions.length > 0) {
+        setHasInitialData(true)
+      }
+    }
+
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+    }
+  }, [apiLoading, hasInitialData, user, sessions.length])
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -114,6 +140,19 @@ export default function UserSummary({ params }: UserSummaryProps) {
       setApiLoading(false)
       return null
     }
+
+    // Check session storage for cached user data
+    const cachedUser = sessionStorage.getItem(`user_${userId}`)
+    if (cachedUser) {
+      try {
+        const parsedUser = JSON.parse(cachedUser)
+        setUser(parsedUser)
+        setApiLoading(false)
+        return parsedUser
+      } catch (e) {
+        console.warn('Failed to parse cached user data')
+      }
+    }
     
     try {
       const response = await fetch(`http://localhost:8080/users/${encodeURIComponent(userId)}`, {
@@ -144,7 +183,9 @@ export default function UserSummary({ params }: UserSummaryProps) {
             }
             
             const userData = await retryResponse.json()
-            return transformUserData(userData)
+            const transformedUser = transformUserData(userData)
+            sessionStorage.setItem(`user_${userId}`, JSON.stringify(transformedUser)) // Cache the data
+            return transformedUser
           } else {
             clearAuthCookies()
             router.push('/login')
@@ -155,7 +196,9 @@ export default function UserSummary({ params }: UserSummaryProps) {
       }
 
       const userData = await response.json()
-      return transformUserData(userData)
+      const transformedUser = transformUserData(userData)
+      sessionStorage.setItem(`user_${userId}`, JSON.stringify(transformedUser)) // Cache the data
+      return transformedUser
     } catch (error) {
       console.error(t('errors.fetch_user'), error)
       setApiError(error instanceof Error ? error.message : t('errors.fetch_user'))
@@ -170,6 +213,18 @@ export default function UserSummary({ params }: UserSummaryProps) {
     const userToken = getCookie('userToken')
     if (!userToken) {
       return []
+    }
+
+    // Check session storage for cached sessions data
+    const cachedSessions = sessionStorage.getItem(`sessions_${userId}`)
+    if (cachedSessions) {
+      try {
+        const parsedSessions = JSON.parse(cachedSessions)
+        setSessions(parsedSessions)
+        return parsedSessions
+      } catch (e) {
+        console.warn('Failed to parse cached sessions data')
+      }
     }
     
     try {
@@ -201,14 +256,18 @@ export default function UserSummary({ params }: UserSummaryProps) {
             }
             
             const sessionsData = await retryResponse.json()
-            return transformSessionsData(sessionsData)
+            const transformedSessions = transformSessionsData(sessionsData)
+            sessionStorage.setItem(`sessions_${userId}`, JSON.stringify(transformedSessions)) // Cache the data
+            return transformedSessions
           }
         }
         throw new Error(`API Error: ${response.status} ${response.statusText}`)
       }
 
       const sessionsData = await response.json()
-      return transformSessionsData(sessionsData)
+      const transformedSessions = transformSessionsData(sessionsData)
+      sessionStorage.setItem(`sessions_${userId}`, JSON.stringify(transformedSessions)) // Cache the data
+      return transformedSessions
     } catch (error) {
       console.error(t('user_summary.failed_to_load_sessions'), error)
       setApiError(t('user_summary.failed_to_load_sessions'))
@@ -311,7 +370,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
       try {
         const [userData, sessionsData] = await Promise.all([
           fetchUserById(userId),
-          fetchUserSessions(userId)
+          fetchUserSessions(userId),
         ])
 
         setUser(userData)
@@ -319,16 +378,15 @@ export default function UserSummary({ params }: UserSummaryProps) {
 
         const calculatedStats = calculateStats(userData, sessionsData)
         setStats(calculatedStats)
-        
-        await loadNavigationData(userInfo.email)
 
+        await loadNavigationData(userInfo.email)
       } catch (error) {
         console.error(t('errors.fetch_user'), error)
       }
     }
 
     loadUserData()
-  }, [userInfo, userId, loadNavigationData])
+  }, [userInfo?.userId, userId, loadNavigationData])
 
   // Auth check
   useEffect(() => {
@@ -390,11 +448,19 @@ export default function UserSummary({ params }: UserSummaryProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            {apiLoading ? t('company.loading') : user?.displayName || user?.fullName || t('company.users.title')}
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {debouncedLoading && !hasInitialData ? (
+              <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            ) : (
+              user?.displayName || user?.fullName || t('company.users.title')
+            )}
           </h2>
           <p className="text-sm text-gray-500">
-            {apiLoading ? t('company.loading') : user?.email || t('company.loading')}
+            {debouncedLoading && !hasInitialData ? (
+              <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            ) : (
+              user?.email || t('company.users.title')
+            )}
           </p>
         </div>
       </div>

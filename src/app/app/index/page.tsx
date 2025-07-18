@@ -1,13 +1,10 @@
-//company summary - cleaned for navigation tree compatibility
-
 'use client'
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 import { useNavigation } from '@/hooks/useNavigation';
 import { useNavigationActions } from '@/app/stores/navigationStore';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -102,16 +99,18 @@ export const dynamic = 'force-dynamic'
 
 export default function CompanySummary() {
   const router = useRouter();
-  const { t } = useTranslation(); // Use translation hook
+  const { t } = useTranslation();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [projects, setProjects] = useState<ProjectDTO[]>([]);
   const [stats, setStats] = useState<Stats[]>([]);
   const [apiLoading, setApiLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const { loadNavigationData } = useNavigation();
   const { setNavigationContext } = useNavigationActions();
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleProjectClick = (project: ProjectDTO) => {
     const projectData = {
@@ -128,11 +127,9 @@ export default function CompanySummary() {
       sessionStorage.setItem('currentProject', JSON.stringify(projectData))
     }
 
-    setNavigationContext({ projectId: project.projectId }) // Sync navigation state
-
+    setNavigationContext({ projectId: project.projectId })
     router.push(`/app/projects/${project.projectId}`)
   }
-
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -159,14 +156,10 @@ export default function CompanySummary() {
     try {
       const currentUser = auth.currentUser
       if (currentUser) {
-        // Refresh the token to ensure it's valid
         const freshToken = await currentUser.getIdToken(true)
-        
-        // Update the token in cookies
         const expires = new Date()
         expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000))
         document.cookie = `userToken=${freshToken}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
-        
         return true
       }
       return false
@@ -177,121 +170,132 @@ export default function CompanySummary() {
   }
 
   // Fetch projects from API
-  const fetchProjects = async (): Promise<ProjectDTO[]> => {
-  setApiLoading(true)
-  setApiError(null)
-
-  const authToken = `testtoken:${userInfo?.email}`
-  
-  try {
-    const response = await fetch('http://localhost:8080/project', {
-      method: 'GET',
-      headers: {
-        'hippo-api-version': '1.0.0',
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`)
+  const fetchProjects = async (forceFetch: boolean = false): Promise<ProjectDTO[]> => {
+    if (!forceFetch && typeof window !== 'undefined') {
+      const cachedProjects = sessionStorage.getItem('companyProjects')
+      if (cachedProjects) {
+        return JSON.parse(cachedProjects)
+      }
     }
 
-    const data: ProjectDTO[] = await response.json()
-    return data
-  } catch (error) {
-    console.error('Failed to fetch projects:', error)
-    setApiError(error instanceof Error ? error.message : 'Failed to fetch projects')
-    return []
-  } finally {
-    setApiLoading(false)
-  }
-}
-
-  // Calculate stats from project data
-  const calculateStats = (projects: ProjectDTO[]): Stats[] => {
-  const totalProjects = projects.length
-  const totalUsers = projects.reduce((sum, project) => sum + (project.userCount || 0), 0)
-  const totalSessions = projects.reduce((sum, project) => sum + (project.sessionCount || 0), 0)
-  const totalCohorts = projects.reduce((sum, project) => sum + (project.cohortCount || 0), 0)
-
-  return [
-    { name: t('company.stats.total_projects').toString(), stat: totalProjects.toString(), change: '+2', changeType: 'increase' },
-    { name: t('company.stats.total_cohorts').toString(), stat: totalCohorts.toString(), change: '+4', changeType: 'increase' },
-    { name: t('company.stats.total_users').toString(), stat: totalUsers.toLocaleString(), change: '+123', changeType: 'increase' },
-    { name: t('company.stats.total_sessions').toString(), stat: totalSessions.toLocaleString(), change: '+567', changeType: 'increase' },
-  ]
-}
-
-
-
-  // Empty edit function - implement later
-  const handleEditProject = (project: ProjectDTO, event: React.MouseEvent) => {
-    event.stopPropagation() // Prevent project click
-    console.log('Edit project:', project.projectId)
-    // TODO: Implement edit functionality
-    // This could open a modal, navigate to edit page, etc.
-  }
-
-  // Empty delete function - implement later
-  const handleDeleteProject = async (project: ProjectDTO, event: React.MouseEvent) => {
-  event.stopPropagation()
-  
-  const confirmed = window.confirm(
-    `Are you sure you want to delete the project "${project.projectName}"? This action cannot be undone.`
-  )
-  
-  if (!confirmed) return
-
-  if (!userInfo?.email) {
-    console.error('User email not available')
-    alert('Error: User authentication required')
-    return
-  }
-
-  const authToken = `testtoken:${userInfo.email}`
-
-  try {
     setApiLoading(true)
     setApiError(null)
 
-    const response = await fetch(
-      `http://localhost:8080/project/projectdelete/${project.projectId}`,
-      {
-        method: 'DELETE',
+    const authToken = `testtoken:${userInfo?.email}`
+    
+    try {
+      const response = await fetch('http://localhost:8080/project', {
+        method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
         },
-      }
-    )
+      })
 
-    if (!response.ok) {
-      const errorData = await response.text()
-      throw new Error(`Failed to delete project: ${response.status} ${errorData}`)
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`)
+      }
+
+      const data: ProjectDTO[] = await response.json()
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('companyProjects', JSON.stringify(data))
+      }
+      return data
+    } catch (error) {
+      console.error('Failed to fetch projects:', error)
+      setApiError(error instanceof Error ? error.message : 'Failed to fetch projects')
+      return []
+    } finally {
+      setApiLoading(false)
+    }
+  }
+
+  // Calculate stats from project data
+  const calculateStats = (projects: ProjectDTO[]): Stats[] => {
+    const totalProjects = projects.length
+    const totalUsers = projects.reduce((sum, project) => sum + (project.userCount || 0), 0)
+    const totalSessions = projects.reduce((sum, project) => sum + (project.sessionCount || 0), 0)
+    const totalCohorts = projects.reduce((sum, project) => sum + (project.cohortCount || 0), 0)
+
+    return [
+      { name: t('company.stats.total_projects').toString(), stat: totalProjects.toString(), change: '+2', changeType: 'increase' },
+      { name: t('company.stats.total_cohorts').toString(), stat: totalCohorts.toString(), change: '+4', changeType: 'increase' },
+      { name: t('company.stats.total_users').toString(), stat: totalUsers.toLocaleString(), change: '+123', changeType: 'increase' },
+      { name: t('company.stats.total_sessions').toString(), stat: totalSessions.toLocaleString(), change: '+567', changeType: 'increase' },
+    ]
+  }
+
+  // Empty edit function - implement later
+  const handleEditProject = (project: ProjectDTO, event: React.MouseEvent) => {
+    event.stopPropagation()
+    console.log('Edit project:', project.projectId)
+    // TODO: Implement edit functionality
+  }
+
+  // Delete project function
+  const handleDeleteProject = async (project: ProjectDTO, event: React.MouseEvent) => {
+    event.stopPropagation()
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the project "${project.projectName}"? This action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
+    if (!userInfo?.email) {
+      console.error('User email not available')
+      alert('Error: User authentication required')
+      return
     }
 
-    const updatedProjects = projects.filter(p => p.projectId !== project.projectId)
-    setProjects(updatedProjects)
-    
-    const updatedStats = calculateStats(updatedProjects)
-    setStats(updatedStats)
-    
-    console.log(`Project "${project.projectName}" deleted successfully`)
-    
-    // Trigger a page refresh to update the navigation tree
-    router.refresh()
-    
-  } catch (error) {
-    console.error('Error deleting project:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete project'
-    setApiError(errorMessage)
-    alert(`Error deleting project: ${errorMessage}`)
-  } finally {
-    setApiLoading(false)
+    const authToken = `testtoken:${userInfo.email}`
+
+    try {
+      setApiLoading(true)
+      setApiError(null)
+
+      const response = await fetch(
+        `http://localhost:8080/project/projectdelete/${project.projectId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'hippo-api-version': '1.0.0',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.text()
+        throw new Error(`Failed to delete project: ${response.status} ${errorData}`)
+      }
+
+      const updatedProjects = projects.filter(p => p.projectId !== project.projectId)
+      setProjects(updatedProjects)
+      
+      const updatedStats = calculateStats(updatedProjects)
+      setStats(updatedStats)
+      
+      console.log(`Project "${project.projectName}" deleted successfully`)
+      
+      // Clear cache and refresh navigation
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('companyProjects')
+      }
+      await loadNavigationData(userInfo.email)
+      router.refresh()
+      
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete project'
+      setApiError(errorMessage)
+      alert(`Error deleting project: ${errorMessage}`)
+    } finally {
+      setApiLoading(false)
+    }
   }
-}
 
   // Load data on component mount
   useEffect(() => {
@@ -314,6 +318,45 @@ export default function CompanySummary() {
     loadData();
   }, [userInfo, loadNavigationData]);
 
+  // Debounce loading indicator display
+  useEffect(() => {
+    if (apiLoading) {
+      // Check network speed
+      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
+      const isSlowNetwork = connection && ['slow-2g', '2g'].includes(connection.effectiveType)
+
+      // Clear any existing timeout
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+
+      // Set a debounce timeout to show loading indicator only if loading persists
+      loadingTimeoutRef.current = setTimeout(() => {
+        if (apiLoading) {
+          // For slow networks, add additional delay
+          const delay = isSlowNetwork ? 2000 : 500
+          loadingTimeoutRef.current = setTimeout(() => {
+            setShowLoading(true)
+          }, delay)
+        }
+      }, 300) // Increased debounce to catch longer transient loads
+    } else {
+      // Clear loading indicator and timeout when not loading
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+      setShowLoading(false)
+    }
+
+    // Cleanup on unmount or apiLoading change
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+    }
+  }, [apiLoading])
+
+  // Auth check
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -367,16 +410,11 @@ export default function CompanySummary() {
     return null;
   }
 
-  // If no user is found, don't render anything (will redirect)
-  if (!userInfo) {
-    return null
-  }
-
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('company.title')}</h1> {/* Changed to translated title */}
-        {apiLoading && (
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('company.title')}</h1>
+        {apiLoading && !showLoading && (
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('company.loading')}</p>
         )}
         {apiError && (
@@ -394,7 +432,7 @@ export default function CompanySummary() {
               <div className="absolute rounded-md bg-indigo-500 p-3">
                 <ChartBarIcon className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
-              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p> {/* Translated stats names */}
+              <p className="ml-16 truncate text-sm font-medium text-gray-500">{item.name}</p>
             </dt>
             <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
               <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
@@ -421,24 +459,17 @@ export default function CompanySummary() {
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.projects.title')}</h3> {/* Changed to translated title */}
-            {apiLoading && (
+            <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.projects.title')}</h3>
+            {apiLoading && showLoading && (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
             )}
           </div>
         </div>
         <div className="border-t border-gray-200">
-          {apiLoading ? (
+          {apiLoading && showLoading ? (
             <div className="px-4 py-8 text-center">
-              <div className="animate-pulse space-y-4">
-                {['skeleton-1', 'skeleton-2', 'skeleton-3'].map((id) => (
-                  <div key={id} className="flex items-center space-x-4">
-                    <div className="w-4 h-4 bg-gray-200 rounded"></div>
-                    <div className="flex-1 h-4 bg-gray-200 rounded"></div>
-                    <div className="w-16 h-4 bg-gray-200 rounded"></div>
-                  </div>
-                ))}
-              </div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="mt-2 text-sm text-gray-500">{t('company.loading')}</p>
             </div>
           ) : projects.length === 0 ? (
             <div className="px-4 py-8 text-center text-gray-500">
