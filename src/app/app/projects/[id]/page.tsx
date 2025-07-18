@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState, use } from 'react'
+import { useCallback, useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
@@ -107,8 +107,45 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const [apiError, setApiError] = useState<string | null>(null)
   const [project, setProject] = useState<Project | null>(null)
   const [projectLoading, setProjectLoading] = useState(false)
+  
+  // Add debounced loading state and ref
+  const [debouncedLoading, setDebouncedLoading] = useState(false)
+  const [hasInitialData, setHasInitialData] = useState(false)
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
   const { loadNavigationData } = useNavigation()
   const { t, locale, changeLanguage, isLoading: translationLoading } = useTranslation()
+
+  
+
+  // Debounced loading useEffect with better logic
+  useEffect(() => {
+  if (!userInfo || !projectId) return
+
+  if (loadingTimeoutRef.current) {
+    clearTimeout(loadingTimeoutRef.current)
+  }
+
+  if ((apiLoading || projectLoading) && !hasInitialData) {
+    loadingTimeoutRef.current = setTimeout(() => {
+      if (apiLoading || projectLoading) {
+        setDebouncedLoading(true)
+      }
+    }, 500) // even 300ms is often enough
+  } else {
+    setDebouncedLoading(false)
+    if (cohorts.length > 0 || project) {
+      setHasInitialData(true)
+    }
+  }
+
+  return () => {
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
+    }
+  }
+}, [userInfo, projectId, apiLoading, projectLoading, hasInitialData, cohorts.length, project])
+
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -445,16 +482,17 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Skeleton Loading */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          {projectLoading ? t('company.loading') : project?.name || t('company.project')}
+          {debouncedLoading && !hasInitialData ? (
+            <div className="h-9 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          ) : (
+            project?.name || t('company.project')
+          )}
         </h1>
         {project?.description && (
           <p className="text-gray-600 dark:text-gray-300 mt-2">{project.description}</p>
-        )}
-        {(apiLoading || projectLoading) && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('company.loading_project_data')}</p>
         )}
         {apiError && (
           <p className="text-sm text-red-600 dark:text-red-400 mt-1">{t('company.error')}: {apiError}</p>
@@ -495,101 +533,97 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
           </div>
         ))}
       </div>
+      
       <div className="bg-white shadow rounded-lg">
-  <div className="px-4 py-5 sm:px-6">
-    <div className="flex justify-between items-center">
-      <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.cohorts.title')}</h3>
-      {(apiLoading || projectLoading) && (
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
-      )}
-    </div>
-  </div>
-  <div className="border-t border-gray-200">
-    {(apiLoading || projectLoading) ? (
-      <ul role="list" className="divide-y divide-gray-200">
-        {Array.from({ length: expectedCohortCount ?? 5 }).map((_, i) => (
-          <li key={`skeleton-cohort-${i}`} className="px-4 py-4">
-            <div className="animate-pulse space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-4 h-4 bg-gray-200 rounded"></div>
-                <div className="flex-1 h-4 bg-gray-200 rounded"></div>
-                <div className="w-16 h-4 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    ) : cohorts.length === 0 ? (
-      <div className="px-4 py-8 text-center text-gray-500">
-        {apiError ? t('company.cohorts.load_failed') : t('company.cohorts.no_cohorts')}
-      </div>
-    ) : (
-      <ul role="list" className="divide-y divide-gray-200">
-        {cohorts.map((cohort) => {
-  // Add null checks for cohort.stages and cohort.users
-  const stages = cohort.stages || [];
-  const users = cohort.users || [];
-  
-  const totalSessions =
-  cohort.statistics?.totalSessions ??
-  stages.reduce((sum, stage) => {
-    if (!stage.stageStats) return sum;
-    return sum + (stage.stageStats.overall || 0);
-  }, 0);
-
-  
-  const activeUsers = users.filter(user => {
-    if (!user.statuses || !Array.isArray(user.statuses)) return false;
-    return !user.disabled && user.statuses.length > 0;
-  }).length;
-
-  return (
-    <li key={`cohort-${cohort.id}`}>
-      <Link
-        href={`/app/projects/${projectId}/cohorts/${cohort.id}`}
-        className="block hover:bg-gray-50 transition-colors"
-      >
-        <div className="px-4 py-4 sm:px-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <p className="truncate text-sm font-medium text-indigo-600">
-                {cohort.cohortName}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {t('company.cohorts.version')}: {cohort.version}
-              </p>
-            </div>
-            <div className="ml-2 flex flex-shrink-0">
-              <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                {t('company.cohorts.started')} {new Date(cohort.startDate).toLocaleDateString(locale)}
-              </p>
-            </div>
-          </div>
-          <div className="mt-2 sm:flex sm:justify-between">
-            <div className="sm:flex">
-              <p className="flex items-center text-sm text-gray-500">
-                {users.length} {t('company.cohorts.total_users')}
-              </p>
-              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                {activeUsers} {t('company.cohorts.active_users')}
-              </p>
-              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                {totalSessions} {t('company.cohorts.sessions')}
-              </p>
-              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                {stages.length} {t('company.cohorts.stages')}
-              </p>
-            </div>
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">{t('company.cohorts.title')}</h3>
+            {debouncedLoading && (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+            )}
           </div>
         </div>
-      </Link>
-    </li>
-  );
-})}
-      </ul>
-    )}
-  </div>
-</div>
+        <div className="border-t border-gray-200">
+          {debouncedLoading ? (
+            <div className="px-4 py-12 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="mt-4 text-sm text-gray-500">{t('company.loading_project_data')}</p>
+            </div>
+          ) : cohorts.length === 0 && !hasInitialData ? (
+            <div className="px-4 py-8 text-center text-gray-500">
+              {apiError ? t('company.cohorts.load_failed') : t('company.cohorts.no_cohorts')}
+            </div>
+          ) : cohorts.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">
+              {apiError ? t('company.cohorts.load_failed') : t('company.cohorts.no_cohorts')}
+            </div>
+          ) : (
+            <ul role="list" className="divide-y divide-gray-200">
+              {cohorts.map((cohort) => {
+                // Add null checks for cohort.stages and cohort.users
+                const stages = cohort.stages || [];
+                const users = cohort.users || [];
+                
+                const totalSessions =
+                cohort.statistics?.totalSessions ??
+                stages.reduce((sum, stage) => {
+                  if (!stage.stageStats) return sum;
+                  return sum + (stage.stageStats.overall || 0);
+                }, 0);
+
+                
+                const activeUsers = users.filter(user => {
+                  if (!user.statuses || !Array.isArray(user.statuses)) return false;
+                  return !user.disabled && user.statuses.length > 0;
+                }).length;
+
+                return (
+                  <li key={`cohort-${cohort.id}`}>
+                    <Link
+                      href={`/app/projects/${projectId}/cohorts/${cohort.id}`}
+                      className="block hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <p className="truncate text-sm font-medium text-indigo-600">
+                              {cohort.cohortName}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {t('company.cohorts.version')}: {cohort.version}
+                            </p>
+                          </div>
+                          <div className="ml-2 flex flex-shrink-0">
+                            <p className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                              {t('company.cohorts.started')} {new Date(cohort.startDate).toLocaleDateString(locale)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-2 sm:flex sm:justify-between">
+                          <div className="sm:flex">
+                            <p className="flex items-center text-sm text-gray-500">
+                              {users.length} {t('company.cohorts.total_users')}
+                            </p>
+                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                              {activeUsers} {t('company.cohorts.active_users')}
+                            </p>
+                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                              {totalSessions} {t('company.cohorts.sessions')}
+                            </p>
+                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                              {stages.length} {t('company.cohorts.stages')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

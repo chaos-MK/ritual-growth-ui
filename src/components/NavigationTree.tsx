@@ -1,7 +1,6 @@
-// components/NavigationTree.tsx
 'use client'
 
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   ChevronRightIcon, 
@@ -310,7 +309,6 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
     const hasDashboard = false
     const companyId = 1 // static for now
 
-
     try {
       const requestBody = {
         projectName,
@@ -491,13 +489,52 @@ interface NavigationTreeProps {
 
 export default function NavigationTree({ className = '', onNodeClick, userEmail }: NavigationTreeProps) {
   const { tree, isLoading, handleNodeClick } = useNavigation()
-  
+  const [showSkeleton, setShowSkeleton] = useState(false)
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const combinedNodeClick = useCallback((nodeId: string, href: string) => {
     handleNodeClick(nodeId, href)
     onNodeClick?.(nodeId, href)
   }, [handleNodeClick, onNodeClick])
 
-  if (isLoading) {
+  useEffect(() => {
+    if (isLoading) {
+      // Check network speed
+      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
+      const isSlowNetwork = connection && ['slow-2g', '2g'].includes(connection.effectiveType)
+
+      // Clear any existing timeout
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+
+      // Set a debounce timeout to show skeleton only if loading persists
+      loadingTimeoutRef.current = setTimeout(() => {
+        if (isLoading) {
+          // For slow networks, add additional delay
+          const delay = isSlowNetwork ? 2000 : 500
+          loadingTimeoutRef.current = setTimeout(() => {
+            setShowSkeleton(true)
+          }, delay)
+        }
+      }, 100) // Initial debounce to catch quick load completions
+    } else {
+      // Clear skeleton and timeout when not loading
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+      setShowSkeleton(false)
+    }
+
+    // Cleanup on unmount or isLoading change
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+    }
+  }, [isLoading])
+
+  if (showSkeleton && isLoading) {
     return (
       <div className={`px-4 py-4 ${className}`}>
         <div className="animate-pulse space-y-3">

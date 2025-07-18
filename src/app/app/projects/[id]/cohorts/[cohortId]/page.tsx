@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState, use } from 'react'
+import { useCallback, useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
@@ -97,8 +97,36 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
   const [stats, setStats] = useState<Stats[]>([])
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [debouncedLoading, setDebouncedLoading] = useState(false)
+  const [hasInitialData, setHasInitialData] = useState(false)
   const { loadNavigationData } = useNavigation()
   const { t, locale, changeLanguage, isLoading: translationLoading } = useTranslation()
+
+
+// Debounced loading state
+  useEffect(() => {
+    if (apiLoading && !hasInitialData) {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+      loadingTimeoutRef.current = setTimeout(() => {
+        setDebouncedLoading(true)
+      }, 300) // 300ms debounce
+    } else {
+      setDebouncedLoading(false)
+      if (cohort) {
+        setHasInitialData(true)
+      }
+    }
+
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current)
+      }
+    }
+  }, [apiLoading, hasInitialData, cohort])
+
 
   // Helper function to get individual cookie value
   const getCookie = (name: string): string | null => {
@@ -149,6 +177,19 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
     setApiLoading(false)
     return null
   }
+
+  // Check session storage for cached cohort data
+    const cachedCohort = sessionStorage.getItem(`cohort_${cohortId}`)
+    if (cachedCohort) {
+      try {
+        const parsedCohort = JSON.parse(cachedCohort)
+        setCohort(parsedCohort)
+        setApiLoading(false)
+        return parsedCohort
+      } catch (e) {
+        console.warn('Failed to parse cached cohort data')
+      }
+    }
   
   try {
     const response = await fetch(`http://localhost:8080/users/cohort/${encodeURIComponent(cohortId)}`, {
@@ -178,13 +219,14 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
             throw new Error(`API Error: ${retryResponse.status} ${retryResponse.statusText}`)
           }
           
-          // Handle the user array response
           const userData = await retryResponse.json()
-          return transformUserArrayToCohort(userData, cohortId)
-        } else {
-          clearAuthCookies()
-          router.push('/login')
-          return null
+            const cohortData = transformUserArrayToCohort(userData, cohortId)
+            sessionStorage.setItem(`cohort_${cohortId}`, JSON.stringify(cohortData)) // Cache the data
+            return cohortData
+          } else {
+            clearAuthCookies()
+            router.push('/login')
+            return null
         }
       }
       throw new Error(`API Error: ${response.status} ${response.statusText}`)
@@ -192,13 +234,15 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
 
     // Handle the user array response
     const userData = await response.json()
-    return transformUserArrayToCohort(userData, cohortId)
-  } catch (error) {
-    console.error(t('errors.fetch_cohort'), error)
-    setApiError(error instanceof Error ? error.message : t('errors.fetch_cohort'))
-    return null
-  } finally {
-    setApiLoading(false)
+      const cohortData = transformUserArrayToCohort(userData, cohortId)
+      sessionStorage.setItem(`cohort_${cohortId}`, JSON.stringify(cohortData)) // Cache the data
+      return cohortData
+    } catch (error) {
+      console.error(t('errors.fetch_cohort'), error)
+      setApiError(error instanceof Error ? error.message : t('errors.fetch_cohort'))
+      return null
+    } finally {
+      setApiLoading(false)
   }
 }
 
@@ -296,16 +340,15 @@ const mappedUsers: User[] = users.map(user => ({
 
         const calculatedStats = calculateStats(cohortData)
         setStats(calculatedStats)
-        
-        await loadNavigationData(userInfo.email)
 
+        await loadNavigationData(userInfo.email)
       } catch (error) {
         console.error('Failed to load cohort data:', error)
       }
     }
 
     loadCohortData()
-  }, [userInfo, cohortId, loadNavigationData])
+  }, [userInfo?.userId, cohortId, loadNavigationData])
 
   // Auth check
   useEffect(() => {
@@ -366,11 +409,21 @@ const mappedUsers: User[] = users.map(user => ({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">
-          {apiLoading ? t('company.loading') : cohort?.cohortName || t('company.cohorts.name')}
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {debouncedLoading && !hasInitialData ? (
+            <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          ) : (
+            cohort?.cohortName || t('company.cohorts.name')
+          )}
         </h2>
         <p className="text-sm text-gray-500">
-          {cohort?.startDate ? `${t('company.cohorts.started')} ${new Date(cohort.startDate).toLocaleDateString(locale)}` : t('company.loading')}
+          {debouncedLoading && !hasInitialData ? (
+            <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          ) : cohort?.startDate ? (
+            `${t('company.cohorts.started')} ${new Date(cohort.startDate).toLocaleDateString(locale)}`
+          ) : (
+            t('company.cohorts.name')
+          )}
         </p>
       </div>
 
