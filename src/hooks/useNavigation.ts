@@ -1,9 +1,7 @@
-'use client'
-
+// useNavigation.ts
 import { create } from 'zustand'
 import { useRouter, usePathname } from 'next/navigation'
-import { useCallback, useMemo, useEffect } from 'react'
-import { useRef } from 'react'
+import { useCallback, useMemo, useEffect, useRef } from 'react'
 
 // Navigation node type
 export interface NavigationNode {
@@ -17,6 +15,7 @@ export interface NavigationNode {
   children?: NavigationNode[]
   metadata?: {
     count?: number
+    cohortCount?: number
     [key: string]: any
   }
 }
@@ -39,13 +38,23 @@ interface ProjectDTO {
   cohortCount: number
 }
 
+// Cohort data type from API
+interface CohortDTO {
+  cohortId: string
+  cohortName: string
+  projectId: string
+  userCount: number
+  sessionCount: number
+}
+
 // Navigation state
 interface NavigationState {
   tree: NavigationNode[]
   activeNodeId: string | null
   expandedNodes: Set<string>
   isLoading: boolean
-  projectsListExpanded: boolean // New state for projects list
+  projectsListExpanded: boolean
+  cohortsListExpanded: Map<string, boolean> // Map projectId to expansion state
   
   // Actions
   setTree: (tree: NavigationNode[]) => void
@@ -54,22 +63,23 @@ interface NavigationState {
   setNodeLoading: (id: string, loading: boolean) => void
   setLoading: (loading: boolean) => void
   setProjectsListExpanded: (expanded: boolean) => void
+  setCohortsListExpanded: (projectId: string, expanded: boolean) => void
   loadNavigationData: (userEmail: string) => Promise<void>
+  loadCohortData: (projectId: string, userEmail: string) => Promise<void>
 }
 
-// Zustand store - single source of truth
 const useNavigationStore = create<NavigationState>((set, get) => ({
   tree: [],
   activeNodeId: null,
   expandedNodes: new Set(),
   isLoading: true,
   projectsListExpanded: false,
+  cohortsListExpanded: new Map(),
   
   setTree: (tree) => set({ tree }),
   
   setActiveNode: (id) => {
     set({ activeNodeId: id })
-    // Update tree with active states
     const updateActiveState = (nodes: NavigationNode[]): NavigationNode[] => {
       return nodes.map(node => ({
         ...node,
@@ -92,7 +102,6 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
     
     set({ expandedNodes: newExpanded })
     
-    // Update tree with expansion states
     const updateExpansionState = (nodes: NavigationNode[]): NavigationNode[] => {
       return nodes.map(node => ({
         ...node,
@@ -118,6 +127,12 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
   
   setProjectsListExpanded: (expanded) => set({ projectsListExpanded: expanded }),
   
+  setCohortsListExpanded: (projectId, expanded) => {
+    set(state => ({
+      cohortsListExpanded: new Map(state.cohortsListExpanded).set(projectId, expanded)
+    }))
+  },
+  
   loadNavigationData: async (userEmail: string) => {
     set({ isLoading: true })
     
@@ -139,10 +154,9 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
 
       const projects: ProjectDTO[] = await response.json()
       
-      // Transform API data to NavigationNode format
       const companyNode: NavigationNode = {
         id: 'company',
-        name: projects[0]?.companyName || 'Company',
+        name: projects[0]?.companyName || 'Example Company',
         type: 'company',
         href: '/app/index',
         isExpanded: false,
@@ -159,12 +173,13 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
           isActive: false,
           metadata: {
             count: project.cohortCount,
+            cohortCount: project.cohortCount,
             userCount: project.userCount,
             sessionCount: project.sessionCount,
             status: project.overallStatus,
             website: project.projectWebsite
           },
-          children: [] // Cohorts will be loaded when project is expanded
+          children: [] // Cohorts will be loaded on demand
         }))
       }
       
@@ -173,10 +188,65 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
       console.error('Failed to load navigation data:', error)
       set({ isLoading: false })
     }
+  },
+
+  loadCohortData: async (projectId: string, userEmail: string) => {
+    try {
+      const authToken = `testtoken:${userEmail}`
+      
+      const response = await fetch(`http://localhost:8080/project/${projectId}/cohorts`, {
+        method: 'GET',
+        headers: {
+          'hippo-api-version': '1.0.0',
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`)
+      }
+
+      const cohorts: CohortDTO[] = await response.json()
+      
+      set(state => {
+        const updateTree = (nodes: NavigationNode[]): NavigationNode[] => {
+          return nodes.map(node => {
+            if (node.type === 'project' && node.id === projectId) {
+              return {
+                ...node,
+                children: cohorts.map(cohort => ({
+                  id: `${projectId}-${cohort.cohortId}`,
+                  name: cohort.cohortName,
+                  type: 'cohort' as const,
+                  href: `/app/projects/${projectId}/cohorts/${cohort.cohortId}`,
+                  isExpanded: false,
+                  isActive: false,
+                  metadata: {
+                    count: cohort.userCount,
+                    sessionCount: cohort.sessionCount
+                  },
+                  children: []
+                }))
+              }
+            }
+            return {
+              ...node,
+              children: node.children ? updateTree(node.children) : undefined
+            }
+          })
+        }
+        
+        return {
+          tree: updateTree(state.tree)
+        }
+      })
+    } catch (error) {
+      console.error('Failed to load cohort data:', error)
+    }
   }
 }))
 
-// Current context extracted from URL
 interface NavigationContext {
   projectId?: string
   cohortId?: string
@@ -184,7 +254,6 @@ interface NavigationContext {
   sessionId?: string
 }
 
-// Main navigation hook
 export function useNavigation() {
   const router = useRouter()
   const pathname = usePathname()
@@ -196,16 +265,18 @@ export function useNavigation() {
     expandedNodes,
     isLoading,
     projectsListExpanded,
+    cohortsListExpanded,
     setTree,
     setActiveNode,
     toggleExpansion,
     setNodeLoading,
     setLoading,
     setProjectsListExpanded,
-    loadNavigationData
+    setCohortsListExpanded,
+    loadNavigationData,
+    loadCohortData
   } = useNavigationStore()
 
-  // Parse current context from URL
   const currentContext = useMemo((): NavigationContext => {
     const segments = pathname.split('/').filter(Boolean)
     const context: NavigationContext = {}
@@ -233,7 +304,6 @@ export function useNavigation() {
     return context
   }, [pathname])
 
-  // Current navigation level
   const currentLevel = useMemo(() => {
     if (currentContext.sessionId) return 'session'
     if (currentContext.userId) return 'user'
@@ -242,7 +312,6 @@ export function useNavigation() {
     return 'company'
   }, [currentContext])
 
-  // Generate breadcrumbs
   const breadcrumbs = useMemo(() => {
     const crumbs = [{ name: 'Company', href: '/app/index' }]
     
@@ -277,7 +346,6 @@ export function useNavigation() {
     return crumbs
   }, [currentContext])
 
-  // Navigate to specific level
   const navigateTo = useCallback((level: string, ids: Record<string, string>) => {
     let path = '/app'
     
@@ -296,7 +364,6 @@ export function useNavigation() {
     router.push(path)
   }, [router])
 
-  // Handle node click
   const handleNodeClick = useCallback(async (nodeId: string, href: string) => {
     setNodeLoading(nodeId, true)
     setActiveNode(nodeId)
@@ -310,19 +377,19 @@ export function useNavigation() {
     }
   }, [router, setActiveNode, setNodeLoading])
 
-  // Auto-expand projects list when navigating to project pages
   useEffect(() => {
     if (currentContext.projectId && !projectsListExpanded) {
       setProjectsListExpanded(true)
     }
-  }, [currentContext.projectId, projectsListExpanded, setProjectsListExpanded])
+    if (currentContext.projectId && currentContext.cohortId && !cohortsListExpanded.get(currentContext.projectId)) {
+      setCohortsListExpanded(currentContext.projectId, true)
+    }
+  }, [currentContext, projectsListExpanded, cohortsListExpanded, setProjectsListExpanded, setCohortsListExpanded])
 
-  // Auto-expand path based on current context
-    useEffect(() => {
+  useEffect(() => {
     if (didExpandRef.current) return
 
     const pathToExpand = []
-
     if (currentContext.projectId) {
       pathToExpand.push(`${currentContext.projectId}`)
     }
@@ -346,8 +413,6 @@ export function useNavigation() {
     }
   }, [currentContext, expandedNodes, toggleExpansion])
 
-
-  // Set active node based on current path
   useEffect(() => {
     if (currentContext.sessionId) {
       setActiveNode(`${currentContext.projectId}-${currentContext.cohortId}-${currentContext.userId}-${currentContext.sessionId}`)
@@ -363,24 +428,24 @@ export function useNavigation() {
   }, [currentContext, setActiveNode])
 
   return {
-    // State
     tree,
     activeNodeId,
     expandedNodes,
     projectsListExpanded,
+    cohortsListExpanded,
     currentContext,
     currentLevel,
     breadcrumbs,
     isLoading,
-    
-    // Actions
     setTree,
     setActiveNode,
     toggleExpansion,
     setNodeLoading,
     setProjectsListExpanded,
+    setCohortsListExpanded,
     handleNodeClick,
     navigateTo,
-    loadNavigationData
+    loadNavigationData,
+    loadCohortData
   }
 }

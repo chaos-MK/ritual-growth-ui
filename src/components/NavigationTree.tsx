@@ -2,16 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  ChevronRightIcon, 
-  ChevronDownIcon, 
-  PlusIcon,
-  BuildingOfficeIcon,
-  FolderIcon,
-  UserGroupIcon,
-  UserIcon,
-  DocumentIcon
-} from '@heroicons/react/24/outline'
+import { ChevronRightIcon, ChevronDownIcon, PlusIcon, BuildingOfficeIcon, FolderIcon, UserGroupIcon, UserIcon, DocumentIcon } from '@heroicons/react/24/outline'
 import { NavigationNode, useNavigation } from '@/hooks/useNavigation'
 
 const typeIcons = {
@@ -71,10 +62,8 @@ function CreateForm({ isOpen, onClose, position, parentType, onCreateProject }: 
     if (days <= 30) {
       return `${days} day${days !== 1 ? 's' : ''}`
     }
-    
     const months = Math.floor(days / 30)
     const remainingDays = days % 30
-    
     if (months <= 12) {
       let result = `${months} month${months !== 1 ? 's' : ''}`
       if (remainingDays > 0) {
@@ -84,7 +73,6 @@ function CreateForm({ isOpen, onClose, position, parentType, onCreateProject }: 
     } else {
       const years = Math.floor(months / 12)
       const remainingMonths = months % 12
-      
       let result = `${years} year${years !== 1 ? 's' : ''}`
       if (remainingMonths > 0) {
         result += ` and ${remainingMonths} month${remainingMonths !== 1 ? 's' : ''}`
@@ -99,16 +87,16 @@ function CreateForm({ isOpen, onClose, position, parentType, onCreateProject }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!projectName.trim() || !projectWebsite.trim() || !projectState || !endDate) return
-    
+
     setIsSubmitting(true)
     setError('')
-    
+
     try {
       const startDate = new Date()
       const endDateObj = new Date(endDate)
       const durationInDays = Math.ceil((endDateObj.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
       const formattedDuration = formatDuration(durationInDays)
-      
+
       await onCreateProject(projectName.trim(), projectWebsite.trim(), projectState, startDate, endDateObj, formattedDuration)
       onClose()
     } catch (err) {
@@ -119,11 +107,11 @@ function CreateForm({ isOpen, onClose, position, parentType, onCreateProject }: 
   }
 
   return (
-    <div 
+    <div
       ref={formRef}
       className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg min-w-[280px] max-w-[320px]"
-      style={{ 
-        left: `${Math.max(8, position.x)}px`, 
+      style={{
+        left: `${Math.max(8, position.x)}px`,
         top: `${Math.max(8, position.y)}px`,
       }}
     >
@@ -238,9 +226,15 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
   const { handleNodeClick, toggleExpansion, projectsListExpanded, setProjectsListExpanded, loadNavigationData } = useNavigation()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [formPosition, setFormPosition] = useState({ x: 0, y: 0 })
-  
+  const [cohortsListExpanded, setCohortsListExpanded] = useState(false)
+
   const IconComponent = typeIcons[node.type]
   const hasChildren = node.children && node.children.length > 0
+  // Changed condition: show toggle for any project with cohorts (including just 1 cohort)
+  const hasCohorts = node.type === 'project' && 
+  node.metadata?.cohortCount !== undefined && 
+  node.metadata.cohortCount > 0
+
   const paddingLeft = `${level * 1.5 + 0.5}rem`
 
   const handleToggle = useCallback((e: React.MouseEvent) => {
@@ -253,12 +247,14 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
+    
     // For projects, store the project ID in session storage and navigate
     if (node.type === 'project') {
       const projectData = {
         id: String(Number(node.id)),
         name: node.name,
-        ...node.metadata // This might include additional project info
+        cohortCount: node.metadata?.cohortCount,
+        ...node.metadata
       }
       
       if (typeof window !== 'undefined') {
@@ -275,22 +271,22 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
   const handleCreateClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     const rect = e.currentTarget.getBoundingClientRect()
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
-    
+
     let x = rect.right + 8
     let y = rect.top
-    
+
     if (x + 320 > viewportWidth) {
       x = rect.left - 328
     }
-    
+
     if (y + 200 > viewportHeight) {
       y = viewportHeight - 208
     }
-    
+
     setFormPosition({ x, y })
     setShowCreateForm(true)
   }, [])
@@ -301,7 +297,6 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
     }
 
     const authToken = `testtoken:${userEmail}`
-
     const projectName = name
     const projectWebsite = website
     const overallStatus = state
@@ -342,13 +337,12 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
 
       console.log('Project created successfully')
       setShowCreateForm(false)
-      
+
       // Reload navigation data to reflect the new project
       await loadNavigationData(userEmail)
-      
+
       // Navigate to the company summary page to see the updated list
       router.push('/app/index')
-
     } catch (error) {
       console.error('Error creating project:', error)
       throw error
@@ -360,6 +354,15 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
     e.stopPropagation()
     setProjectsListExpanded(!projectsListExpanded)
   }, [projectsListExpanded, setProjectsListExpanded])
+
+  const handleCohortsListToggle = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setCohortsListExpanded(!cohortsListExpanded)
+    
+    // Navigate to the project summary page showing cohorts
+    router.push(`/app/projects/${node.id}/cohorts/${node.children}`)
+  }, [cohortsListExpanded, setCohortsListExpanded, router, node.id])
 
   return (
     <div>
@@ -399,6 +402,8 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
           </span>
         )}
 
+        
+
         {/* Loading Indicator */}
         {node.isLoading && (
           <div className="w-4 h-4 ml-2">
@@ -409,7 +414,10 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
 
       {/* Projects Toggle Button - only for company nodes */}
       {node.type === 'company' && (
-        <div style={{ paddingLeft: `${(level + 1) * 1.5 + 0.5}rem` }} className="mt-1 flex items-center justify-between pr-2">
+        <div
+          style={{ paddingLeft: `${(level + 1) * 1.5 + 0.5}rem` }}
+          className="mt-1 flex items-center justify-between pr-2"
+        >
           <button
             onClick={handleProjectsListToggle}
             className="group flex items-center py-2 px-2 text-sm font-medium rounded-md transition-all duration-150 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex-grow text-left"
@@ -422,7 +430,6 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
             <FolderIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400 transition-colors flex-shrink-0" />
             <span className="font-medium">List of Projects</span>
           </button>
-
           <button
             onClick={handleCreateClick}
             className="ml-2 w-6 h-6 rounded flex items-center justify-center transition-all hover:scale-110 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400"
@@ -433,6 +440,32 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
           </button>
         </div>
       )}
+
+      {/* Cohorts Toggle Button - only for project nodes with cohorts */}
+{node.type === 'project' && hasCohorts && (
+  <div
+    style={{ paddingLeft: `${(level + 1) * 1.5 + 0.5}rem` }}
+    className="mt-1 flex items-center justify-between pr-2"
+  >
+    <button
+      onClick={handleCohortsListToggle}
+      className="group flex items-center py-2 px-2 text-sm font-medium rounded-md transition-all duration-150 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex-grow text-left"
+    > 
+      {cohortsListExpanded ? (
+        <ChevronDownIcon className="w-4 h-4 mr-2 transition-transform" />
+      ) : (
+        <ChevronRightIcon className="w-4 h-4 mr-2 transition-transform" />
+      )}
+      <UserGroupIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400 transition-colors flex-shrink-0" />
+      <span className="font-medium">List of Cohorts</span>
+      {(node.metadata?.cohortCount ?? 0) > 0 && (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+          {node.metadata?.cohortCount}
+        </span>
+      )}
+    </button>
+  </div>
+)}
 
       {/* Create Form */}
       {showCreateForm && (
@@ -452,6 +485,22 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
           <div className="mt-1 space-y-1">
             {node.children
               .filter(child => child.type === 'project')
+              .map((child) => (
+                <NavigationTreeItem
+                  key={child.id}
+                  node={child}
+                  level={level + 2}
+                  userEmail={userEmail}
+                />
+              ))}
+          </div>
+        )
+      ) : node.type === 'project' && cohortsListExpanded && hasCohorts ? (
+        // For project nodes with cohorts, show cohorts when expanded
+        node.children && node.children.length > 0 && (
+          <div className="mt-1 space-y-1">
+            {node.children
+              .filter(child => child.type === 'cohort')
               .map((child) => (
                 <NavigationTreeItem
                   key={child.id}
@@ -565,9 +614,9 @@ export default function NavigationTree({ className = '', onNodeClick, userEmail 
     <nav className={`flex-1 px-2 py-4 overflow-y-auto ${className}`}>
       <div className="space-y-1">
         {tree.map((node) => (
-          <NavigationTreeItem 
-            key={node.id} 
-            node={node} 
+          <NavigationTreeItem
+            key={node.id}
+            node={node}
             userEmail={userEmail}
           />
         ))}
