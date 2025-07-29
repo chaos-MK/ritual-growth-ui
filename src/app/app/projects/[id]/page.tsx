@@ -427,53 +427,68 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
 
   // Auth check
   useEffect(() => {
-    const checkAuth = async () => {
+  const checkAuth = async () => {
+    try {
+      // First check if we have cookies
+      const userToken = getCookie('userToken')
+      const userEmail = getCookie('userEmail')
+      const userId = getCookie('userId')
+      const userDisplayName = getCookie('userDisplayName')
+      
+      if (!userToken || !userEmail || !userId) {
+        console.log('Missing auth cookies, redirecting to login')
+        router.push('/login')
+        return
+      }
+
+      // Validate token with Firebase - but don't redirect immediately if it fails
+      let isTokenValid = false
       try {
-        const userToken = getCookie('userToken')
-        const userEmail = getCookie('userEmail')
-        const userId = getCookie('userId')
-        const userDisplayName = getCookie('userDisplayName')
-        
-        if (!userToken || !userEmail || !userId) {
-          console.log('Missing auth cookies, redirecting to login')
-          router.push('/login')
-          return
-        }
-
-        const isTokenValid = await validateToken()
-        if (!isTokenValid) {
-          console.log('Token validation failed, redirecting to login')
-          clearAuthCookies()
-          router.push('/login')
-          return
-        }
-
-        setUserInfo({
-          token: userToken,
-          email: userEmail,
-          userId: userId,
-          displayName: userDisplayName || '',
-        })
+        isTokenValid = await validateToken()
       } catch (error) {
-        console.error('Auth check failed:', error)
+        console.warn('Token validation failed, but continuing with existing token:', error)
+        // Don't redirect here - let the API calls handle token refresh
+      }
+
+      // Set user info regardless of token validation result
+      // The API calls will handle token refresh if needed
+      setUserInfo({
+        token: userToken,
+        email: userEmail,
+        userId: userId,
+        displayName: userDisplayName || '',
+      })
+
+    } catch (error) {
+      console.error('Auth check failed:', error)
+      // Only redirect to login if we can't get basic auth info
+      const userToken = getCookie('userToken')
+      if (!userToken) {
         clearAuthCookies()
         router.push('/login')
-      } finally {
-        setIsLoading(false)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Enhanced Firebase auth state listener
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    if (!firebaseUser && !isLoading) {
+      // Only redirect if we don't have valid cookies
+      const userToken = getCookie('userToken')
+      if (!userToken) {
+        console.log('No Firebase user and no token, redirecting to login')
+        clearAuthCookies()
+        router.push('/login')
       }
     }
+  })
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser && !isLoading) {
-        clearAuthCookies()
-        router.push('/login')
-      }
-    })
+  checkAuth()
 
-    checkAuth()
-
-    return () => unsubscribe()
-  }, [router, isLoading])
+  return () => unsubscribe()
+}, [router, isLoading])
 
   // If no user is found, don't render anything (will redirect)
   if (!userInfo) {
