@@ -8,6 +8,15 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/ou
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
 import { useTranslation } from '@/hooks/useTranslation'
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 // Types
 interface User {
@@ -62,11 +71,22 @@ export default function UserSummary({ params }: UserSummaryProps) {
   const [stats, setStats] = useState<Stats[]>([])
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
-  const { loadNavigationData } = useNavigation()
+  const { loadNavigationData, breadcrumbs } = useNavigation()
   const { t, locale, changeLanguage } = useTranslation()
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [debouncedLoading, setDebouncedLoading] = useState(false)
   const [hasInitialData, setHasInitialData] = useState(false)
+
+  // Fallback breadcrumbs
+  const [fallbackBreadcrumbs, setFallbackBreadcrumbs] = useState([
+    { name: 'Projects', href: '/app/projects' },
+    { name: 'Project', href: `/app/projects/${projectId}` },
+    { name: 'Cohorts', href: `/app/projects/${projectId}/cohorts` },
+    { name: `Cohort ${cohortId}`, href: `/app/projects/${projectId}/cohorts/${cohortId}` },
+    { name: `User ${userId}`, href: `/app/projects/${projectId}/cohorts/${cohortId}/users/${userId}` }
+  ])
+
+  const displayBreadcrumbs = breadcrumbs.length > 0 ? breadcrumbs : fallbackBreadcrumbs
 
   // Debounced loading state
   useEffect(() => {
@@ -347,7 +367,9 @@ export default function UserSummary({ params }: UserSummaryProps) {
     }, 0)
 
     const avgDurationMinutes = Math.floor(totalDurationMinutes / totalSessions)
-    const avgDurationSeconds = Math.round(((totalDurationMinutes / totalSessions) % 1) * 60)
+    const avgDurationSeconds = Math.round(((
+
+totalDurationMinutes / totalSessions) % 1) * 60)
 
     return [
       { name: t('user_summary.stats.total_sessions'), stat: totalSessions.toString(), change: '+2', changeType: 'increase' },
@@ -445,6 +467,33 @@ export default function UserSummary({ params }: UserSummaryProps) {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            {displayBreadcrumbs.map((breadcrumb, index) => (
+              <div key={breadcrumb.href} className="flex items-center">
+                <BreadcrumbItem>
+                  {index === displayBreadcrumbs.length - 1 ? (
+                    <BreadcrumbPage className="text-gray-900 dark:text-white font-medium">
+                      {breadcrumb.name}
+                    </BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink 
+                      href={breadcrumb.href}
+                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                    >
+                      {breadcrumb.name}
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+                {index < displayBreadcrumbs.length - 1 && <BreadcrumbSeparator />}
+              </div>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

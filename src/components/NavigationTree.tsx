@@ -235,7 +235,7 @@ interface NavigationTreeItemProps {
 
 function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemProps) {
   const router = useRouter()
-  const { handleNodeClick, toggleExpansion, projectsListExpanded, setProjectsListExpanded, loadNavigationData } = useNavigation()
+  const { handleNodeClick, toggleExpansion, loadNavigationData } = useNavigation()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [formPosition, setFormPosition] = useState({ x: 0, y: 0 })
   
@@ -355,12 +355,6 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
     }
   }, [userEmail, router, loadNavigationData])
 
-  const handleProjectsListToggle = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setProjectsListExpanded(!projectsListExpanded)
-  }, [projectsListExpanded, setProjectsListExpanded])
-
   return (
     <div>
       <div
@@ -399,6 +393,18 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
           </span>
         )}
 
+        {/* Create Button for Company nodes */}
+        {node.type === 'company' && (
+          <button
+            onClick={handleCreateClick}
+            className="ml-2 w-6 h-6 rounded flex items-center justify-center transition-all hover:scale-110 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 opacity-0 group-hover:opacity-100"
+            aria-label="Create new project"
+            title="Create new project"
+          >
+            <PlusIcon className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Loading Indicator */}
         {node.isLoading && (
           <div className="w-4 h-4 ml-2">
@@ -406,33 +412,6 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
           </div>
         )}
       </div>
-
-      {/* Projects Toggle Button - only for company nodes */}
-      {node.type === 'company' && (
-        <div style={{ paddingLeft: `${(level + 1) * 1.5 + 0.5}rem` }} className="mt-1 flex items-center justify-between pr-2">
-          <button
-            onClick={handleProjectsListToggle}
-            className="group flex items-center py-2 px-2 text-sm font-medium rounded-md transition-all duration-150 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex-grow text-left"
-          >
-            {projectsListExpanded ? (
-              <ChevronDownIcon className="w-4 h-4 mr-2 transition-transform" />
-            ) : (
-              <ChevronRightIcon className="w-4 h-4 mr-2 transition-transform" />
-            )}
-            <FolderIcon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400 transition-colors flex-shrink-0" />
-            <span className="font-medium">List of Projects</span>
-          </button>
-
-          <button
-            onClick={handleCreateClick}
-            className="ml-2 w-6 h-6 rounded flex items-center justify-center transition-all hover:scale-110 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400"
-            aria-label="Create new project"
-            title="Create new project"
-          >
-            <PlusIcon className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Create Form */}
       {showCreateForm && (
@@ -445,37 +424,18 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
         />
       )}
 
-      {/* Children */}
-      {node.type === 'company' ? (
-        // For company nodes, show projects only when projectsListExpanded is true
-        projectsListExpanded && node.children && node.children.length > 0 && (
-          <div className="mt-1 space-y-1">
-            {node.children
-              .filter(child => child.type === 'project')
-              .map((child) => (
-                <NavigationTreeItem
-                  key={child.id}
-                  node={child}
-                  level={level + 2}
-                  userEmail={userEmail}
-                />
-              ))}
-          </div>
-        )
-      ) : (
-        // For non-company nodes, show children as normal when expanded
-        hasChildren && node.isExpanded && node.children && (
-          <div className="mt-1 space-y-1">
-            {node.children.map((child) => (
-              <NavigationTreeItem
-                key={child.id}
-                node={child}
-                level={level + 1}
-                userEmail={userEmail}
-              />
-            ))}
-          </div>
-        )
+      {/* Children - Show all children when expanded */}
+      {hasChildren && node.isExpanded && node.children && (
+        <div className="mt-1 space-y-1">
+          {node.children.map((child) => (
+            <NavigationTreeItem
+              key={child.id}
+              node={child}
+              level={level + 1}
+              userEmail={userEmail}
+            />
+          ))}
+        </div>
       )}
     </div>
   )
