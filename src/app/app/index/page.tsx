@@ -174,7 +174,11 @@ export default function CompanySummary() {
     if (!forceFetch && typeof window !== 'undefined') {
       const cachedProjects = sessionStorage.getItem('companyProjects')
       if (cachedProjects) {
-        return JSON.parse(cachedProjects)
+        const parsed = JSON.parse(cachedProjects)
+        // Don't trust an empty cached array — always refetch in that case
+        if (parsed.length > 0) {
+          return parsed
+        }
       }
     }
 
