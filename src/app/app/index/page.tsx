@@ -170,50 +170,37 @@ export default function CompanySummary() {
   }
 
   // Fetch projects from API
-  const fetchProjects = async (forceFetch: boolean = false): Promise<ProjectDTO[]> => {
-    if (!forceFetch && typeof window !== 'undefined') {
-      const cachedProjects = sessionStorage.getItem('companyProjects')
-      if (cachedProjects) {
-        const parsed = JSON.parse(cachedProjects)
-        // Don't trust an empty cached array — always refetch in that case
-        if (parsed.length > 0) {
-          return parsed
-        }
-      }
+const fetchProjects = async (): Promise<ProjectDTO[]> => {
+  setApiLoading(true);
+  setApiError(null);
+
+  const authToken = `testtoken:${userInfo?.email}`;
+
+  try {
+    const response = await fetch('http://localhost:8080/project/getall', {
+      method: 'GET',
+      headers: {
+        'hippo-api-version': '1.0.0',
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store', // Prevent browser caching
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
-    setApiLoading(true)
-    setApiError(null)
-
-    const authToken = `testtoken:${userInfo?.email}`
-    
-    try {
-      const response = await fetch('http://localhost:8080/project', {
-        method: 'GET',
-        headers: {
-          'hippo-api-version': '1.0.0',
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`)
-      }
-
-      const data: ProjectDTO[] = await response.json()
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('companyProjects', JSON.stringify(data))
-      }
-      return data
-    } catch (error) {
-      console.error('Failed to fetch projects:', error)
-      setApiError(error instanceof Error ? error.message : 'Failed to fetch projects')
-      return []
-    } finally {
-      setApiLoading(false)
-    }
+    const data: ProjectDTO[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch projects:', error);
+    setApiError(error instanceof Error ? error.message : 'Failed to fetch projects');
+    return [];
+  } finally {
+    setApiLoading(false);
   }
+};
 
   // Calculate stats from project data
   const calculateStats = (projects: ProjectDTO[]): Stats[] => {
@@ -276,20 +263,15 @@ export default function CompanySummary() {
         throw new Error(`Failed to delete project: ${response.status} ${errorData}`)
       }
 
-      const updatedProjects = projects.filter(p => p.projectId !== project.projectId)
-      setProjects(updatedProjects)
-      
-      const updatedStats = calculateStats(updatedProjects)
-      setStats(updatedStats)
-      
-      console.log(`Project "${project.projectName}" deleted successfully`)
-      
-      // Clear cache and refresh navigation
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('companyProjects')
-      }
-      await loadNavigationData(userInfo.email)
-      router.refresh()
+      console.log(`Project "${project.projectName}" deleted successfully`);
+
+      // Reload the latest projects from the backend
+      const refreshedProjects = await fetchProjects();
+
+      setProjects(refreshedProjects);
+      setStats(calculateStats(refreshedProjects));
+
+      await loadNavigationData(userInfo.email);
       
     } catch (error) {
       console.error('Error deleting project:', error)
@@ -301,26 +283,44 @@ export default function CompanySummary() {
     }
   }
 
-  // Load data on component mount
   useEffect(() => {
-    const loadData = async () => {
-      if (!userInfo) return;
+  const loadData = async () => {
+    if (!userInfo) return;
 
-      try {
-        const projectData = await fetchProjects();
-        setProjects(projectData);
+    try {
+      const projectData = await fetchProjects();
 
-        const calculatedStats = calculateStats(projectData);
-        setStats(calculatedStats);
+      setProjects(projectData);
+      setStats(calculateStats(projectData));
 
-        await loadNavigationData(userInfo.email);
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      }
-    };
+      await loadNavigationData(userInfo.email);
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    }
+  };
 
-    loadData();
-  }, [userInfo, loadNavigationData]);
+  loadData();
+}, [userInfo, loadNavigationData]);
+
+useEffect(() => {
+  if (!userInfo) return;
+
+  const refreshProjects = async () => {
+    const refreshedProjects = await fetchProjects();
+
+    setProjects(refreshedProjects);
+    setStats(calculateStats(refreshedProjects));
+
+    // Optional: refresh the navigation too
+    await loadNavigationData(userInfo.email);
+  };
+
+  window.addEventListener('projects-updated', refreshProjects);
+
+  return () => {
+    window.removeEventListener('projects-updated', refreshProjects);
+  };
+}, [userInfo]);
 
   // Debounce loading indicator display
   useEffect(() => {

@@ -124,7 +124,7 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
     try {
       const authToken = `testtoken:${userEmail}`
       
-      const response = await fetch('http://localhost:8080/project', {
+      const response = await fetch('http://localhost:8080/project/getall', {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',

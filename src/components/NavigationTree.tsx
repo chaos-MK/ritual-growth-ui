@@ -340,20 +340,20 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
         throw new Error(`Failed to create project: ${response.status} ${errorData}`)
       }
 
-      console.log('Project created successfully')
-      setShowCreateForm(false)
-      
-      // Reload navigation data to reflect the new project
-      await loadNavigationData(userEmail)
-      
-      // Navigate to the company summary page to see the updated list
-      router.push('/app/index')
+      console.log('Project created successfully');
+
+      setShowCreateForm(false);
+
+      await loadNavigationData(userEmail);
+
+      // Notify other components
+      window.dispatchEvent(new Event('projects-updated'));
 
     } catch (error) {
       console.error('Error creating project:', error)
       throw error
     }
-  }, [userEmail, router, loadNavigationData])
+  }, [userEmail, loadNavigationData])
 
   return (
     <div>
