@@ -15,8 +15,8 @@ const pages = [
   { path: '/contact', timeSpent: '45s', timestamp: '2024-03-15 10:35:30' },
 ]
 
-export default function SessionSummary({ params }: { params: { id: string; cohortId: string; userId: string; sessionId: string } }) {
-  const { id: projectId, cohortId, userId, sessionId } = params
+export default async function SessionSummary({ params }: { params: Promise<{ id: string; cohortId: string; userId: string; sessionId: string }> }) {
+  const { id: projectId, cohortId, userId, sessionId } = await params
   const session = { startTime: '2024-03-15 10:30:00', device: 'Desktop' } // This would come from your API
 
   const breadcrumbs = [
