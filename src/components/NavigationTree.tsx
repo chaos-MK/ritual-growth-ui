@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { API_BASE_URL } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { 
   ChevronRightIcon, 
@@ -325,7 +326,7 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
         },
       }
 
-      const response = await fetch(`http://localhost:8080/project/addProject`, {
+      const response = await fetch(`${API_BASE_URL}/project/addProject`, {
         method: 'POST',
         headers: {
           'hippo-api-version': '1.0.0',
