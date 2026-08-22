@@ -1,0 +1,205 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+stages:
+  - secrets
+  - sast
+  - dependency-sca
+  - typecheck
+  - lint
+  - build
+  - container-build
+  - sbom
+  - image-scan
+  - push
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  STORAGE_DRIVER: vfs
+  IMAGE_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+
+.node_cache: &node_cache
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+    policy: pull-push
+
+# ---------------------------------------------------------------------------
+# SECRETS
+# ---------------------------------------------------------------------------
+gitleaks:
+  stage: secrets
+  tags: [docker-ci]
+  image: zricethezav/gitleaks:latest
+  script:
+    - gitleaks detect --source . --verbose --redact --exit-code 1
+
+# ---------------------------------------------------------------------------
+# SAST
+# ---------------------------------------------------------------------------
+semgrep:
+  stage: sast
+  tags: [docker-ci]
+  image: semgrep/semgrep:latest
+  script:
+    - semgrep scan --config p/typescript --config p/react --config p/javascript --error
+
+# ---------------------------------------------------------------------------
+# DEPENDENCY SCANNING
+# ---------------------------------------------------------------------------
+npm-audit:
+  stage: dependency-sca
+  tags: [docker-ci]
+  image: node:22-alpine
+  script:
+    - npm audit --omit=dev --audit-level=high
+
+# Optional, opt-in: only runs once SNYK_TOKEN is configured as a CI/CD variable.
+# Kept informational (allow_failure) until you decide to standardize on it.
+snyk:
+  stage: dependency-sca
+  tags: [docker-ci]
+  image: snyk/snyk:node
+  rules:
+    - if: '$SNYK_TOKEN'
+  allow_failure: true
+  script:
+    - snyk test --severity-threshold=high
+
+# ---------------------------------------------------------------------------
+# TYPECHECK (blocking)
+# ---------------------------------------------------------------------------
+typecheck:
+  stage: typecheck
+  tags: [docker-ci]
+  image: node:22-alpine
+  <<: *node_cache
+  before_script:
+    - npm ci --prefer-offline --no-audit --no-fund
+  script:
+    - npx tsc --noEmit
+
+# ---------------------------------------------------------------------------
+# LINT (non-blocking — technical debt, see explanation below)
+# ---------------------------------------------------------------------------
+eslint:
+  stage: lint
+  tags: [docker-ci]
+  image: node:22-alpine
+  <<: *node_cache
+  before_script:
+    - npm ci --prefer-offline --no-audit --no-fund
+  allow_failure: true
+  script:
+    - npm run lint
+
+# ---------------------------------------------------------------------------
+# BUILD (blocking)
+# ---------------------------------------------------------------------------
+build:
+  stage: build
+  tags: [docker-ci]
+  image: node:22-alpine
+  <<: *node_cache
+  before_script:
+    - npm ci --prefer-offline --no-audit --no-fund
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 hour
+
+# ---------------------------------------------------------------------------
+# CONTAINER BUILD (Buildah — no Docker daemon)
+# ---------------------------------------------------------------------------
+container-build:
+  stage: container-build
+  tags: [docker-ci]
+  image: quay.io/buildah/stable
+  needs:
+    - typecheck
+    - eslint
+    - build
+    - hadolint
+  script:
+    - buildah build --layers
+        --build-arg NEXT_PUBLIC_API_BASE_URL="$NEXT_PUBLIC_API_BASE_URL"
+        -t "$IMAGE_TAG" .
+    - buildah push "$IMAGE_TAG" "docker-archive:image.tar:$IMAGE_TAG"
+  artifacts:
+    paths:
+      - image.tar
+    expire_in: 1 day
+
+# Hadolint runs as its own job (Buildah's image doesn't ship it).
+hadolint:
+  stage: container-build
+  tags: [docker-ci]
+  image: hadolint/hadolint:latest-alpine
+  needs: []
+  script:
+    - hadolint Dockerfile
+
+# ---------------------------------------------------------------------------
+# SBOM (Syft, against the built image tarball)
+# ---------------------------------------------------------------------------
+sbom:
+  stage: sbom
+  tags: [docker-ci]
+  image: anchore/syft:latest
+  needs:
+    - container-build
+  script:
+    - syft docker-archive:image.tar -o cyclonedx-json=sbom.json
+  artifacts:
+    paths:
+      - sbom.json
+    expire_in: 30 days
+
+# ---------------------------------------------------------------------------
+# IMAGE SCANNING (Trivy + Grype, consistent with backend)
+# ---------------------------------------------------------------------------
+trivy-scan:
+  stage: image-scan
+  tags: [docker-ci]
+  image: aquasec/trivy:latest
+  needs:
+    - container-build
+  script:
+    - trivy image --input image.tar
+        --severity CRITICAL,HIGH
+        --exit-code 1
+        --timeout 15m
+
+grype-scan:
+  stage: image-scan
+  tags: [docker-ci]
+  image: anchore/grype:latest
+  needs:
+    - container-build
+  script:
+    - grype docker-archive:image.tar --fail-on high
+
+# ---------------------------------------------------------------------------
+# PUSH
+# ---------------------------------------------------------------------------
+push-image:
+  stage: push
+  tags: [docker-ci]
+  image: quay.io/skopeo/stable
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  needs:
+    - container-build
+    - trivy-scan
+    - grype-scan
+    - sbom
+  script:
+    - skopeo login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - skopeo copy "docker-archive:image.tar" "docker://$IMAGE_TAG"
