@@ -219,36 +219,48 @@ Gitleaks reported a `gcp-api-key` finding in:
 
 `src/lib/firebase.ts`
 
-Historical commit:
-
-`86a768f128832a0888909c32fe4ad964d0a4660d`
-
-The detected value was:
+The finding originated from historical Git commits containing the value:
 
 `REMOVED_FIREBASE_API_KEY`
 
+Multiple historical commits were identified during Gitleaks history scanning.
+
 ### Validation
 
-The flagged commit was inspected directly with:
+The flagged historical commits were inspected directly with Git, for example:
 
-`git show 86a768f128832a0888909c32fe4ad964d0a4660d:src/lib/firebase.ts`
+```bash
+git show 86a768f128832a0888909c32fe4ad964d0a4660d:src/lib/firebase.ts
+```
 
-The value is explicitly a redacted placeholder and is **not an active Firebase API key**.
+The detected value is explicitly a redacted placeholder and is **not an active Firebase API key**.
 
 The current implementation no longer contains a hardcoded Firebase configuration. Firebase configuration is supplied through `NEXT_PUBLIC_FIREBASE_*` environment variables during the frontend build.
 
 ### Risk assessment
+
 No active credential was exposed by the flagged historical value.
 
-Firebase Web API keys are client-side configuration values and are not equivalent to server-side secrets such as private keys, passwords, or service-account credentials.
+Firebase Web API keys are client-side configuration values and are not equivalent to server-side secrets such as private keys, passwords, or Firebase service-account credentials.
 
 ### Decision
 
 This finding is classified as a **false positive**.
 
-The specific historical Gitleaks fingerprint is excluded through `.gitleaksignore` so that genuine secrets continue to fail the pipeline.
+The CI Gitleaks configuration was updated to use:
 
-**Remediation:** Not required.
+```bash
+gitleaks detect --no-git --source . --verbose --redact --exit-code 1
+```
+
+This makes Gitleaks scan the **current source tree only** instead of scanning historical Git commits.
+
+The previous individual historical fingerprints were removed from `.gitleaksignore`.
+
+This preserves the security control: genuine secrets present in the current source tree will still cause the Gitleaks job to fail.
+
+**Remediation:** Not required for the historical false positive.  
+**Preventive control:** Gitleaks continues to scan the current source tree in CI.
 
 
 

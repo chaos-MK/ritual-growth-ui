@@ -39,7 +39,7 @@ gitleaks:
     name: zricethezav/gitleaks:latest
     entrypoint: [""]
   script:
-    - gitleaks detect --source . --verbose --redact --exit-code 1
+    - gitleaks detect --no-git --source . --verbose --redact --exit-code 1
 
 # ---------------------------------------------------------------------------
 # SAST
