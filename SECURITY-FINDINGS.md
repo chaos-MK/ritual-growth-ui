@@ -206,9 +206,56 @@ This separation prevents the frontend configuration from being confused with or 
 
 
 
+## Finding #002 — Gitleaks false positive: historical Firebase client API key
+
+**Date:** 2026-08-22  
+**Tool:** Gitleaks  
+**Severity:** False Positive / Informational  
+**Status:** Accepted — no remediation required
+
+### Finding
+
+Gitleaks reported a `gcp-api-key` finding in:
+
+`src/lib/firebase.ts`
+
+Historical commit:
+
+`86a768f128832a0888909c32fe4ad964d0a4660d`
+
+The detected value was:
+
+`REMOVED_FIREBASE_API_KEY`
+
+### Validation
+
+The flagged commit was inspected directly with:
+
+`git show 86a768f128832a0888909c32fe4ad964d0a4660d:src/lib/firebase.ts`
+
+The value is explicitly a redacted placeholder and is **not an active Firebase API key**.
+
+The current implementation no longer contains a hardcoded Firebase configuration. Firebase configuration is supplied through `NEXT_PUBLIC_FIREBASE_*` environment variables during the frontend build.
+
+### Risk assessment
+No active credential was exposed by the flagged historical value.
+
+Firebase Web API keys are client-side configuration values and are not equivalent to server-side secrets such as private keys, passwords, or service-account credentials.
+
+### Decision
+
+This finding is classified as a **false positive**.
+
+The specific historical Gitleaks fingerprint is excluded through `.gitleaksignore` so that genuine secrets continue to fail the pipeline.
+
+**Remediation:** Not required.
+
+
+
 
 ## Summary
 
 | Finding | CVEs / Issues Covered | Tool | Status |
 | ------- | ---------------------- | ---- | ------ |
 | #001 | **Firebase Web configuration hardcoded in frontend source code** | Manual Review + Gitleaks | ✅ Fixed |
+| #002 | **Gitleaks false positive: historical Firebase client API key** no active secret exposed | Gitleaks | ✅ Resolved |
