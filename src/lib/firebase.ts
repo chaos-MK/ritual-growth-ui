@@ -2,12 +2,12 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "REMOVED_FIREBASE_API_KEY",
-  authDomain: "ritual-growth-ui-f7055.firebaseapp.com",
-  projectId: "ritual-growth-ui-f7055",
-  storageBucket: "ritual-growth-ui-f7055.firebasestorage.app",
-  messagingSenderId: "924265948912",
-  appId: "1:924265948912:web:7b5cd3582f4cbfdf770435",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
