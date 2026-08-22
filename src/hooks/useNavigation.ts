@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { useRouter, usePathname } from 'next/navigation'
 import { useCallback, useMemo, useEffect } from 'react'
 import { useRef } from 'react'
+import { API_BASE_URL } from '@/lib/api'
 
 // Navigation node type
 export interface NavigationNode {
@@ -124,7 +125,7 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
     try {
       const authToken = `testtoken:${userEmail}`
       
-      const response = await fetch('http://localhost:8080/project/getall', {
+      const response = await fetch(`${API_BASE_URL}/project/getall`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',

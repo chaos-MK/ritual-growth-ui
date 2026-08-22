@@ -8,6 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/ou
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
 import { useTranslation } from '@/hooks/useTranslation'
+import { API_BASE_URL } from '@/lib/api'
 
 
 // Types
@@ -196,7 +197,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
+      const response = await fetch(`${API_BASE_URL}/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
@@ -232,7 +233,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
     }
     
     try {
-      const response = await fetch(`http://localhost:8080/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
+      const response = await fetch(`${API_BASE_URL}/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
@@ -248,7 +249,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
           if (tokenRefreshed) {
             // Retry the request with new token
             const newToken = getCookie('userToken')
-            const retryResponse = await fetch(`http://localhost:8080/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
+            const retryResponse = await fetch(`${API_BASE_URL}/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
               method: 'GET',
               headers: {
                 'hippo-api-version': '1.0.0',

@@ -8,6 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, PencilIcon, TrashIcon } from 
 import { useNavigation } from '@/hooks/useNavigation';
 import { useNavigationActions } from '@/app/stores/navigationStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { API_BASE_URL } from '@/lib/api'
 
 // API Types based on the Swagger schema
 interface User {
@@ -177,7 +178,7 @@ const fetchProjects = async (): Promise<ProjectDTO[]> => {
   const authToken = `testtoken:${userInfo?.email}`;
 
   try {
-    const response = await fetch('http://localhost:8080/project/getall', {
+    const response = await fetch(`${API_BASE_URL}/project/getall`, {
       method: 'GET',
       headers: {
         'hippo-api-version': '1.0.0',
@@ -247,7 +248,7 @@ const fetchProjects = async (): Promise<ProjectDTO[]> => {
       setApiError(null)
 
       const response = await fetch(
-        `http://localhost:8080/project/projectdelete/${project.projectId}`,
+        `${API_BASE_URL}/project/projectdelete/${project.projectId}`,
         {
           method: 'DELETE',
           headers: {

@@ -6,6 +6,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
+import { API_BASE_URL } from '@/lib/api'
 import { useNavigation } from '@/hooks/useNavigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import {
@@ -247,7 +248,7 @@ const handleApiError = async (response: Response, userToken: string, retryFn: ()
   
   try {
     const makeRequest = async (token: string) => {
-      return await fetch(`http://localhost:8080/users/cohort/${encodeURIComponent(cohortId)}`, {
+      return await fetch(`${API_BASE_URL}/users/cohort/${encodeURIComponent(cohortId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
@@ -293,7 +294,7 @@ const fetchCohortsByProject = async (projectId: string): Promise<Cohort[]> => {
   
   try {
     const makeRequest = async (token: string) => {
-      return await fetch(`http://localhost:8080/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
+      return await fetch(`${API_BASE_URL}/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',

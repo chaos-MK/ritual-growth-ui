@@ -8,6 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/ou
 import Link from 'next/link'
 import { useNavigation } from '@/hooks/useNavigation'
 import { useTranslation } from '@/hooks/useTranslation'
+import { API_BASE_URL } from '@/lib/api'
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -175,7 +176,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
     }
     
     try {
-      const response = await fetch(`http://localhost:8080/users/${encodeURIComponent(userId)}`, {
+      const response = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(userId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
@@ -189,7 +190,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
           const tokenRefreshed = await validateToken()
           if (tokenRefreshed) {
             const newToken = getCookie('userToken')
-            const retryResponse = await fetch(`http://localhost:8080/users/${encodeURIComponent(userId)}`, {
+            const retryResponse = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(userId)}`, {
               method: 'GET',
               headers: {
                 'hippo-api-version': '1.0.0',
@@ -248,7 +249,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
     }
     
     try {
-      const response = await fetch(`http://localhost:8080/session/user/${encodeURIComponent(userId)}`, {
+      const response = await fetch(`${API_BASE_URL}/session/user/${encodeURIComponent(userId)}`, {
         method: 'GET',
         headers: {
           'hippo-api-version': '1.0.0',
@@ -262,7 +263,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
           const tokenRefreshed = await validateToken()
           if (tokenRefreshed) {
             const newToken = getCookie('userToken')
-            const retryResponse = await fetch(`http://localhost:8080/session/user/${encodeURIComponent(userId)}`, {
+            const retryResponse = await fetch(`${API_BASE_URL}/session/user/${encodeURIComponent(userId)}`, {
               method: 'GET',
               headers: {
                 'hippo-api-version': '1.0.0',
