@@ -35,7 +35,9 @@ variables:
 gitleaks:
   stage: secrets
   tags: [docker-ci]
-  image: zricethezav/gitleaks:latest
+  image:
+    name: zricethezav/gitleaks:latest
+    entrypoint: [""]
   script:
     - gitleaks detect --source . --verbose --redact --exit-code 1
 
