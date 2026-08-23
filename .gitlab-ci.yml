@@ -210,7 +210,9 @@ grype-scan:
 push-image:
   stage: push
   tags: [docker-ci]
-  image: quay.io/skopeo/stable
+  image:
+    name: quay.io/skopeo/stable
+    entrypoint: [""]
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   needs:
