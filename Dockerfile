@@ -44,6 +44,10 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
+RUN apk update && apk upgrade --no-cache \
+    && npm install -g npm@latest \
+    && npm cache clean --force
+
 RUN addgroup --system --gid 10001 app \
     && adduser --system --uid 10001 --ingroup app app
 
