@@ -13,7 +13,7 @@ security issues that automated scanners cannot detect.
 
 ---
 
-# Finding #001 — Firebase Web Configuration Hardcoded in Frontend Source Code
+# Finding #001 — Firebase Web Configuration Hardcoded in Frontend Source Code (Old active secret exposed)
 
 **Project:** `ritual-growth-ui`  
 **Component:** Next.js / Firebase Authentication frontend  
@@ -263,11 +263,76 @@ This preserves the security control: genuine secrets present in the current sour
 **Preventive control:** Gitleaks continues to scan the current source tree in CI.
 
 
+## Finding #003 — (2 critical 5 high 1 moderate) Vulnerable npm Dependencies in Ritual Growth UI
+
+**Date:** 2026-08-23
+**Tool:** npm audit
+**Severity:** High / Critical
+**Status:** FIXED
+
+### Risk
+Multiple production npm dependencies contained known security vulnerabilities,
+including vulnerabilities affecting Next.js, @grpc/grpc-js, protobufjs,
+nanoid, websocket-driver, PostCSS, and sharp.
+
+Potential impact included:
+- Remote code execution
+- Denial of service
+- XSS
+- Arbitrary file disclosure
+- Resource exhaustion
+- Prototype/code injection
+
+### What I Did
+- Upgraded Next.js from 15.3.3 to 15.5.23.
+- Updated eslint-config-next to 15.5.23.
+- Upgraded @grpc/grpc-js to 1.14.4.
+- Upgraded protobufjs to 8.7.2.
+- Upgraded nanoid to 6.0.1.
+- Upgraded websocket-driver to 0.7.5.
+- Added npm overrides for vulnerable transitive dependencies:
+  - postcss: 8.5.26
+  - sharp: 0.35.3
+- Removed and regenerated node_modules/package-lock resolution.
+
+### What Changed
+package.json:
+- next: 15.3.3 → 15.5.23
+- @grpc/grpc-js updated
+- protobufjs updated
+- nanoid updated
+- websocket-driver updated
+- eslint-config-next: 15.3.3 → 15.5.23
+- Added dependency overrides for PostCSS and sharp.
+
+package-lock.json:
+- Regenerated to reflect the updated dependency tree and
+  patched transitive dependency versions.
+
+### Verification
+npm ls next eslint-config-next
+→ next@15.5.23
+→ eslint-config-next@15.5.23
+
+npm audit --omit=dev --audit
+→ found 0 vulnerabilities
+
+npm ls next postcss sharp
+→ next@15.5.23
+→ postcss@8.5.26
+→ sharp@0.35.3
+
+**Status:** FIXED / VERIFIED
+
+The production dependency audit now reports zero vulnerabilities.
+
+
 
 
 ## Summary
 
 | Finding | CVEs / Issues Covered | Tool | Status |
 | ------- | ---------------------- | ---- | ------ |
-| #001 | **Firebase Web configuration hardcoded in frontend source code** | Manual Review + Gitleaks | ✅ Fixed |
+| #001 | **Firebase Web configuration hardcoded in frontend source code** — Old active secret exposed | Manual Review + Gitleaks | ✅ Fixed |
 | #002 | **Gitleaks false positive: historical Firebase client API key** no active secret exposed | Gitleaks | ✅ Resolved |
+| #003 | **8 Critical/High CVEs** — Vulnerable npm Dependencies | npm audit | ✅ Fixed |
