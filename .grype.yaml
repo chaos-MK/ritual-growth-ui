@@ -1,0 +1,13 @@
+ignore:
+  - vulnerability: CVE-2026-14456
+    reason: >
+      Not listed in Alpine's official security tracker (security.alpinelinux.org/srcpkg/openssl)
+      as of 2026-08-23, despite libssl3/libcrypto3 already being at the latest available Alpine
+      package version (3.5.7-r0). Likely a version-matching false positive between NVD and
+      Alpine's backport versioning. Re-check when Alpine ships a newer openssl package.
+  - vulnerability: CVE-2025-60876
+    reason: >
+      BusyBox wget CRLF/header-injection vulnerability. No upstream fix exists yet (confirmed
+      via BusyBox mailing list, Debian security tracker: postponed). This image's runtime
+      entrypoint is "node server.js" (Next.js standalone) and does not invoke BusyBox wget,
+      so the vulnerable code path is not reachable. Re-check when a fix lands upstream.

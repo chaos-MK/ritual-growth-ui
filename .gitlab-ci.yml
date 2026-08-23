@@ -202,7 +202,7 @@ grype-scan:
     - apk add --no-cache curl
     - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
   script:
-    - grype docker-archive:image.tar --fail-on high
+    - grype docker-archive:image.tar --fail-on high --config .grype.yaml
 
 # ---------------------------------------------------------------------------
 # PUSH
