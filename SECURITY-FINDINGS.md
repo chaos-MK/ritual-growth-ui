@@ -662,6 +662,95 @@ to confirm the container-level scan is clear.
 **Status:** FIXED
 
 
+## Finding #007 — Unfixed OS-Level CVEs in Alpine Base Image (libssl3/libcrypto3, busybox)
+
+**Date:** 2026-08-23
+**Tool:** Grype
+**Severity:** High / Medium
+**Category:** Base Image / OS Package Vulnerabilities
+**Status:** ACCEPTED — Documented, Tracked for Re-check
+
+### Finding
+
+After resolving Findings #005 and #006, `grype-scan` (gated with
+`--fail-on high`) continued to fail on two OS-level packages in the
+`node:22-alpine` runtime image, despite `apk update && apk upgrade`
+already applying the latest available Alpine packages:
+
+| Package | Version | CVE | Severity |
+|---|---|---|---|
+| libcrypto3 | 3.5.7-r0 | CVE-2026-14456 | High |
+| libssl3 | 3.5.7-r0 | CVE-2026-14456 | High |
+| busybox / busybox-binsh / ssl_client | 1.37.0-r31 | CVE-2025-60876 | Medium |
+
+### Investigation
+
+**CVE-2026-14456 (libssl3/libcrypto3):** Alpine's own security tracker
+(`security.alpinelinux.org/srcpkg/openssl`) does not list this CVE as of
+2026-08-23, despite the installed package already being the latest
+Alpine has published. This is consistent with a known class of grype/NVD
+false positive caused by mismatches between upstream version numbers and
+Alpine's backport versioning scheme.
+
+Downgrading the package was considered and rejected: Alpine backports
+security fixes without bumping to upstream version numbers, so an older
+`libssl3`/`libcrypto3` build would reintroduce multiple already-patched
+CVEs while at best trading for one unconfirmed one — a net negative.
+
+**CVE-2025-60876 (busybox wget CRLF/header injection):** Confirmed via
+the BusyBox mailing list and the Debian security tracker (status:
+`postponed — revisit when fixed upstream`) that no fix currently exists
+upstream for any distribution. Alpine cannot ship a patch that does not
+yet exist.
+
+This project's runtime container entrypoint is `node server.js` (Next.js
+standalone build). BusyBox's `wget` is never invoked by the application
+at runtime, so the vulnerable code path is not reachable in this image.
+
+### Decision
+
+Both CVEs are accepted as unresolvable at this time and explicitly
+documented via a Grype ignore file, rather than silently suppressed or
+worked around by weakening the overall severity gate:
+
+```yaml
+# .grype.yaml
+ignore:
+  - vulnerability: CVE-2026-14456
+    reason: >
+      Not listed in Alpine's official security tracker as of 2026-08-23,
+      despite libssl3/libcrypto3 already being at the latest available
+      Alpine package version (3.5.7-r0). Likely a version-matching false
+      positive between NVD and Alpine's backport versioning. Re-check
+      when Alpine ships a newer openssl package.
+  - vulnerability: CVE-2025-60876
+    reason: >
+      BusyBox wget CRLF/header-injection vulnerability. No upstream fix
+      exists yet (confirmed via BusyBox mailing list, Debian security
+      tracker: postponed). This image's runtime entrypoint is
+      "node server.js" (Next.js standalone) and does not invoke BusyBox
+      wget, so the vulnerable code path is not reachable. Re-check when
+      a fix lands upstream.
+```
+
+```yaml
+grype-scan:
+  script:
+    - grype docker-archive:image.tar --fail-on high --config .grype.yaml
+```
+
+Only these two specific CVE IDs are ignored — the `--fail-on high` gate
+remains fully active for any other current or future high/critical
+finding.
+
+### Validation
+
+`grype-scan` passes with the ignore file applied; no other findings were
+suppressed.
+
+**Status:** ACCEPTED — DOCUMENTED, TRACKED FOR RE-CHECK
+
+
 
 
 
@@ -675,3 +764,4 @@ to confirm the container-level scan is clear.
 | #004 | **Hadolint DL3064** — Build-Time Configuration in Docker ARG/ENV | Hadolint | ✅ ACCEPTED / Documented |
 | #005 | **Podman exec-hijack 409 error** — CI jobs failing on Anchore images | GitLab Runner / Podman | ✅ Fixed |
 | #006 | **1 Critical / 8 High CVEs** — Node dependency vulnerabilities (image scan) | Trivy / Grype | ✅ Fixed |
+| #007 | **2 unfixed OS-level CVEs** — openssl (likely false positive), busybox wget (no upstream fix, unused component) | Grype | ✅ Accepted / Documented |
