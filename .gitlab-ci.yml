@@ -47,9 +47,14 @@ gitleaks:
 semgrep:
   stage: sast
   tags: [docker-ci]
-  image: semgrep/semgrep:latest
+  image:
+    name: semgrep/semgrep:latest
+    entrypoint: [""]
   script:
-    - semgrep scan --config p/typescript --config p/react --config p/javascript --error --no-git-ignore --verbose
+    - mkdir -p /src
+    - cp -a . /src/
+    - cd /src
+    - semgrep scan --config p/typescript --config p/react --config p/javascript --error
 
 # ---------------------------------------------------------------------------
 # DEPENDENCY SCANNING
