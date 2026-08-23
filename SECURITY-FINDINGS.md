@@ -517,6 +517,151 @@ The warning should **not** be globally disabled for the Dockerfile without docum
 **Status:** ACCEPTED — DOCUMENTED DESIGN
 
 
+## Finding #005 — Podman Docker-Compat API Exec Bug Causing CI Job Failures (Anchore Images)
+
+**Date:** 2026-08-23
+**Tool:** GitLab Runner / Podman (rootless)
+**Severity:** Low / Informational (CI reliability, not application security)
+**Category:** CI/CD Infrastructure
+**Status:** FIXED
+
+### Finding
+
+The `sbom` and `grype-scan` CI jobs consistently failed with:
+
+```text
+ERROR: Job failed (system failure): unable to upgrade to tcp, received 409 (exec.go:68:0s)
+```
+
+The failure occurred specifically when the job image was `anchore/syft:latest`
+or `anchore/grype:latest`. Other jobs using different images (e.g. `aquasec/trivy:latest`)
+were unaffected.
+
+### Investigation
+
+The `docker-ci` GitLab Runner is configured to use rootless Podman
+(`unix:///run/user/996/podman/podman.sock`) as a drop-in replacement for
+Docker via the Docker executor. This is a supported GitLab configuration,
+but Podman's Docker-compatibility API has a known bug (tracked upstream in
+multiple `containers/podman` and `gitlab-org/gitlab-runner` issues) where
+the `exec` hijack/TCP-upgrade used to attach to a container's stdio fails
+with HTTP 409 for certain container entrypoints/TTY handling.
+
+The Anchore-published images (`anchore/syft`, `anchore/grype`) triggered
+this bug consistently; Alpine-based images with the tools installed via
+the official install script did not.
+
+Ruled out during investigation:
+- Docker daemon / bridge network health (verified clean, not the cause).
+- Disk space and dangling containers (cleaned, not the cause).
+- Runner concurrency/config (`concurrent`, `FF_NETWORK_PER_BUILD` — not the cause).
+- Podman version (4.9.3, current Ubuntu 24.04 package — a factor but no
+  packaged fix was available at time of investigation).
+
+### Remediation
+
+The `sbom` and `grype-scan` jobs were changed from the Anchore-maintained
+images to `alpine:3.20`, installing Syft and Grype via their official
+install scripts, matching the pattern already used successfully in the
+backend project's pipeline:
+
+```yaml
+sbom:
+  stage: sbom
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache curl
+    - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+  script:
+    - syft docker-archive:image.tar -o cyclonedx-json=sbom.json
+
+grype-scan:
+  stage: image-scan
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache curl
+    - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+  script:
+    - grype docker-archive:image.tar --fail-on high
+```
+
+The `trivy-scan` job was left unchanged, as its image was never affected.
+
+### Validation
+
+Both jobs completed successfully post-change (no infrastructure failure),
+progressing to their actual scan output.
+
+**Status:** FIXED
+
+
+## Finding #006 — Critical/High CVEs in Node Dependencies Detected by Trivy & Grype (Container Image Scan)
+
+**Date:** 2026-08-23
+**Tool:** Trivy, Grype
+**Severity:** Critical / High
+**Category:** Dependency Vulnerabilities
+**Status:** FIXED
+
+### Finding
+
+Once the CI infrastructure issue in Finding #005 was resolved, `trivy-scan`
+and `grype-scan` ran against the built container image and reported:
+
+- **Trivy:** 1 Critical, 8 High (Node.js dependencies)
+- **Grype:** multiple High/Critical findings, failing the `--fail-on high` gate
+
+Affected packages (found in `node_modules` inside the built image):
+
+| Package | Installed | Vulnerability | Severity |
+|---|---|---|---|
+| tar | 7.5.11 | CVE-2026-59873 (gzip bomb DoS) | Critical |
+| tar | 7.5.11 | CVE-2026-59874, CVE-2026-73566 | High |
+| brace-expansion | 2.0.2 | CVE-2026-13149, CVE-2026-14257, CVE-2026-69152 | High |
+| picomatch | 4.0.3 | CVE-2026-33671 (ReDoS) | High |
+| ip-address | 10.1.0 | CVE-2026-69192 (SSRF via inconsistent parsing) | High |
+| sigstore | 3.1.0 | CVE-2026-48815 (unauthorized cert acceptance) | High |
+
+These were transitive dependencies pulled in via `@tailwindcss/oxide`,
+`eslint`/`typescript-eslint` tooling, and `npm`'s own bundled dependency tree.
+
+### Remediation
+
+Direct upgrades applied to `package.json`:
+
+```bash
+npm install tar@latest brace-expansion@latest picomatch@latest \
+  ip-address@latest sigstore@latest --save-exact
+npm audit fix
+```
+
+### What Changed
+
+`package.json` / `package-lock.json`:
+- tar: 7.5.11 → 7.5.22
+- brace-expansion: 2.0.2 → 5.0.9 (deduped across dependents)
+- picomatch: 4.0.3 → 4.0.5
+- ip-address: 10.1.0 → 10.5.0
+- sigstore: 3.1.0 → 5.0.0
+
+### Verification
+
+```bash
+npm audit
+```
+→ found 0 vulnerabilities
+
+```bash
+npm ls tar brace-expansion picomatch ip-address sigstore
+```
+→ confirmed patched versions resolved throughout the dependency tree.
+
+CI `trivy-scan` and `grype-scan` jobs re-run against the rebuilt image
+to confirm the container-level scan is clear.
+
+**Status:** FIXED
+
+
 
 
 
@@ -528,3 +673,5 @@ The warning should **not** be globally disabled for the Dockerfile without docum
 | #002 | **Gitleaks false positive: historical Firebase client API key** no active secret exposed | Gitleaks | ✅ Resolved |
 | #003 | **8 Critical/High CVEs** — Vulnerable npm Dependencies | npm audit | ✅ Fixed |
 | #004 | **Hadolint DL3064** — Build-Time Configuration in Docker ARG/ENV | Hadolint | ✅ ACCEPTED / Documented |
+| #005 | **Podman exec-hijack 409 error** — CI jobs failing on Anchore images | GitLab Runner / Podman | ✅ Fixed |
+| #006 | **1 Critical / 8 High CVEs** — Node dependency vulnerabilities (image scan) | Trivy / Grype | ✅ Fixed |
