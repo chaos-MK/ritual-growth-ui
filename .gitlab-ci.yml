@@ -165,7 +165,9 @@ hadolint:
 sbom:
   stage: sbom
   tags: [docker-ci]
-  image: anchore/syft:latest
+  image:
+    name: anchore/syft:latest
+    entrypoint: [""]
   needs:
     - container-build
   script:
@@ -181,19 +183,20 @@ sbom:
 trivy-scan:
   stage: image-scan
   tags: [docker-ci]
-  image: aquasec/trivy:latest
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
   needs:
     - container-build
   script:
-    - trivy image --input image.tar
-        --severity CRITICAL,HIGH
-        --exit-code 1
-        --timeout 15m
+    - trivy image --input image.tar --severity CRITICAL,HIGH --exit-code 1 --timeout 15m
 
 grype-scan:
   stage: image-scan
   tags: [docker-ci]
-  image: anchore/grype:latest
+  image:
+    name: anchore/grype:latest
+    entrypoint: [""]
   needs:
     - container-build
   script:

@@ -47,7 +47,7 @@ export default function HomePage() {
                 </p>
                 
                 <p className="text-lg text-gray-500 leading-relaxed max-w-xl">
-                  Enterprise growth refers to the process of expanding a company's operations, revenue, market share, or other key metrics over time. It involves strategic initiatives, operational improvements, and market opportunities to increase profitability and achieve sustainable success. 
+                  Enterprise growth refers to the process of expanding a company&apos;s operations, revenue, market share, or other key metrics over time. It involves strategic initiatives, operational improvements, and market opportunities to increase profitability and achieve sustainable success. 
                 </p>
               </div>
               

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+import { FirebaseError } from 'firebase/app'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -39,11 +40,12 @@ export default function LoginPage() {
       console.log('User authenticated successfully:', userData)
       
       router.push('/app/index')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Authentication error:', err)
       
       let errorMessage = 'Authentication failed. Please try again.'
       
+      if (err instanceof FirebaseError) {
       switch (err.code) {
         case 'auth/user-not-found':
           errorMessage = 'No user found with this email address.'
@@ -66,6 +68,7 @@ export default function LoginPage() {
         default:
           errorMessage = err.message || 'Authentication failed.'
       }
+    }
       
       setError(errorMessage)
     }
@@ -147,7 +150,7 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-8 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/continue" className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
               Create one now
             </Link>

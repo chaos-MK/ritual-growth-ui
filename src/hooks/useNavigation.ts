@@ -18,7 +18,7 @@ export interface NavigationNode {
   children?: NavigationNode[]
   metadata?: {
     count?: number
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 

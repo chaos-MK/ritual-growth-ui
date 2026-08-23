@@ -26,7 +26,7 @@ interface Session {
   status: string
   hasGraphs: boolean
   hasDashboard: boolean
-  stages: any[]
+  stages: unknown[]
 }
 
 // Types
@@ -326,43 +326,53 @@ const fetchCohortsByProject = async (projectId: string): Promise<Cohort[]> => {
 }
 
 
-  // Add this helper function to transform user array to cohort format
-  const transformUserArrayToCohort = (users: any[], cohortId: string): Cohort => {
-    // Map the backend user format to your frontend User interface
-    const mappedUsers: User[] = users.map(user => ({
-      id: user.userId,
-      apUid: user.userId.toString(),
-      email: user.userName + '@example.com',
-      fullName: user.userName,
-      creationTime: user.startDate,
-      statuses: [user.status],
-      privileges: [],
-      reactivationToken: '',
-      disabled: user.status !== 'ACTIVE',
-      displayName: user.userName,
-      superUser: false,
-      userContext: {
-        hasLiked: false,
-        isFollowing: false,
-        isInFavorites: false,
-        owns: false,
-        isOwnerBlocked: false,
-        isOwnerMuted: false,
-      },
-      sessions: user.sessions || []
-    }))
+    interface BackendCohortUser {
+  userId: number
+  userName: string
+  startDate: string
+  status: string
+  sessions?: Session[]
+  stages?: Stage[]
+}
 
-    return {
-      id: parseInt(cohortId),
-      cohortName: t('company.cohorts.name').toString() + `${cohortId}`,
-      startDate: users[0]?.startDate || new Date().toISOString(),
-      endDate: '',
-      version: '1.0',
-      project_id: parseInt(projectId),
-      users: mappedUsers,
-      stages: users[0]?.stages || []
-    }
+    const transformUserArrayToCohort = (
+  users: BackendCohortUser[],
+  cohortId: string
+): Cohort => {
+  const mappedUsers: User[] = users.map(user => ({
+    id: user.userId,
+    apUid: user.userId.toString(),
+    email: user.userName + '@example.com',
+    fullName: user.userName,
+    creationTime: user.startDate,
+    statuses: [user.status],
+    privileges: [],
+    reactivationToken: '',
+    disabled: user.status !== 'ACTIVE',
+    displayName: user.userName,
+    superUser: false,
+    userContext: {
+      hasLiked: false,
+      isFollowing: false,
+      isInFavorites: false,
+      owns: false,
+      isOwnerBlocked: false,
+      isOwnerMuted: false,
+    },
+    sessions: user.sessions || []
+  }))
+
+  return {
+    id: parseInt(cohortId),
+    cohortName: t('company.cohorts.name').toString() + `${cohortId}`,
+    startDate: users[0]?.startDate || new Date().toISOString(),
+    endDate: '',
+    version: '1.0',
+    project_id: parseInt(projectId),
+    users: mappedUsers,
+    stages: users[0]?.stages || []
   }
+}
 
   // Calculate stats from cohort data
   const calculateStats = (cohort: Cohort | null): Stats[] => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 interface Translations {
-  [key: string]: any;
+  [key: string]: string | Translations;
 }
 
 interface TranslationOptions {
@@ -57,10 +57,10 @@ export function useTranslation() {
 
   const t = (key: string, options?: TranslationOptions): string => {
     const keys = key.split('.');
-    let value: any = translations;
+    let value: string | Translations = translations;
     
     for (const k of keys) {
-      if (value && typeof value === 'object') {
+      if (typeof value === 'object' && value !== null) {
         value = value[k];
       } else {
         return key;

@@ -54,8 +54,8 @@ interface CohortStatistics {
   totalStages: number
   inactiveUsers: number
   activeUserPercentage: number
-  sessionSummaries: any[]
-  stageSummaries: any[]
+  sessionSummaries: unknown[]
+stageSummaries: unknown[]
 }
 interface Cohort {
   id: number

@@ -114,18 +114,18 @@ export default function RegisterPage() {
       }
       router.push('/login')
       
-    } catch (err: any) {
-      console.error('Registration error:', err)
-      
-      if (err.code === 'auth/email-already-in-use') {
-        setError('An account with this email already exists')
-      } else if (err.code === 'auth/weak-password') {
-        setError('Password is too weak')
-      } else if (err.code === 'auth/invalid-email') {
-        setError('Invalid email address')
-      } else {
-        setError(err.message || 'Registration failed. Please try again.')
-      }
+    } catch (err: unknown) {
+    console.error('Registration error:', err)
+
+    const errorCode = err instanceof Error ? err.message : ''
+
+    if (errorCode.includes('auth/email-already-in-use')) {
+      setError('An account with this email already exists')
+    } else if (errorCode.includes('auth/weak-password')) {
+      setError('Password is too weak')
+    } else {
+      setError('Registration failed. Please try again.')
+    }
     } finally {
       setLoading(false)
     }

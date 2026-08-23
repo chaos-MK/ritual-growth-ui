@@ -307,41 +307,111 @@ export default function UserSummary({ params }: UserSummaryProps) {
   }
 
   // Transform user data from backend format to frontend format
-  const transformUserData = (userData: any): User => {
-    return {
-      id: userData.userId || userData.id,
-      apUid: userData.userId?.toString() || userData.id?.toString(),
-      email: userData.email || userData.userName + '@example.com',
-      fullName: userData.fullName || userData.userName,
-      creationTime: userData.creationTime || userData.startDate,
-      statuses: userData.statuses || [userData.status],
-      privileges: userData.privileges || [],
-      reactivationToken: userData.reactivationToken || '',
-      disabled: userData.disabled || userData.status !== 'ACTIVE',
-      displayName: userData.displayName || userData.userName,
-    }
+interface BackendUserData {
+  userId?: number
+  id?: number
+  email?: string
+  userName?: string
+  fullName?: string
+  creationTime?: string
+  startDate?: string
+  statuses?: string[]
+  status?: string
+  privileges?: Array<{
+    id: number
+    name: string
+  }>
+  reactivationToken?: string
+  disabled?: boolean
+  displayName?: string
+}
+
+const transformUserData = (userData: BackendUserData): User => {
+  const userId = userData.userId ?? userData.id ?? 0
+  const userName = userData.userName ?? ''
+  const fullName = userData.fullName ?? userName
+  const creationTime =
+    userData.creationTime ?? userData.startDate ?? ''
+
+  const statuses =
+    userData.statuses ??
+    (userData.status ? [userData.status] : [])
+
+  const privileges = userData.privileges ?? []
+
+  return {
+    id: userId,
+    apUid: userId.toString(),
+    email: userData.email ?? `${userName}@example.com`,
+    fullName,
+    creationTime,
+    statuses,
+    privileges,
+    reactivationToken: userData.reactivationToken ?? '',
+    disabled: userData.disabled ?? userData.status !== 'ACTIVE',
+    displayName: userData.displayName ?? userName,
   }
+}
 
   // Transform sessions data from backend format to frontend format
-  const transformSessionsData = (sessionsData: any[]): Session[] => {
-    return sessionsData.map(session => ({
-      id: session.sessionId || session.id,
-      startTime: session.startDate 
+interface BackendSessionData {
+  sessionId?: number
+  id?: number
+  startDate?: string
+  startTime?: string
+  createdAt?: string
+  duration?: string
+  endTime?: string
+  pageViews?: number
+  views?: number
+  bounce?: boolean
+  bounced?: boolean
+}
+
+const transformSessionsData = (
+  sessionsData: BackendSessionData[]
+): Session[] => {
+  return sessionsData.map((session, index) => {
+    const sessionId = session.sessionId ?? session.id ?? index
+
+    const startTime =
+      session.startDate
         ? `${session.startDate}T00:00:00Z`
         : session.startTime
           ? `${session.startTime}T00:00:00Z`
           : session.createdAt
             ? `${session.createdAt}T00:00:00Z`
-            : new Date().toISOString(),
-      duration: session.duration || calculateDuration(
-        session.startDate || session.startTime || session.createdAt,
+            : new Date().toISOString()
+
+    const duration = session.duration ??
+      calculateDuration(
+        session.startDate ??
+          session.startTime ??
+          session.createdAt ??
+          startTime,
         session.endTime
-      ),
-      pageViews: session.pageViews || session.views || Math.floor(Math.random() * 10) + 1,
-      bounce: session.bounce || session.bounced || false,
+      )
+
+    const pageViews =
+      session.pageViews ??
+      session.views ??
+      1
+
+    const bounce =
+      session.bounce ??
+      session.bounced ??
+      false
+
+    return {
+      id: sessionId,
+      startTime,
+      duration,
+      pageViews,
+      bounce,
       endTime: session.endTime,
-    }))
-  }
+    }
+  })
+}
 
   // Calculate stats from user and sessions data
   const calculateStats = (user: User | null, sessions: Session[]): Stats[] => {

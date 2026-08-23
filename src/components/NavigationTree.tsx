@@ -459,41 +459,56 @@ export default function NavigationTree({ className = '', onNodeClick, userEmail 
   }, [handleNodeClick, onNodeClick])
 
   useEffect(() => {
-    if (isLoading) {
-      // Check network speed
-      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
-      const isSlowNetwork = connection && ['slow-2g', '2g'].includes(connection.effectiveType)
-
-      // Clear any existing timeout
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current)
-      }
-
-      // Set a debounce timeout to show skeleton only if loading persists
-      loadingTimeoutRef.current = setTimeout(() => {
-        if (isLoading) {
-          // For slow networks, add additional delay
-          const delay = isSlowNetwork ? 2000 : 500
-          loadingTimeoutRef.current = setTimeout(() => {
-            setShowSkeleton(true)
-          }, delay)
+  if (isLoading) {
+    // Check network speed
+    const connection = (
+      navigator as Navigator & {
+        connection?: {
+          effectiveType?: string
         }
-      }, 100) // Initial debounce to catch quick load completions
-    } else {
-      // Clear skeleton and timeout when not loading
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current)
       }
-      setShowSkeleton(false)
+    ).connection
+
+    const effectiveType = connection?.effectiveType
+
+    const isSlowNetwork =
+      effectiveType !== undefined &&
+      ['slow-2g', '2g'].includes(effectiveType)
+
+    // Clear any existing timeout
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
     }
 
-    // Cleanup on unmount or isLoading change
-    return () => {
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current)
+    // Set a debounce timeout to show skeleton only if loading persists
+    loadingTimeoutRef.current = setTimeout(() => {
+      if (isLoading) {
+        // For slow networks, add additional delay
+        const delay = isSlowNetwork ? 500 : 300
+
+        setTimeout(() => {
+          if (isLoading) {
+            setShowSkeleton(true)
+          }
+        }, delay)
       }
+    }, 300)
+  } else {
+    setShowSkeleton(false)
+
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
+      loadingTimeoutRef.current = null
     }
-  }, [isLoading])
+  }
+
+  return () => {
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
+      loadingTimeoutRef.current = null
+    }
+  }
+}, [isLoading])
 
   if (showSkeleton && isLoading) {
     return (

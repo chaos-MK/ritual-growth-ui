@@ -33,10 +33,10 @@ export interface NavigationTreeNode {
     count?: number
     status?: string
     lastUpdated?: string
-    projectsData?: any[] // For company level - array of all projects
-    projectData?: any    // For project level - single project data
-    cohortData?: any     // For cohort level - single cohort data
-    userData?: any
+    projectsData?: unknown[]
+    projectData?: unknown
+    cohortData?: unknown
+    userData?: unknown
   }
 }
 

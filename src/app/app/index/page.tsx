@@ -324,16 +324,34 @@ useEffect(() => {
 }, [userInfo]);
 
   // Debounce loading indicator display
-  useEffect(() => {
-    if (apiLoading) {
-      // Check network speed
-      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
-      const isSlowNetwork = connection && ['slow-2g', '2g'].includes(connection.effectiveType)
+useEffect(() => {
+  if (apiLoading) {
 
-      // Clear any existing timeout
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current)
+    // Check network speed
+    const nav = navigator as Navigator & {
+      connection?: {
+        effectiveType?: string
       }
+      mozConnection?: {
+        effectiveType?: string
+      }
+      webkitConnection?: {
+        effectiveType?: string
+      }
+    }
+
+    const connection =
+      nav.connection ||
+      nav.mozConnection ||
+      nav.webkitConnection
+
+    const isSlowNetwork =
+      connection && ['slow-2g', '2g'].includes(connection.effectiveType ?? '')
+
+    // Clear any existing timeout
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
+    }
 
       // Set a debounce timeout to show loading indicator only if loading persists
       loadingTimeoutRef.current = setTimeout(() => {
