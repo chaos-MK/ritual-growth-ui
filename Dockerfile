@@ -45,8 +45,14 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 RUN apk update && apk upgrade --no-cache \
-    && npm install -g npm@latest \
-    && npm cache clean --force
+    && rm -rf /usr/local/lib/node_modules/npm \
+              /usr/local/lib/node_modules/corepack \
+              /opt/yarn-v1.22.22 \
+              /usr/local/bin/npm \
+              /usr/local/bin/npx \
+              /usr/local/bin/corepack \
+              /usr/local/bin/yarn \
+              /usr/local/bin/yarnpkg
 
 RUN addgroup --system --gid 10001 app \
     && adduser --system --uid 10001 --ingroup app app
