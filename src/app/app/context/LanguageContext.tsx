@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
 interface Translations {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface LanguageContextType {
@@ -85,17 +85,20 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     if (!key) return key
     
     const keys = key.split('.')
-    let value: any = translations
+    let value: unknown = translations
     
     for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k]
+      if (
+        value !== null &&
+        typeof value === 'object' &&
+        k in value
+      ) {
+        value = (value as Record<string, unknown>)[k]
       } else {
-        // Return key if translation not found
         console.warn(`Translation key "${key}" not found for locale "${locale}"`)
         return key
       }
-    }
+  }
     
     return typeof value === 'string' ? value : key
   }

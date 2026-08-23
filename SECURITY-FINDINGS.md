@@ -13,7 +13,7 @@ security issues that automated scanners cannot detect.
 
 ---
 
-# Finding #001 — Firebase Web Configuration Hardcoded in Frontend Source Code (Old active secret exposed)
+# Finding #001 — Firebase Web Configuration Hardcoded in Frontend Source Code
 
 **Project:** `ritual-growth-ui`  
 **Component:** Next.js / Firebase Authentication frontend  
@@ -328,11 +328,203 @@ The production dependency audit now reports zero vulnerabilities.
 
 
 
+## Finding #004 — Hadolint DL3064: Build-Time Configuration in Docker ARG/ENV
+
+**Date:** 2026-08-23
+**Tool:** Hadolint
+**Rule:** DL3064
+**Severity:** Low / Informational
+**Category:** Secrets & Configuration Management
+**Status:** Accepted — Documented Design
+
+### Finding
+
+Hadolint reported `DL3064` warnings in the frontend `Dockerfile`:
+
+```text
+Dockerfile:16 DL3064 warning:
+Potentially sensitive data should not be used in the `ARG` or `ENV` commands
+
+Dockerfile:24 DL3064 warning:
+Potentially sensitive data should not be used in the `ARG` or `ENV` commands
+```
+
+The affected instructions are:
+
+```dockerfile
+ARG NEXT_PUBLIC_FIREBASE_API_KEY
+```
+
+and:
+
+```dockerfile
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+```
+
+The Dockerfile also defines the remaining Firebase `NEXT_PUBLIC_*` build arguments and environment variables required by the Next.js production build.
+
+### Investigation
+
+The frontend requires the following configuration during the Next.js build:
+
+```text
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+NEXT_PUBLIC_API_BASE_URL
+```
+
+These values are supplied through GitLab CI/CD variables:
+
+```yaml
+--build-arg NEXT_PUBLIC_API_BASE_URL="$NEXT_PUBLIC_API_BASE_URL"
+--build-arg NEXT_PUBLIC_FIREBASE_API_KEY="$NEXT_PUBLIC_FIREBASE_API_KEY"
+--build-arg NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"
+--build-arg NEXT_PUBLIC_FIREBASE_PROJECT_ID="$NEXT_PUBLIC_FIREBASE_PROJECT_ID"
+--build-arg NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="$NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"
+--build-arg NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="$NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"
+--build-arg NEXT_PUBLIC_FIREBASE_APP_ID="$NEXT_PUBLIC_FIREBASE_APP_ID"
+```
+
+The actual values are **not stored in the repository**.
+
+For local development, the configuration is supplied through `.env.local`, which is explicitly ignored by Git:
+
+```bash
+git check-ignore -v .env.local
+```
+
+Result:
+
+```text
+.gitignore:42:.env.local    .env.local
+```
+
+The repository also contains no tracked environment files:
+
+```bash
+git ls-files | grep -E '(^|/)\.env'
+```
+
+Result:
+
+```text
+(no output)
+```
+
+### Firebase Configuration Assessment
+
+The `NEXT_PUBLIC_FIREBASE_*` values are Firebase Web client configuration.
+
+They are intentionally required by the browser-side Firebase SDK and are ultimately available to the client application.
+
+They are therefore **not equivalent to Firebase Admin credentials or other backend secrets**, such as:
+
+* Firebase service-account private keys
+* Database passwords
+* Vault tokens
+* API signing keys
+* Private cryptographic keys
+
+The Firebase Web API key is not treated as a backend secret.
+
+The security improvement comes from separating configuration from source code and preventing environment-specific values from being committed to Git.
+
+### API Base URL Assessment
+
+`NEXT_PUBLIC_API_BASE_URL` is also application configuration rather than a credential.
+
+It identifies the frontend's backend API endpoint and does not provide authentication or authorization by itself.
+
+The value therefore does not represent a secret merely because it is passed through a Docker `ENV` instruction.
+
+### Why Hadolint Reports DL3064
+
+Hadolint cannot determine whether a particular value is actually a secret.
+
+The rule warns about `ARG` and `ENV` because these Docker mechanisms can expose sensitive values through build metadata, image history, or runtime configuration when they are used for genuine secrets.
+
+This is an important warning for real credentials.
+
+In this project, however, the affected values are intentionally build-time client configuration and are not backend credentials.
+
+### Risk Assessment
+
+The Hadolint warning does **not** indicate that a Firebase Admin credential or database password has been embedded into the frontend image.
+
+The primary risks are configuration-management concerns rather than direct credential compromise:
+
+* Configuration could become coupled to a specific environment if hardcoded.
+* Genuine secrets must not be introduced into the same `ARG`/`ENV` mechanism.
+* Docker build arguments and environment variables should not be used for backend credentials.
+
+These risks are mitigated by keeping actual secrets outside the frontend source code and CI configuration files.
+
+### Controls
+
+The following controls are in place:
+
+* Firebase Web configuration is loaded through `NEXT_PUBLIC_FIREBASE_*` environment variables.
+* Firebase CI/CD values are stored as GitLab CI/CD variables rather than committed to Git.
+* GitLab variables are configured as **Protected, Masked, and Hidden**.
+* `.env.local` is excluded from version control.
+* Gitleaks scans the current source tree in CI.
+* Backend Firebase Admin credentials remain separate from frontend configuration.
+* Backend credentials are stored in Vault and are never passed to the frontend build.
+* The Dockerfile does not contain the actual Firebase configuration values.
+
+### Validation
+
+The frontend production build was successfully tested after introducing the environment-based configuration:
+
+```bash
+npm run build
+```
+
+Result:
+
+```text
+✓ Compiled successfully
+✓ Checking validity of types
+✓ Collecting page data
+✓ Generating static pages
+✓ Collecting build traces
+✓ Finalizing page optimization
+```
+
+The application successfully completed the Next.js production build.
+
+### Decision
+
+`DL3064` is **accepted for the affected frontend configuration**.
+
+The Hadolint warning is considered a **documented false positive/accepted trade-off for these specific values**, because:
+
+1. The Firebase values are client-side configuration.
+2. The API base URL is non-secret application configuration.
+3. No backend credentials are passed through these variables.
+4. The actual values are stored outside the repository.
+5. The configuration is required during the Next.js build.
+6. Genuine backend secrets remain isolated in Vault.
+
+Hadolint remains enabled in CI because the rule is valuable for detecting future misuse of `ARG` or `ENV` with genuine secrets.
+
+The warning should **not** be globally disabled for the Dockerfile without documenting the reason.
+
+**Status:** ACCEPTED — DOCUMENTED DESIGN
+
+
+
+
 
 ## Summary
 
 | Finding | CVEs / Issues Covered | Tool | Status |
 | ------- | ---------------------- | ---- | ------ |
-| #001 | **Firebase Web configuration hardcoded in frontend source code** — Old active secret exposed | Manual Review + Gitleaks | ✅ Fixed |
+| #001 | **Firebase Web configuration hardcoded in frontend source code** | Manual Review + Gitleaks | ✅ Fixed |
 | #002 | **Gitleaks false positive: historical Firebase client API key** no active secret exposed | Gitleaks | ✅ Resolved |
 | #003 | **8 Critical/High CVEs** — Vulnerable npm Dependencies | npm audit | ✅ Fixed |
+| #004 | **Hadolint DL3064** — Build-Time Configuration in Docker ARG/ENV | Hadolint | ✅ ACCEPTED / Documented |
