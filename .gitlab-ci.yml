@@ -49,7 +49,7 @@ semgrep:
   tags: [docker-ci]
   image: semgrep/semgrep:latest
   script:
-    - semgrep scan --config p/typescript --config p/react --config p/javascript --error
+    - semgrep scan --config p/typescript --config p/react --config p/javascript --error --no-git-ignore --verbose
 
 # ---------------------------------------------------------------------------
 # DEPENDENCY SCANNING
