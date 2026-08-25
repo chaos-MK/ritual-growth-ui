@@ -24,7 +24,6 @@ import {
   ChevronRightIcon,
 } from '@heroicons/react/24/outline'
 import { ComponentType } from 'react'
-import { useBreadcrumbs } from '@/app/stores/navigationStore'
 import {
   useDropdowns,
   useTheme,
@@ -46,12 +45,6 @@ interface MenuItem {
   onClick?: () => void
 }
 
-interface UserInfo {
-  token: string
-  email: string
-  userId: string
-  displayName: string
-}
 
 interface Language {
   code: string
@@ -65,8 +58,6 @@ export default function Navigation({ children }: NavigationProps) {
    const pathname = usePathname()
   const { t, locale, changeLanguage } = useTranslation()
   const [renderKey, setRenderKey] = useState(0)
-
-  const breadcrumbs = useBreadcrumbs()
  
 
   const {
@@ -148,10 +139,6 @@ export default function Navigation({ children }: NavigationProps) {
     } else {
       router.replace(pathname)
     }
-  }
-
-  const getCurrentLanguage = () => {
-    return languages.find(lang => lang.code === locale) || languages[0]
   }
 
   useEffect(() => {

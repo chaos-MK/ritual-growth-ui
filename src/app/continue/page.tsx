@@ -2,9 +2,6 @@
 import Link from 'next/link'
 
 export default function ContinuePage() {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">

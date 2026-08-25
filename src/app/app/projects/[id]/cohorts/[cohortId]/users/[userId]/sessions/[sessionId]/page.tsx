@@ -1,4 +1,3 @@
-import Navigation from '@/components/Navigation'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 
 const stats = [
@@ -16,16 +15,9 @@ const pages = [
 ]
 
 export default async function SessionSummary({ params }: { params: Promise<{ id: string; cohortId: string; userId: string; sessionId: string }> }) {
-  const { id: projectId, cohortId, userId, sessionId } = await params
+  const { sessionId } = await params
   const session = { startTime: '2024-03-15 10:30:00', device: 'Desktop' } // This would come from your API
 
-  const breadcrumbs = [
-    { name: 'Company Summary', href: '/app/index' },
-    { name: 'Project Summary', href: `/app/projects/${projectId}` },
-    { name: 'Cohort Summary', href: `/app/projects/${projectId}/cohorts/${cohortId}` },
-    { name: 'User Summary', href: `/app/projects/${projectId}/cohorts/${cohortId}/users/${userId}` },
-    { name: 'Session Summary', href: `/app/projects/${projectId}/cohorts/${cohortId}/users/${userId}/sessions/${sessionId}` }
-  ]
 
   return (
       <div className="space-y-6">
