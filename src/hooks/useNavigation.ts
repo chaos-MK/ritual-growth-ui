@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useCallback, useMemo, useEffect } from 'react'
 import { useRef } from 'react'
 import { API_BASE_URL } from '@/lib/api'
+import { auth } from '@/lib/firebase'
 
 // Navigation node type
 export interface NavigationNode {
@@ -119,11 +120,17 @@ const useNavigationStore = create<NavigationState>((set, get) => ({
   
   setProjectsListExpanded: (expanded) => set({ projectsListExpanded: expanded }),
   
-  loadNavigationData: async (userEmail: string) => {
+  loadNavigationData: async () => {
     set({ isLoading: true })
     
     try {
-      const authToken = `testtoken:${userEmail}`
+      const currentUser = auth.currentUser
+
+      if (!currentUser) {
+        throw new Error('Firebase user is not authenticated')
+      }
+
+      const authToken = await currentUser.getIdToken()
       
       const response = await fetch(`${API_BASE_URL}/project/getall`, {
         method: 'GET',
@@ -201,7 +208,6 @@ export function useNavigation() {
     setActiveNode,
     toggleExpansion,
     setNodeLoading,
-    setLoading,
     setProjectsListExpanded,
     loadNavigationData
   } = useNavigationStore()

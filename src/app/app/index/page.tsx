@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useNavigation } from '@/hooks/useNavigation';
@@ -11,59 +11,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { API_BASE_URL } from '@/lib/api'
 
 // API Types based on the Swagger schema
-interface User {
-  id: number
-  apUid: string
-  email: string
-  fullName: string
-  creationTime: string
-  statuses: string[]
-  privileges: Array<{ id: number; name: string }>
-  reactivationToken: string
-  disabled: boolean
-  displayName: string
-  superUser: boolean
-  userContext: {
-    hasLiked: boolean
-    isFollowing: boolean
-    isInFavorites: boolean
-    owns: boolean
-    isOwnerBlocked: boolean
-    isOwnerMuted: boolean
-  }
-}
 
-interface Stage {
-  id: number
-  type: string
-  state: string
-  stageStats: {
-    id: number
-    cohortID: number
-    peopleEntered: number
-    peopleInactive: number
-    peopleExit: number
-    overall: number
-  }
-}
 
-interface Cohort {
-  id: number
-  cohortName: string
-  startDate: string
-  endDate: string
-  version: string
-  project_id: number
-  users: User[]
-  stages: Stage[]
-}
 
-interface Project {
-  id: string
-  projectName: string
-  projectWebsite: string
-  cohort: Cohort[]
-}
 
 interface UserInfo {
   token: string
@@ -103,7 +53,6 @@ export default function CompanySummary() {
   const { t } = useTranslation();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [projects, setProjects] = useState<ProjectDTO[]>([]);
   const [stats, setStats] = useState<Stats[]>([]);
   const [apiLoading, setApiLoading] = useState(false);
@@ -175,7 +124,13 @@ const fetchProjects = async (): Promise<ProjectDTO[]> => {
   setApiLoading(true);
   setApiError(null);
 
-  const authToken = `testtoken:${userInfo?.email}`;
+  const currentUser = auth.currentUser
+
+  if (!currentUser) {
+    throw new Error('Firebase user is not authenticated')
+  }
+
+  const authToken = await currentUser.getIdToken()
 
   try {
     const response = await fetch(`${API_BASE_URL}/project/getall`, {
@@ -241,7 +196,15 @@ const fetchProjects = async (): Promise<ProjectDTO[]> => {
       return
     }
 
-    const authToken = `testtoken:${userInfo.email}`
+    const currentUser = auth.currentUser
+
+    if (!currentUser) {
+      console.error('Firebase user is not authenticated')
+      alert('Error: Firebase authentication required')
+      return
+    }
+
+    const authToken = await currentUser.getIdToken()
 
     try {
       setApiLoading(true)

@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState, use, useRef } from 'react'
+import { useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { signOut, onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
@@ -11,7 +11,6 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { API_BASE_URL } from '@/lib/api'
 import {
   Breadcrumb,
-  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -73,13 +72,13 @@ export default function UserSummary({ params }: UserSummaryProps) {
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const { loadNavigationData, breadcrumbs } = useNavigation()
-  const { t, locale, changeLanguage } = useTranslation()
+  const { t, locale } = useTranslation()
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [debouncedLoading, setDebouncedLoading] = useState(false)
   const [hasInitialData, setHasInitialData] = useState(false)
 
   // Fallback breadcrumbs
-  const [fallbackBreadcrumbs, setFallbackBreadcrumbs] = useState([
+  const [fallbackBreadcrumbs] = useState([
     { name: 'Projects', href: '/app/projects' },
     { name: 'Project', href: `/app/projects/${projectId}` },
     { name: 'Cohorts', href: `/app/projects/${projectId}/cohorts` },
@@ -170,7 +169,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
         setUser(parsedUser)
         setApiLoading(false)
         return parsedUser
-      } catch (e) {
+      } catch {
         console.warn('Failed to parse cached user data')
       }
     }
@@ -243,7 +242,7 @@ export default function UserSummary({ params }: UserSummaryProps) {
         const parsedSessions = JSON.parse(cachedSessions)
         setSessions(parsedSessions)
         return parsedSessions
-      } catch (e) {
+      } catch {
         console.warn('Failed to parse cached sessions data')
       }
     }

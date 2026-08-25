@@ -178,12 +178,7 @@ function generateBreadcrumbsFromContext(context: {
 }
 
 // Helper function to build navigation tree
-function buildNavigationTreeFromContext(context: {
-  currentProjectId: string | null
-  currentCohortId: string | null
-  currentUserId: string | null
-  currentSessionId: string | null
-}): NavigationTreeNode[] {
+function buildNavigationTreeFromContext(): NavigationTreeNode[] {
   const tree: NavigationTreeNode[] = []
   
   // Root level - Company Summary
@@ -416,7 +411,7 @@ export const useNavigationStore = create<NavigationState>()(
               currentSessionId: newSessionId,
             }
             
-            const newTree = buildNavigationTreeFromContext(newContext)
+            const newTree = buildNavigationTreeFromContext()
             
             set({
               ...newContext,
@@ -481,13 +476,7 @@ export const useNavigationStore = create<NavigationState>()(
         },
 
         buildNavigationTree: () => {
-          const state = get()
-          return buildNavigationTreeFromContext({
-            currentProjectId: state.currentProjectId,
-            currentCohortId: state.currentCohortId,
-            currentUserId: state.currentUserId,
-            currentSessionId: state.currentSessionId,
-          })
+          return buildNavigationTreeFromContext()
         },
 
         getActiveNodePath: () => {

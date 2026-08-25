@@ -55,8 +55,14 @@ export default function RegisterPage() {
   }
 
   const registerWithAPI = async (email: string, fullName: string) => {
-    try {
-      const authToken = `testtoken:${email}`
+      try {
+        const currentUser = auth.currentUser
+
+        if (!currentUser) {
+          throw new Error('Firebase user is not authenticated')
+        }
+
+        const authToken = await currentUser.getIdToken()
       
        const response = await fetch(`https://events.ritualgrowth.com/events/auth/register?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}`, {
         method: 'POST',

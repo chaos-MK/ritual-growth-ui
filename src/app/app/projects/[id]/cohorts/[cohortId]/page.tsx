@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState, use, useRef } from 'react'
+import { useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { signOut, onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
@@ -11,7 +11,6 @@ import { useNavigation } from '@/hooks/useNavigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import {
   Breadcrumb,
-  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -114,7 +113,7 @@ export default function CohortSummary({ params }: CohortSummaryProps) {
   const [debouncedLoading, setDebouncedLoading] = useState(false)
   const [hasInitialData, setHasInitialData] = useState(false)
   const { loadNavigationData, breadcrumbs } = useNavigation()
-  const { t, locale, changeLanguage, isLoading: translationLoading } = useTranslation()
+  const { t, locale } = useTranslation()
 
 useEffect(() => {
   console.log('Breadcrumbs state:', breadcrumbs)
@@ -241,7 +240,7 @@ const handleApiError = async (response: Response, userToken: string, retryFn: ()
       setCohort(parsedCohort)
       setApiLoading(false)
       return parsedCohort
-    } catch (e) {
+    } catch {
       console.warn('Failed to parse cached cohort data')
     }
   }
@@ -281,52 +280,10 @@ const handleApiError = async (response: Response, userToken: string, retryFn: ()
   }
 }
 
-const fetchCohortsByProject = async (projectId: string): Promise<Cohort[]> => {
-  setApiLoading(true)
-  setApiError(null)
-
-  const userToken = getCookie('userToken')
-  if (!userToken) {
-    setApiError('No authentication token available')
-    setApiLoading(false)
-    return []
-  }
-  
-  try {
-    const makeRequest = async (token: string) => {
-      return await fetch(`${API_BASE_URL}/cohort/searchByProject?projectId=${encodeURIComponent(projectId)}`, {
-        method: 'GET',
-        headers: {
-          'hippo-api-version': '1.0.0',
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-    }
-
-    let response = await makeRequest(userToken)
-    
-    // Handle 401 with retry logic
-    response = await handleApiError(response, userToken, () => {
-      const newToken = getCookie('userToken')
-      if (!newToken) throw new Error('No token after refresh')
-      return makeRequest(newToken)
-    })
-
-    const data: Cohort[] = await response.json()
-    return data
-
-  } catch (error) {
-    console.error('Failed to fetch cohorts:', error)
-    setApiError(error instanceof Error ? error.message : 'Failed to fetch cohorts')
-    return []
-  } finally {
-    setApiLoading(false)
-  }
-}
 
 
-    interface BackendCohortUser {
+
+interface BackendCohortUser {
   userId: number
   userName: string
   startDate: string
@@ -335,7 +292,7 @@ const fetchCohortsByProject = async (projectId: string): Promise<Cohort[]> => {
   stages?: Stage[]
 }
 
-    const transformUserArrayToCohort = (
+const transformUserArrayToCohort = (
   users: BackendCohortUser[],
   cohortId: string
 ): Cohort => {
@@ -386,7 +343,6 @@ const fetchCohortsByProject = async (projectId: string): Promise<Cohort[]> => {
     }
 
     const users = cohort.users || []
-    const stages = cohort.stages || []
 
     const totalUsers = users.length
     const activeUsers = users.filter(user => {
@@ -416,16 +372,6 @@ const fetchCohortsByProject = async (projectId: string): Promise<Cohort[]> => {
       },
     ]
   }
-
-const handleError = (error: unknown, context: string = 'Unknown error'): string => {
-  if (error instanceof Error) {
-    return error.message
-  }
-  if (typeof error === 'string') {
-    return error
-  }
-  return `${context}: ${String(error)}`
-}
 
   // Load cohort data on component mount
   useEffect(() => {
@@ -464,7 +410,7 @@ const handleError = (error: unknown, context: string = 'Unknown error'): string 
   loadCohortData()
 }, [userInfo?.userId, cohortId, userInfo?.email, loadNavigationData])
 
-const [fallbackBreadcrumbs, setFallbackBreadcrumbs] = useState([
+const [fallbackBreadcrumbs] = useState([
   { name: 'Projects', href: '/app/projects' },
   { name: 'Project', href: `/app/projects/${projectId}` },
   { name: 'Cohorts', href: `/app/projects/${projectId}/cohorts` },
@@ -492,9 +438,8 @@ const displayBreadcrumbs = breadcrumbs.length > 0 ? breadcrumbs : fallbackBreadc
       }
 
       // Validate token with Firebase - but don't redirect immediately if it fails
-      let isTokenValid = false
       try {
-        isTokenValid = await validateToken()
+        await validateToken()
       } catch (error) {
         console.warn('Token validation failed, but continuing with existing token:', error)
         // Don't redirect here - let the API calls handle token refresh

@@ -14,6 +14,7 @@ import {
   DocumentIcon
 } from '@heroicons/react/24/outline'
 import { NavigationNode, useNavigation } from '@/hooks/useNavigation'
+import { auth } from '@/lib/firebase'
 
 const typeIcons = {
   company: BuildingOfficeIcon,
@@ -301,7 +302,13 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
       throw new Error('User email not available')
     }
 
-    const authToken = `testtoken:${userEmail}`
+    const currentUser = auth.currentUser
+
+    if (!currentUser) {
+      throw new Error('Firebase user is not authenticated')
+    }
+
+    const authToken = await currentUser.getIdToken()
 
     const projectName = name
     const projectWebsite = website
@@ -444,19 +451,13 @@ function NavigationTreeItem({ node, level = 0, userEmail }: NavigationTreeItemPr
 
 interface NavigationTreeProps {
   className?: string
-  onNodeClick?: (nodeId: string, href: string) => void
   userEmail?: string
 }
 
-export default function NavigationTree({ className = '', onNodeClick, userEmail }: NavigationTreeProps) {
-  const { tree, isLoading, handleNodeClick } = useNavigation()
+export default function NavigationTree({ className = '', userEmail }: NavigationTreeProps) {
+  const { tree, isLoading } = useNavigation()
   const [showSkeleton, setShowSkeleton] = useState(false)
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  const combinedNodeClick = useCallback((nodeId: string, href: string) => {
-    handleNodeClick(nodeId, href)
-    onNodeClick?.(nodeId, href)
-  }, [handleNodeClick, onNodeClick])
 
   useEffect(() => {
   if (isLoading) {

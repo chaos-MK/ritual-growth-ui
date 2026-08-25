@@ -101,7 +101,7 @@ eslint:
   <<: *node_cache
   before_script:
     - npm ci --prefer-offline --no-audit --no-fund
-  allow_failure: true #--------------------------WORTH CHECHK IT LATER
+  allow_failure: false
   script:
     - npm run lint
 

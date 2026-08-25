@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState, use, useRef } from 'react'
+import { useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { signOut, onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
@@ -99,7 +99,6 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const router = useRouter()
   const resolvedParams = use(params)
   const projectId = resolvedParams.id
-  const [expectedCohortCount, setExpectedCohortCount] = useState<number | null>(null)
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [cohorts, setCohorts] = useState<Cohort[]>([])
@@ -115,7 +114,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   const { loadNavigationData } = useNavigation()
-  const { t, locale, changeLanguage, isLoading: translationLoading } = useTranslation()
+  const { t, locale } = useTranslation()
 
   
 
@@ -385,21 +384,7 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
   ];
 };
   
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem('currentProject')
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          if (parsed?.cohortCount !== undefined) {
-            setExpectedCohortCount(parsed.cohortCount)
-          }
-        } catch (e) {
-          console.warn('Failed to parse sessionStorage project data')
-        }
-      }
-    }
-  }, [])
+
 
   // Load project and cohorts data on component mount
   useEffect(() => {
@@ -443,9 +428,8 @@ export default function ProjectSummary({ params }: ProjectSummaryProps) {
       }
 
       // Validate token with Firebase - but don't redirect immediately if it fails
-      let isTokenValid = false
       try {
-        isTokenValid = await validateToken()
+        await validateToken()
       } catch (error) {
         console.warn('Token validation failed, but continuing with existing token:', error)
         // Don't redirect here - let the API calls handle token refresh
