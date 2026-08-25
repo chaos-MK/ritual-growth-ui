@@ -32,10 +32,11 @@ export default function LoginPage() {
       const expires = new Date()
       expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000))
       
-      document.cookie = `userToken=${firebaseToken}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
-      document.cookie = `userEmail=${firebaseUser.email}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
-      document.cookie = `userId=${firebaseUser.uid}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
-      document.cookie = `userDisplayName=${firebaseUser.displayName || ''}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
+      const secureFlag = window.location.protocol === 'https:' ? '; secure' : ''
+      document.cookie = `userToken=${firebaseToken}; expires=${expires.toUTCString()}; path=/${secureFlag}; samesite=strict`
+      document.cookie = `userEmail=${firebaseUser.email}; expires=${expires.toUTCString()}; path=/${secureFlag}; samesite=strict`
+      document.cookie = `userId=${firebaseUser.uid}; expires=${expires.toUTCString()}; path=/${secureFlag}; samesite=strict`
+      document.cookie = `userDisplayName=${firebaseUser.displayName || ''}; expires=${expires.toUTCString()}; path=/${secureFlag}; samesite=strict`
 
       console.log('User authenticated successfully:', userData)
       
